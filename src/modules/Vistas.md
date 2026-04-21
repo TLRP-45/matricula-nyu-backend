@@ -7,3 +7,5 @@ seeds
 providers (o la manera pa sacar la info)
 
 CRUD
+
+restricciones

@@ -26,7 +26,7 @@ export class OfertaEntity{
     @ManyToOne(() => AsignaturaEntity, (asig) => asig.ofertas,
     {nullable: false,})
     @JoinColumn({ name: 'ID_asignatura' })
-    asignatura!: ProfesorEntity;
+    asignatura!: AsignaturaEntity;
 
     @OneToMany(() => EstudianteTomaOfertaEntity, (toma) => toma.estudiante,
     {nullable: true,})
