@@ -1,31 +1,40 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { IMatriculaResponse } from './dto/IMatriculaResponse';
+import { MatriculaService } from 'src/providers/matricula/matricula.service';
+import { MatriculaDTO } from './dto/matricula.dto';
+import { CarreraService } from 'src/providers/carrera/carrera.service';
+import { readableStreamLikeToAsyncGenerator } from 'rxjs/internal/util/isReadableStreamLike';
+import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 
 @Controller('matricula')
 export class MatriculaController {
-
-  private matriculas: IMatriculaResponse[] = [
-    {
-      fecha: new Date(),
-      estado: true,
-      id: 0
-    },
-    {
-      fecha: new Date(),
-      estado: false,
-      id: 1
-    }
-  ]
+  constructor(
+    private matriculaService: MatriculaService,
+    private carreraService: CarreraService,
+  ) {}
 
   @Get()
   public getAllMatriculas() {
-    return this.matriculas;
+    this.matriculaService.getAllMatriculas();
   }
 
   @Get(':id')
   public getMatricula(@Param('id') id: number) {
-    const matricula = this.matriculas.find(m => m.id == id);
+    return this.matriculaService.getMatricula(id);
+  }
 
-    return matricula;
+  @Post()
+  async postMatricula(
+    @Body() matricula: MatriculaDTO,
+  ) {
+    return this.matriculaService.create(matricula);
+  }
+
+  @Put(':id')
+  async updateMatricula(
+    @Param('id') id: number,
+    @Body() matricula: MatriculaUpdateDTO,
+  ) {
+    return this.matriculaService.update(id, matricula);
   }
 }

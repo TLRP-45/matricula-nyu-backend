@@ -5,6 +5,8 @@ import { ControllersModule } from './controllers/controllers.module';
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from './database/database.module';
+import { MatriculaService } from './providers/matricula/matricula.service';
+import { CarreraService } from './providers/carrera/carrera.service';
 
 @Module({
   imports: [

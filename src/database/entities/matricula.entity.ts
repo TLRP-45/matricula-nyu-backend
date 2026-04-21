@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Carrera } from "./carrera.entity";
 
 @Entity({ name: 'matricula' })
 export class Matricula {
@@ -7,4 +8,10 @@ export class Matricula {
 
   @Column()
   fecha: Date;
+
+  @Column()
+  activa: boolean;
+
+  @ManyToOne(() => Carrera, (carrera) => carrera.matriculas)
+  carrera: Carrera
 }
