@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { CarreraTieneAsignaturaEntity } from "./carrera-tiene-asignatura.entity";
 
-
-@Entity()
+@Entity('Carreras')
 export class CarreraEntity{
     @PrimaryGeneratedColumn()
     id_carrera!: number;
@@ -11,4 +11,8 @@ export class CarreraEntity{
 
     @Column({ length: 100})
     facultad!: string
+
+    @OneToMany(() => CarreraTieneAsignaturaEntity, (tiene) => tiene.carrera,
+    {nullable: false,})
+    tiene!: CarreraTieneAsignaturaEntity[];
 }

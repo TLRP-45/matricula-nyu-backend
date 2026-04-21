@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 
-@Entity()
+@Entity('Estudiantes')
 export class EstudianteEntity {
     @PrimaryGeneratedColumn()
     ID_estudiante!: number;
@@ -14,7 +15,7 @@ export class EstudianteEntity {
     @Column({ unique: true })
     email!: string;
 
-    @Column({ default: true })
+    @Column({ default: false })
     activo!: boolean;
 
     @CreateDateColumn()
@@ -22,5 +23,9 @@ export class EstudianteEntity {
 
     @UpdateDateColumn()
     updatedAt!: Date;
+
+    @OneToMany(() => EstudianteTomaOfertaEntity, (toma) => toma.estudiante,
+    {nullable: false,})
+    toma!: EstudianteTomaOfertaEntity[];
 }
 

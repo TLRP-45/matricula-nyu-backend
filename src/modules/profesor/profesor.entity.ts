@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, JoinColumn } from "typeorm";
+import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity()
+@Entity('Profesores')
 export class ProfesorEntity{
     @PrimaryGeneratedColumn()
     ID_profesor!: number;
@@ -13,4 +14,8 @@ export class ProfesorEntity{
 
     @Column({ unique: true })
     email!: string;
+
+    @OneToMany(() => OfertaEntity, (of) => of.profesor,
+    {nullable: true,})
+    clases!: OfertaEntity[];
 }
