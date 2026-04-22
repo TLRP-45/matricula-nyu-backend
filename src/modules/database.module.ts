@@ -6,6 +6,7 @@ import { CarreraEntity } from './carrera/carrera.entity';
 import { OfertaEntity } from './oferta/oferta.entity';
 import { ProfesorEntity } from './profesor/profesor.entity';
 import { BloqueHorarioModule } from './bloque-horario/bloque-horario.module';
+import { PeriodoInscripcionModule } from './periodo-inscripcion/periodo-inscripcion.module';
 
 @Module({
     imports:[
@@ -15,6 +16,7 @@ import { BloqueHorarioModule } from './bloque-horario/bloque-horario.module';
         TypeOrmModule.forFeature([OfertaEntity]),
         TypeOrmModule.forFeature([ProfesorEntity]),
         BloqueHorarioModule,
+        PeriodoInscripcionModule,
     ],
     exports:[],
     providers:[]

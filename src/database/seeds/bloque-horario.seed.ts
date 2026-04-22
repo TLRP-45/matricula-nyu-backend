@@ -8,8 +8,8 @@ async function seed() {
   const horarioRepo = AppDataSource.getRepository(BloqueHorarioEntity);
   const ofertaRepo = AppDataSource.getRepository(OfertaEntity);
 
-  const oferta1 = await ofertaRepo.findOneBy({ ID_oferta: 5 });
-  const oferta2 = await ofertaRepo.findOneBy({ ID_oferta: 4 });
+  const oferta1 = await ofertaRepo.findOneBy({ ID_oferta: 1 });
+  const oferta2 = await ofertaRepo.findOneBy({ ID_oferta: 2 });
 
   if (!oferta1 || !oferta2) {
     console.log('❌ No existen ofertas necesarias para crear horarios');

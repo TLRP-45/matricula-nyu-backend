@@ -3,6 +3,7 @@ import { ProfesorEntity } from "../profesor/profesor.entity";
 import { AsignaturaEntity } from "../asignatura/asignatura.entity";
 import { EstudianteTomaOfertaEntity } from "../estudiante/estudiante-toma-oferta.entity";
 import { BloqueHorarioEntity } from "../bloque-horario/bloque-horario.entity";
+import { PeriodoInscripcionEntity } from "../periodo-inscripcion/preiodo-inscripcion.entity";
 
 @Entity()
 @Check(`cupos > 0`)
@@ -57,4 +58,11 @@ export class OfertaEntity{
         nullable: true,
     })
     horarios!: BloqueHorarioEntity[];
+
+    @ManyToOne(() => PeriodoInscripcionEntity, (per) => per.ofertas, {
+        nullable: false,
+        onDelete: 'RESTRICT',
+    })
+    @JoinColumn({ name: 'ID_periodo' })
+    periodo_inscripcion!: PeriodoInscripcionEntity;
 }
