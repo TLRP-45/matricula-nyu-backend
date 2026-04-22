@@ -19,4 +19,7 @@ export class EstudianteTomaOfertaEntity{
 
     @Column({length: 100})
     estado!: string;
+
+    @Column({type: 'date'})
+    inscrita!: Date;
 }
