@@ -1,6 +1,6 @@
 npm run build (debe actualizarse con los cambios)
 
-npx typeorm migration:generate src/database/migrations/NOMBRE -d dist/config/typeorm.config.js
+npm run migration:generate -- src/database/migrations/Init
 
 npm run build (otra vez para meter la migración al dist)
 

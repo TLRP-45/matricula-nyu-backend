@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTabl
 import { OfertaEntity } from "../oferta/oferta.entity";
 import { CarreraTieneAsignaturaEntity } from "../carrera/carrera-tiene-asignatura.entity";
 
-@Entity('Asignaturas')
+@Entity()
 @Check(`creditos > 0`)
 @Check(`hrs_presenciales >= 0`)
 @Check(`hrs_autonomo >= 0`)

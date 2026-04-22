@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('Profesores')
+@Entity()
 @Check(`char_length(nombre) >= 2`)
 @Check(`char_length(apellido) >= 2`)
 export class ProfesorEntity{

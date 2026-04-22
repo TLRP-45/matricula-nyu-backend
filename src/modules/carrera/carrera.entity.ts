@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check } from "typeorm";
 import { CarreraTieneAsignaturaEntity } from "./carrera-tiene-asignatura.entity";
 
-@Entity('Carreras')
+@Entity()
 @Check(`char_length(nombre) >= 3`)
 @Check(`char_length(facultad) >= 3`)
 export class CarreraEntity {

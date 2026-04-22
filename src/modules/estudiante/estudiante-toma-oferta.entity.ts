@@ -2,7 +2,7 @@ import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn } from "ty
 import { EstudianteEntity } from "./estudiante.entity";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('TomaDeRamos')
+@Entity()
 export class EstudianteTomaOfertaEntity{
     @PrimaryGeneratedColumn()
     ID_toma!: number;

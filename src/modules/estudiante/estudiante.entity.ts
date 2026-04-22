@@ -1,7 +1,7 @@
 import { Check, Entity, Index, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 
-@Entity('Estudiantes')
+@Entity()
 @Check(`char_length(nombre) >= 2`)
 @Check(`char_length(apellido) >= 2`)
 @Check(`nacimiento <= CURRENT_DATE`)

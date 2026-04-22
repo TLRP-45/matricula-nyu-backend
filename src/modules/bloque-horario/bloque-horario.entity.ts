@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, Check } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('Horario')
+@Entity('')
 @Check(`hora IS NOT NULL`)
 export class BloqueHorarioEntity{
 

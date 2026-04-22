@@ -4,7 +4,7 @@ import { AsignaturaEntity } from "../asignatura/asignatura.entity";
 import { EstudianteTomaOfertaEntity } from "../estudiante/estudiante-toma-oferta.entity";
 import { BloqueHorarioEntity } from "../bloque-horario/bloque-horario.entity";
 
-@Entity('OfertasAcademicas')
+@Entity()
 @Check(`cupos > 0`)
 @Check(`hrs_semanales > 0`)
 @Check(`char_length(grupo) > 0`)
