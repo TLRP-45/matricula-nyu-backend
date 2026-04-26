@@ -36,8 +36,13 @@ export class AutenticacionController {
     }
 
     return {
-      success: true,
-      mensaje: "Login exitoso"
-    };
+  success: true,
+  mensaje: "Login exitoso",
+  user: {
+    id: user.id,
+    nombre: user.nombre, // 👈 ojo con mayúscula si tu entity usa "Nombre"
+    rut: user.rut
+  }
+};
   }
 }
