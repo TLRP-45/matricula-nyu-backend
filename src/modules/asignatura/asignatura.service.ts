@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AsignaturaEntity } from './asignatura.entity';
+import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 
 @Injectable()
 export class AsignaturaService {
@@ -14,6 +15,8 @@ export class AsignaturaService {
         @InjectRepository(AsignaturaEntity)
         private AsignaturaRepo: Repository<AsignaturaEntity>,
         private readonly EstudianteService: EstudianteService,
+        @InjectRepository(CarreraTieneAsignaturaEntity)
+        private readonly CarreraTieneAsignaturaRepository: Repository<CarreraTieneAsignaturaEntity>
     ){}
 
     async cumplePrerrequisitos(estudianteID: number, asignaturaID: number): Promise<boolean>{
@@ -38,5 +41,14 @@ export class AsignaturaService {
                 );
         }
         return true;
+    }
+
+    async buscarAsignaturasHastaSemestre(carreraId: number, semestre: number) {
+    return this.CarreraTieneAsignaturaRepository
+        .createQueryBuilder('cta')
+        .leftJoinAndSelect('cta.asignatura', 'asignatura')
+        .where('cta.carrera = :carreraId', { carreraId })
+        .andWhere('cta.semestre <= :semestre', { semestre })
+        .getMany();
     }
 }

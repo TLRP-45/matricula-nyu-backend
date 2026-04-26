@@ -10,9 +10,6 @@ export class MatriculaEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createdAt!: Date;
 
-    @UpdateDateColumn({ type: 'timestamp' })
-    updatedAt!: Date;
-
     @Column({ default: true })
     arancel_aldia!: boolean;
 
@@ -27,4 +24,10 @@ export class MatriculaEntity {
     {nullable: false})
     @JoinColumn({name: 'ID_carrera'})
     carrera!: CarreraEntity;
+
+    @Column({ type: 'smallint' })
+    semestre!: number;
+
+    @Column({ default: 'activa' })
+    estado!: string;
 }

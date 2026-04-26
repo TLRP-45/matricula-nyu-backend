@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { InscripcionesService } from '../../services/inscripcion/inscripciones.service';
 
 class InscripcionDto {

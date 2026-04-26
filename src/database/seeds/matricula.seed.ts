@@ -25,16 +25,19 @@ async function seed() {
       estudiante: estudiante1,
       carrera: carrera1,
       arancel_aldia: true,
+      semestre: 1
     },
     {
       estudiante: estudiante2,
       carrera: carrera1,
       arancel_aldia: false,
+      semestre: 2
     },
     {
       estudiante: estudiante1,
       carrera: carrera2,
       arancel_aldia: true,
+      semestre: 3
     },
   ];
 

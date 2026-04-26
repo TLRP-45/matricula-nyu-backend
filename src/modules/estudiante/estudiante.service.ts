@@ -41,4 +41,5 @@ export class EstudianteService {
         const horarios = ramos.flatMap(r => r.oferta?.horarios ?? []);
         return horarios;
     }
+
 }
