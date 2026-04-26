@@ -8,8 +8,8 @@ async function seed() {
 
   const periodos: Partial<PeriodoInscripcionEntity>[] = [
     {
-      inicio: new Date('2026-05-01T00:00:00'),
-      final: new Date('2026-05-10T23:59:59'),
+      inicio: new Date('2026-03-01T00:00:00'),
+      final: new Date('2026-08-10T23:59:59'),
     },
     {
       inicio: new Date('2026-08-01T00:00:00'),

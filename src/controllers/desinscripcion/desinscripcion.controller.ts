@@ -3,13 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { DesincripcionService } from '../../services/desincripcion/desincripcion.service';
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
-import { OfertaEntity } from '../../modules/oferta/oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
 
 class DesinscripcionDto {
-  ID_estudiante!: number;
-  ID_oferta!: number;
-  fecha!: Date;
+  ID_toma!: number;
 }
 
 @Controller('desinscripcion')
@@ -17,39 +14,29 @@ export class DesinscripcionController {
   constructor(
     private readonly desincripcionService: DesincripcionService,
 
-    @InjectRepository(EstudianteEntity)
-    private readonly estudianteRepo: Repository<EstudianteEntity>,
-
-    @InjectRepository(OfertaEntity)
-    private readonly ofertaRepo: Repository<OfertaEntity>,
+     @InjectRepository(EstudianteTomaOfertaEntity)
+    private readonly tomaRepo: Repository<EstudianteTomaOfertaEntity>,
   ) {}
 
   @Post()
   async desinscribir(@Body() dto: DesinscripcionDto) {
-    const estudiante = await this.estudianteRepo.findOne({
-      where: { ID_estudiante: dto.ID_estudiante },
-      relations: ['toma'],
+    console.log('Repo is from connection:', (this.tomaRepo.manager.connection.options as any).database);
+
+    const toma = await this.tomaRepo.findOne({
+      where: { ID_toma: dto.ID_toma },
+      relations: ['estudiante', 'oferta'],
     });
 
-    if (!estudiante) {
-      throw new NotFoundException('Estudiante no encontrado');
+    console.log('Resultado findOne:', toma);
+
+    if (!toma) {
+      throw new NotFoundException('Inscripción no encontrada');
     }
-
-    const oferta = await this.ofertaRepo.findOne({
-      where: { ID_oferta: dto.ID_oferta },
-      relations: ['periodo_inscripcion', 'tomada'],
-    });
-
-    if (!oferta) {
-      throw new NotFoundException('Oferta no encontrada');
-    }
-
-    const fecha = new Date(dto.fecha);
 
     const ok = await this.desincripcionService.Desinscribir(
-      estudiante,
-      oferta,
-      fecha,
+      toma.estudiante,
+      toma.oferta,
+      toma.inscrita,
     );
 
     if (!ok) {

@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
-import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class DesincripcionService {
@@ -44,17 +44,17 @@ export class DesincripcionService {
 
     async Desinscribir(estudiante: EstudianteEntity, oferta: OfertaEntity, fecha: Date): Promise<boolean>{
         const estaInscrito = await this.EstaInscrito(estudiante, oferta);
-        if(!estaInscrito)return false;
+        if(!estaInscrito)throw new BadRequestException('El estudiante no está inscrito en esta oferta');
 
         const periodo = oferta.periodo_inscripcion;
-        if (!periodo) return false;
+        if (!periodo) throw new InternalServerErrorException('Oferta sin asociar a periodo de inscripción');
 
         const toma = await this.TomaRepository.findOne({
             where: {
             estudiante: { ID_estudiante: estudiante.ID_estudiante },
             oferta: { ID_oferta: oferta.ID_oferta }
             }});
-        if(!toma) return false;
+        if(!toma) throw new InternalServerErrorException('Cambios actuales en la base de datos');
 
         const ini = periodo.inicio;
         const fin = periodo.final;

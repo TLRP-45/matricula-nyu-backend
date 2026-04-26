@@ -5,12 +5,14 @@ import { DesincripcionService } from '../services/desincripcion/desincripcion.se
 import { EstudianteTomaOfertaEntity } from '../modules/estudiante/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../modules/periodo-inscripcion/preiodo-inscripcion.entity';
+import { EstudianteEntity } from '../modules/estudiante/estudiante.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
     EstudianteTomaOfertaEntity,
     OfertaEntity,
-    PeriodoInscripcionEntity
+    PeriodoInscripcionEntity,
+    EstudianteEntity
   ])],
   controllers: [DesinscripcionController],
   providers: [DesincripcionService]

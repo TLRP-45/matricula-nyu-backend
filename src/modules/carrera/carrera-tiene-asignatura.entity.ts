@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { CarreraEntity } from "./carrera.entity";
 import { AsignaturaEntity } from "../asignatura/asignatura.entity";
 
@@ -9,12 +9,12 @@ export class CarreraTieneAsignaturaEntity{
 
     @ManyToOne(() => CarreraEntity, (car) => car.tiene,
     {nullable: false})
-    @JoinTable({name: 'ID_carrera'})
+    @JoinColumn({name: 'ID_carrera'})
     carrera!: CarreraEntity;
 
     @ManyToOne(() => AsignaturaEntity, (asig) => asig.es_de,
     {nullable: false})
-    @JoinTable({name: 'ID_asignatura'})
+    @JoinColumn({name: 'ID_asignatura'})
     asignatura!: AsignaturaEntity;
 
     @Column()

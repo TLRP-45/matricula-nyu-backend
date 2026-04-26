@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EstudianteEntity } from "./estudiante.entity";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
@@ -9,12 +9,12 @@ export class EstudianteTomaOfertaEntity{
 
     @ManyToOne(() => EstudianteEntity, (est) => est.toma,
     {nullable: false})
-    @JoinTable({name: 'ID_estudiante'})
+    @JoinColumn({name: 'ID_estudiante'})
     estudiante!: EstudianteEntity;
 
     @ManyToOne(() => OfertaEntity, (est) => est.tomada,
     {nullable: false})
-    @JoinTable({name: 'ID_oferta'})
+    @JoinColumn({name: 'ID_oferta'})
     oferta!: OfertaEntity;
 
     @Column({length: 100})

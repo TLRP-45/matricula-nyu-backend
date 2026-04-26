@@ -1,9 +1,9 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 
 config();
 
-export const AppDataSource = new DataSource({
+export const AppDataSourceOptions: DataSourceOptions = {
   type: 'mysql',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT!, 10) || 3306,
@@ -13,4 +13,6 @@ export const AppDataSource = new DataSource({
   entities: [__dirname + '/../modules/**/*.entity.{ts,js}'],
   migrations: [__dirname + '/../database/migrations/*.{ts,js}'],
   synchronize: false,
-});
+};
+
+export const AppDataSource = new DataSource(AppDataSourceOptions);
