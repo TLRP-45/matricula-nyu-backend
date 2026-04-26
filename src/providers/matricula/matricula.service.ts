@@ -101,4 +101,14 @@ export class MatriculaService {
 
     this.matriculaRepository.save(matricula);
   }
+
+  public async delete(id: number) {
+    const result = await this.matriculaRepository.softDelete(id);
+
+    if (result.affected == 0) {
+      throw new NotFoundException('Matrícula no encontrada. No se hizo ningún cambio');
+    }
+
+    return result;
+  }
 }

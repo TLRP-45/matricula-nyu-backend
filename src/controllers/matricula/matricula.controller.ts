@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { IMatriculaResponse } from './dto/IMatriculaResponse';
 import { MatriculaService } from 'src/providers/matricula/matricula.service';
 import { MatriculaDTO } from './dto/matricula.dto';
@@ -45,6 +45,18 @@ export class MatriculaController {
     }
     catch(error: any) {
       return error
+    }
+  }
+
+  @Delete(':id')
+  async deleteMatricula(
+    @Param('id') id: number
+  ) {
+    try {
+      return this.matriculaService.delete(id);
+    }
+    catch(error: any) {
+      return error;
     }
   }
 }
