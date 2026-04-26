@@ -6,7 +6,7 @@ import { DesincripcionService } from '../../services/desincripcion/desincripcion
 import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
 
 class DesinscripcionDto {
-  ID_toma!: number;
+  ID_toma!: number | number[];
 }
 
 @Controller('desinscripcion')
@@ -20,23 +20,30 @@ export class DesinscripcionController {
 
   @Post()
   async desinscribir(@Body() dto: DesinscripcionDto) {
-    console.log('Repo is from connection:', (this.tomaRepo.manager.connection.options as any).database);
+    if (!Array.isArray(dto.ID_toma)) {
+      return await this.desinscribirUnico(dto.ID_toma);
+    } else {
+      return Promise.all(
+        dto.ID_toma.map(of =>
+          this.desinscribirUnico(of)
+        )
+      );
+    }
+  }
 
+  async desinscribirUnico(tomaID: number) {
     const toma = await this.tomaRepo.findOne({
-      where: { ID_toma: dto.ID_toma },
+      where: { ID_toma: tomaID },
       relations: ['estudiante', 'oferta'],
     });
-
-    console.log('Resultado findOne:', toma);
 
     if (!toma) {
       throw new NotFoundException('Inscripción no encontrada');
     }
 
     const ok = await this.desincripcionService.Desinscribir(
-      toma.estudiante,
-      toma.oferta,
-      toma.inscrita,
+      toma.estudiante.ID_estudiante,
+      toma.oferta.ID_oferta,
     );
 
     if (!ok) {

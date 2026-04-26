@@ -12,8 +12,7 @@ export class OfertaService {
 
     async cuposDisponibles(ofertaID: number):Promise<boolean>{
         const oferta = await this.ofertaRepo.findOne({
-            where: {ID_oferta: ofertaID},
-            relations: ['cupos'],
+            where: {ID_oferta: ofertaID}
         });
         if (!oferta)throw new NotFoundException('ID de oferta no encontrado');
         return oferta.cupos > 0;

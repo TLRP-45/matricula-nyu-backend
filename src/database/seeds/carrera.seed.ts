@@ -6,20 +6,21 @@ async function seed() {
 
   const repo = AppDataSource.getRepository(CarreraEntity);
 
-  const carrera: Partial<CarreraEntity>[] = [
+  const carreras: Partial<CarreraEntity>[] = [
     {
       nombre: 'Agronomía',
       facultad: 'Ciencias agronómicas',
     },
     {
       nombre: 'Ingeniería civil en computación e informática',
-      facultad: 'Ingenieria'
+      facultad: 'Ingeniería',
     },
   ];
 
-  await repo.save(carrera);
+  await repo.save(carreras);
 
   console.log('🌱 Seed carrera ejecutado');
+
   await AppDataSource.destroy();
 }
 

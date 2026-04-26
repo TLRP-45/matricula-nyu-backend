@@ -6,22 +6,23 @@ async function seed() {
 
   const repo = AppDataSource.getRepository(ProfesorEntity);
 
-  const profesor: Partial<ProfesorEntity>[] = [
+  const profesores: Partial<ProfesorEntity>[] = [
     {
       nombre: 'Miguel',
       apellido: 'Pérez',
-      email: 'Miguel@test.com',
+      email: 'miguel@test.com',
     },
     {
       nombre: 'Maria',
       apellido: 'Gómez',
-      email: 'Maria@test.com',
+      email: 'maria@test.com',
     },
   ];
 
-  await repo.save(profesor);
+  await repo.upsert(profesores, ['email']);
 
   console.log('🌱 Seed profesor ejecutado');
+
   await AppDataSource.destroy();
 }
 

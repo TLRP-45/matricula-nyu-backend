@@ -11,23 +11,27 @@ async function seed() {
   const asignaturaRepo = AppDataSource.getRepository(AsignaturaEntity);
 
   const carrera = await carreraRepo.findOneBy({ id_carrera: 1 });
-  const asignatura = await asignaturaRepo.findOneBy({ ID_asignatura: 1 });
 
-  if (!carrera || !asignatura) {
-    throw new Error('Faltan datos: carrera o asignatura');
+  const asignaturas = await asignaturaRepo.findBy([
+    { ID_asignatura: 1 },
+    { ID_asignatura: 2 },
+  ]);
+
+  if (!carrera || asignaturas.length < 2) {
+    throw new Error('Faltan datos: carrera o asignaturas');
   }
 
   const relaciones: Partial<CarreraTieneAsignaturaEntity>[] = [
     {
-      carrera: carrera,
-      asignatura: asignatura,
+      carrera,
+      asignatura: asignaturas[0],
       semestre: 1,
       posicion: 1,
     },
     {
-      carrera: carrera,
-      asignatura: asignatura,
-      semestre: 2,
+      carrera,
+      asignatura: asignaturas[1],
+      semestre: 1,
       posicion: 2,
     },
   ];

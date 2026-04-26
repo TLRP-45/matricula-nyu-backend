@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
 
 @Injectable()
 export class DesincripcionService {
@@ -15,34 +16,33 @@ export class DesincripcionService {
         private readonly EstudianteRepository: Repository<EstudianteEntity>,
         @InjectRepository(OfertaEntity)
         private readonly OfertaRepository: Repository<OfertaEntity>,
+        private readonly PeriodoService: PeriodoInscripcionService
     ) {}
 
     // Reemplazar por algún método que ya exista en inscripción
-    async EstaInscrito(estudiante: EstudianteEntity, oferta: OfertaEntity):Promise<boolean>{
-        const idEstudiante = estudiante.ID_estudiante;
-        const EstudianteInscrito = await this.TomaRepository.find({
+    async EstaInscrito(estudiante: EstudianteEntity, oferta: OfertaEntity): Promise<boolean> {
+        return this.TomaRepository.exist({
             where: {
-                estudiante: { ID_estudiante: idEstudiante },
+                estudiante: { ID_estudiante: estudiante.ID_estudiante },
+                oferta: { ID_oferta: oferta.ID_oferta },
             },
-            relations: ['estudiante'],
-            });
-        if (EstudianteInscrito.length === 0) {
-            const idOferta = oferta.ID_oferta
-            const OfertaInscrita = await this.TomaRepository.find({
-            where: {
-                oferta: { ID_oferta: idOferta },
-            },
-            relations: ['oferta'],
-            });
-            if (OfertaInscrita.length === 0){
-                return false;
-            }
-            return true;
-        }
-        return false;
+         });
     }
 
-    async Desinscribir(estudiante: EstudianteEntity, oferta: OfertaEntity, fecha: Date): Promise<boolean>{
+    async Desinscribir(estudianteID: number, ofertaID: number): Promise<boolean>{
+        const estudiante = await this.EstudianteRepository.findOne({
+            where: { ID_estudiante: estudianteID },
+            relations: ['toma'],
+        });
+        if (!estudiante)throw new NotFoundException('Estudiante no encontrado');
+
+        const oferta = await this.OfertaRepository.findOne({
+            where: { ID_oferta: ofertaID },
+            relations: ['periodo_inscripcion', 'tomada', 'asignatura'],
+        });
+        if (!oferta)throw new NotFoundException('Oferta no encontrada');
+
+        const fecha = new Date();
         const estaInscrito = await this.EstaInscrito(estudiante, oferta);
         if(!estaInscrito)throw new BadRequestException('El estudiante no está inscrito en esta oferta');
 
@@ -56,16 +56,17 @@ export class DesincripcionService {
             }});
         if(!toma) throw new InternalServerErrorException('Cambios actuales en la base de datos');
 
-        const ini = periodo.inicio;
-        const fin = periodo.final;
-
-        if (!(fecha < fin && fecha >= ini)){
+        if (await !this.PeriodoService.dentroDelPeriodo(fecha, periodo.ID_periodo)){
             toma.estado = 'casual';
             await this.TomaRepository.save(toma);
 
             return true;
         } else {
-            oferta.cupos += 1
+            await this.OfertaRepository.increment(
+                { ID_oferta: oferta.ID_oferta },
+                'cupos',
+                1,
+            );
 
             if (oferta.tomada) {
                 const idxO = oferta.tomada.findIndex(t => t.ID_toma === toma.ID_toma);
@@ -77,7 +78,6 @@ export class DesincripcionService {
                 if (idxE !== -1) estudiante.toma.splice(idxE, 1);
             }
 
-            await this.OfertaRepository.save(oferta);
             await this.TomaRepository.remove(toma);
             await this.EstudianteRepository.save(estudiante);
 

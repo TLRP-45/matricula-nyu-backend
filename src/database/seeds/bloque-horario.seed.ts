@@ -20,17 +20,20 @@ async function seed() {
   const horarios: Partial<BloqueHorarioEntity>[] = [
     {
       lugar: 'Aula 101',
-      hora: new Date('2024-03-10'),
+      hora: new Date('2024-03-10T08:00:00'),
+      duracion: 2,
       oferta: oferta1,
     },
     {
       lugar: 'Laboratorio 2',
-      hora: new Date('2024-03-12'),
+      hora: new Date('2024-03-12T10:00:00'),
+      duracion: 3,
       oferta: oferta1,
     },
     {
       lugar: 'Aula 202',
-      hora: new Date('2024-03-11'),
+      hora: new Date('2024-03-11T14:00:00'),
+      duracion: 2,
       oferta: oferta2,
     },
   ];
@@ -38,6 +41,7 @@ async function seed() {
   await horarioRepo.save(horarios);
 
   console.log('🌱 Seed horarios ejecutado');
+
   await AppDataSource.destroy();
 }
 

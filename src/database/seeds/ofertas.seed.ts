@@ -17,7 +17,7 @@ async function seed() {
   const periodo = await periodoRepo.findOneBy({ ID_periodo: 1 });
 
   if (!profesor || !asignatura || !periodo) {
-    throw new Error('Faltan datos: profesor, asignatura o periodo');
+    throw new Error('❌ Faltan datos: profesor, asignatura o periodo');
   }
 
   const ofertas: Partial<OfertaEntity>[] = [
@@ -26,8 +26,8 @@ async function seed() {
       grupo: 'A',
       cupos: 25,
       hrs_semanales: 4,
-      profesor: profesor,
-      asignatura: asignatura,
+      profesor,
+      asignatura,
       periodo_inscripcion: periodo,
     },
     {
@@ -35,8 +35,8 @@ async function seed() {
       grupo: 'B',
       cupos: 15,
       hrs_semanales: 2,
-      profesor: profesor,
-      asignatura: asignatura,
+      profesor,
+      asignatura,
       periodo_inscripcion: periodo,
     },
   ];
@@ -44,6 +44,7 @@ async function seed() {
   await repo.save(ofertas);
 
   console.log('🌱 Seed oferta ejecutado');
+
   await AppDataSource.destroy();
 }
 

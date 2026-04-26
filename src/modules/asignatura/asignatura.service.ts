@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EstudianteService } from '../estudiante/estudiante.service';
 import { EstudianteEntity } from '../estudiante/estudiante.entity';
-import { AsignaturaEntity } from '../../../dist/modules/asignatura/asignatura.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { AsignaturaEntity } from './asignatura.entity';
 
 @Injectable()
 export class AsignaturaService {
