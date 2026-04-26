@@ -1,5 +1,6 @@
 import { Check, Entity, Index, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
+import { MatriculaEntity } from '../matricula/matricula.entity';
 
 @Entity()
 @Check(`char_length(nombre) >= 2`)
@@ -35,6 +36,13 @@ export class EstudianteEntity {
         { nullable: false }
     )
     toma!: EstudianteTomaOfertaEntity[];
+
+    @OneToMany(
+        () => MatriculaEntity,
+        (toma) => toma.estudiante,
+        { nullable: false }
+    )
+    matriculas!: MatriculaEntity[];
 
     @Index({ unique: true })
     @Column({ length: 12, nullable: false })

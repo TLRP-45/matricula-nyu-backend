@@ -12,6 +12,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ],
   controllers: [BloqueHorarioController],
   providers: [BloqueHorarioService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, BloqueHorarioService, BloqueHorarioController],
 })
 export class BloqueHorarioModule {}

@@ -12,6 +12,6 @@ import { ProfesorEntity } from './profesor.entity';
   ],
   controllers: [ProfesorController],
   providers: [ProfesorService],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, ProfesorService, ProfesorController]
 })
 export class ProfesorModule {}

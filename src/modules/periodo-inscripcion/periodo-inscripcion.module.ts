@@ -8,10 +8,10 @@ import { PeriodoInscripcionEntity } from './preiodo-inscripcion.entity';
   imports: [
     TypeOrmModule.forFeature([
       PeriodoInscripcionEntity
-    ])
+    ]),
   ],
   controllers: [PeriodoInscripcionController],
   providers: [PeriodoInscripcionService],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, PeriodoInscripcionService, PeriodoInscripcionController]
 })
 export class PeriodoInscripcionModule {}

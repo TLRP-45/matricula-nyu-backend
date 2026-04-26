@@ -12,6 +12,6 @@ import { OfertaEntity } from './oferta.entity';
     ],
   providers: [OfertaService],
   controllers: [OfertaController],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, OfertaService, OfertaController]
 })
 export class OfertaModule {}

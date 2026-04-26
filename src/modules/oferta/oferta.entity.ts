@@ -38,10 +38,6 @@ export class OfertaEntity{
     @JoinColumn({ name: 'ID_profesor' })
     profesor!: ProfesorEntity;
 
-    @Index()
-    @Column({ unsigned: true })
-    ID_asignatura!: number;
-
     @ManyToOne(() => AsignaturaEntity, (asig) => asig.ofertas, {
         nullable: false,
         onDelete: 'RESTRICT',
