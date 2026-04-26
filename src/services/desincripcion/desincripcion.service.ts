@@ -19,7 +19,6 @@ export class DesincripcionService {
         private readonly PeriodoService: PeriodoInscripcionService
     ) {}
 
-    // Reemplazar por algún método que ya exista en inscripción
     async EstaInscrito(estudiante: EstudianteEntity, oferta: OfertaEntity): Promise<boolean> {
         return this.TomaRepository.exist({
             where: {

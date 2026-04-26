@@ -48,18 +48,6 @@ export class InscripcionesService {
     private readonly BHorarioService: BloqueHorarioService
   ) {}
 
-  /**
-   * 
-   * deuda: crear entidad matricula
-   * prerrequisito: asignar prerre a ramos - buscar a qué ramo pertenece la oferta, tomar los prerre, buscar ofertas del usuario que sean de los ramos prerre y que el estado sea aprobado
-   * cupos
-   * periodo de inscripción
-   * choque horario: validar... servicio bh?
-   * 
-   * actualiar cupos
-   * hacer las relaciones nuevas
-   */
-
   async inscribir(estudianteId: number, ofertaId: number) {
 
     //  Validar
