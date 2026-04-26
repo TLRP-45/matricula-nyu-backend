@@ -40,7 +40,7 @@ export class AutenticacionController {
   mensaje: "Login exitoso",
   user: {
     id: user.id,
-    nombre: user.nombre, // 👈 ojo con mayúscula si tu entity usa "Nombre"
+    nombre: user.nombre, 
     rut: user.rut
   }
 };
