@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 // import { Carrera } from 'src/database/entities/carrera.entity';
 import { Matricula } from 'src/database/entities/matricula.entity';
@@ -7,16 +7,17 @@ import { Repository, UpdateResult } from 'typeorm';
 import { CarreraService } from '../carrera/carrera.service';
 import { MatriculaDTO } from 'src/controllers/matricula/dto/matricula.dto';
 import { MatriculaUpdateDTO } from 'src/controllers/matricula/dto/matricula-update.dto';
+import { Carrera } from 'src/database/entities/carrera.entity';
 
 @Injectable()
 export class MatriculaService {
   constructor(
     @InjectRepository(Matricula)
     private readonly matriculaRepository: Repository<Matricula>,
-    // @InjectRepository(Carrera)  private readonly carreraRepository: Repository<Carrera>,
+    @InjectRepository(Carrera)
+    private readonly carreraRepository: Repository<Carrera>,
     @InjectRepository(PlazoMatricula)
     private readonly plazoRepository: Repository<PlazoMatricula>,
-    private carreraService: CarreraService,
   ) {}
 
   public async getAllMatriculas(): Promise<Matricula[]> {
@@ -40,22 +41,24 @@ export class MatriculaService {
     // TODO: Integrar con el sistema de pagos, revisar si existe deuda
     // TODO: Definir bien cómo se designan los plazos
     // Revisar si se está dentro del plazo
-    const now = new Date();
+    // const now = new Date();
     const plazo = await this.plazoRepository.findOneBy({ id: 1 });
     if (!plazo) {
-      throw new NotFoundException('No existe un plazo definido');
+      throw new NotFoundException('No existe un plazo definido para este proceso');
     }
+    // console.log(now)
+    // console.log(plazo)
 
-    if (!(now >= plazo.inicio && now <= plazo.fin)) {
+    if (!(matricula.fecha >= plazo.inicio && matricula.fecha <= plazo.fin)) {
       throw new UnauthorizedException('Proceso de matrícula fuera de plazo');
     }
 
     // Buscar la carrera asociada
-    // const carrera = await this.carreraRepository.findOneBy({ id: carreraId });
-    const carrera = await this.carreraService.getCarrera(matricula.carreraId)
+    const carrera = await this.carreraRepository.findOneBy({ id: matricula.carreraId });
+    // const carrera = await this.carreraService.getCarrera(matricula.carreraId)
 
     if (!carrera) {
-      throw new NotFoundException('Carrera no encontrada');
+      throw new NotFoundException(`Carrera con id: ${matricula.carreraId} no encontrada`);
     }
 
     // TODO: Definir si cupos disponibles debe ser un atributo de carrera

@@ -27,7 +27,12 @@ export class MatriculaController {
   async postMatricula(
     @Body() matricula: MatriculaDTO,
   ) {
-    return this.matriculaService.create(matricula);
+    try {
+      return this.matriculaService.create(matricula);
+    }
+    catch(error: any) {
+      return error
+    }
   }
 
   @Put(':id')
@@ -35,6 +40,11 @@ export class MatriculaController {
     @Param('id') id: number,
     @Body() matricula: MatriculaUpdateDTO,
   ) {
-    return this.matriculaService.update(id, matricula);
+    try {
+      return this.matriculaService.update(id, matricula);
+    }
+    catch(error: any) {
+      return error
+    }
   }
 }
