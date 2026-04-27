@@ -62,5 +62,8 @@ export class EstudianteEntity {
 
     @Column({ length: 20, nullable: false })
     telefono!: string;
+
+    @Column()
+    password!: string;
 }
 

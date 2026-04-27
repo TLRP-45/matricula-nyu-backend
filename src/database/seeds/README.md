@@ -12,4 +12,6 @@ node dist/database/seeds/periodo-inscripcion.seed.js
 node dist/database/seeds/ofertas.seed.js
 node dist/database/seeds/bloque-horario.seed.js
 node dist/database/seeds/carrera-tiene-asignatura.seed.js
+node dist/database/seeds/plazo-matricula.seed.js
+
 

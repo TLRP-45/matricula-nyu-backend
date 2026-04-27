@@ -28,4 +28,10 @@ export class CarreraEntity {
         { nullable: false }
     )
     matriculados!: MatriculaEntity[];
+
+    @Column("int")
+    duracion!: number;
+
+    @Column("int")
+    cupos!: number;
 }

@@ -12,8 +12,8 @@ import { CarreraTieneAsignaturaEntity } from './carrera-tiene-asignatura.entity'
         CarreraTieneAsignaturaEntity
       ])
     ],
-  controllers: [CarreraController],
-  providers: [CarreraService],
-  exports: [TypeOrmModule, CarreraService, CarreraController]
-})
+    controllers: [CarreraController],
+    providers: [CarreraService],
+    exports: [CarreraService]
+  })
 export class CarreraModule {}

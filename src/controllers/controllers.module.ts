@@ -22,6 +22,8 @@ import { MatriculaService } from '../modules/matricula/matricula.service';
 import { OfertaService } from '../modules/oferta/oferta.service';
 import { PeriodoInscripcionService } from '../modules/periodo-inscripcion/periodo-inscripcion.service';
 import { ProfesorService } from '../modules/profesor/profesor.service';
+import { PlazoMatricula } from '../modules/plazo-matricula/plazo-matricula.entity';
+import { AutenticacionController } from './autenticacion/autenticacion.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([
@@ -35,11 +37,13 @@ import { ProfesorService } from '../modules/profesor/profesor.service';
     ProfesorEntity,
     OfertaEntity,
     PeriodoInscripcionEntity,
+    PlazoMatricula,
     ])
   ],
   controllers: [
     DesinscripcionController,
-    InscripcionesController],
+    InscripcionesController,
+    AutenticacionController],
   providers: [
     DesincripcionService,
     InscripcionesService,
