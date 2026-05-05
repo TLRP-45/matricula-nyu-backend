@@ -12,8 +12,8 @@ export class CarreraEntity {
 
     @Index({ unique: true })
     @Column({ length: 100, nullable: false })
-    nombre!: string;   // Normalmente no quieres dos carreras con el mismo nombre
-
+    nombre!: string;
+ 
     @Column({ length: 100, nullable: false })
     facultad!: string;
 

@@ -58,14 +58,14 @@ export class DesinscripcionController {
   /**
    * Realiza la desinscripción de una sola toma.
    *
-   * ### Flujo del método
+   * Flujo del método
    * 1. Busca la toma por su ID, incluyendo relaciones `estudiante` y `oferta`.
    * 2. Si la toma no existe → lanza `NotFoundException`.
    * 3. Llama al servicio `Desinscribir()` con el estudiante y oferta asociados.
    * 4. Si la operación falla → lanza `BadRequestException`.
    * 5. Devuelve un mensaje de éxito.
    *
-   * ### Excepciones
+   * Excepciones
    * - `NotFoundException`: La toma no existe.
    * - `BadRequestException`: No fue posible realizar la desinscripción (reglas de negocio).
    *

@@ -6,8 +6,8 @@ import { CarreraEntity } from '../carrera/carrera.entity';
 import { PlazoMatricula } from '../plazo-matricula/plazo-matricula.entity';
 import { NotFoundException } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
-import { MatriculaDTO } from '../../controllers/matricula/dto/matricula.dto';
-import { MatriculaUpdateDTO } from '../../controllers/matricula/dto/matricula-update.dto';
+import { MatriculaDTO } from './dto/matricula.dto';
+import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 
 @Injectable()
 export class MatriculaService {

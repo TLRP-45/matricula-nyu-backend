@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CarreraEntity } from './carrera.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { PostCarreraDTO } from '../../controllers/carrera/dto/post-carrera.dto';
+import { PostCarreraDTO } from './dto/post-carrera.dto';
 
 @Injectable()
 export class CarreraService {
