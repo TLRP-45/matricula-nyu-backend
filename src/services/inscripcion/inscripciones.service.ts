@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MoreThan } from 'typeorm';
 
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
@@ -19,8 +19,8 @@ import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horari
 @Injectable()
 export class InscripcionesService {
   constructor(
-    @InjectRepository(EstudianteEntity)
-    private readonly estudianteRepo: Repository<EstudianteEntity>,
+    @InjectRepository(UsuarioEntity)
+    private readonly estudianteRepo: Repository<UsuarioEntity>,
 
     @InjectRepository(OfertaEntity)
     private readonly ofertaRepo: Repository<OfertaEntity>,

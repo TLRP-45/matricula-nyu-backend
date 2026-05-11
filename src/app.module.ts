@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppDataSourceOptions } from './config/typeorm.config';
 import { CarreraModule } from './modules/carrera/carrera.module';
 import { MatriculaModule } from './modules/matricula/matricula.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -16,6 +17,7 @@ import { MatriculaModule } from './modules/matricula/matricula.module';
     ControllersModule,
     CarreraModule,
     MatriculaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
