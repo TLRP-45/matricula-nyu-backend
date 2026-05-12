@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delete, Put, BadRequestException } from '@nestjs/common';
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { AsignaturaEntity } from './asignatura.entity';
@@ -9,18 +9,22 @@ export class AsignaturaController {
 
     @Get(':id')
     getAsignatura(@Param('id', ParseIntPipe) id: number){
+        if (isNaN(id)) throw new BadRequestException();
         return this.asignaturaService.getAsignatura(id);
     }
 
     @Get(':carreraID')
     getAsignaturasPorCarrera(@Param('carreraID', ParseIntPipe) carreraID: number){
+        if (isNaN(carreraID)) throw new BadRequestException();
         return this.asignaturaService.getAsignaturasPorCarrera(carreraID);
     }
 
     @Get(':asignaturaID/prerrequisitos/:carreraID')
     getPrerrerequisitosPorCarrera(
-        @Param('carreraID', ParseArrayPipe) carreraID: number,
-        @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+    @Param('carreraID', ParseArrayPipe) carreraID: number,
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(carreraID)) throw new BadRequestException();
+        if (isNaN(asignaturaID)) throw new BadRequestException();
         return this.asignaturaService.getPrerrerequisitosPorCarrera(carreraID, asignaturaID);
     }
 
@@ -41,7 +45,32 @@ export class AsignaturaController {
 
     @Delete(':id')
     deleteMatricula(@Param('id', ParseIntPipe) id: number) {
+        if (isNaN(id)) throw new BadRequestException();
         return this.asignaturaService.delete(id);
+    }
+
+    @Put(':asignaturaID/prerrequisitos/push/')
+    putPushPrerrequisitos(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() prerres: number){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.pushPrerrequisito(asignaturaID, prerres);
+    }
+
+    @Put(':asignaturaID/prerrequisitos/replace/')
+    putReplacePrerrequisitos(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() prerreID: number[]){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.replacePrerrequisito(asignaturaID, prerreID);
+    }
+
+    @Put(':asignaturaID/prerrequisitos/remove/')
+    putRemovePrerrequisitos(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() prerreID: number[]){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.removePrerrequisito(asignaturaID, prerreID);
     }
 }
 
@@ -56,9 +85,13 @@ export class AsignaturaController {
  *
  * post nueva asignatura 👍
  *
- * put establecer prerre
+ * put establecer prerre 👍
  * put oferta (? creo que mejor en la misma oferta, pero porsiaca)
  * put carrera/s
  *
  * delete softdelete 👍
+ *
+ * Validar parámetros 👍
+ * interfaz de respuesta default:
+ * if (isNaN(id)) return response.status(400).send();
  */

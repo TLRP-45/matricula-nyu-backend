@@ -169,6 +169,106 @@ export class AsignaturaService {
     }
 
     /**
+     * SoftDelete
+     * @param id - número de identificación de asignatura a borrar
+     * @returns UpdateResult - si se borró o no
+     */
+    async delete(id: number) {
+        const result = await this.AsignaturaRepo.softDelete(id);
+        if (result.affected == 0) {
+          throw new NotFoundException('Asignatura no encontrada. No se hizo ningún cambio');
+        }
+        return result;
+    }
+
+    /**
+     * Agrega un prerrequisito a una asignatura, y actualiza dependencias
+     * @param aID number - Número identificador de asignatura
+     * @param preID number - Número identificador de asignatura
+     */
+    async pushPrerrequisito(aID: number, preID: number){
+        const asignatura = await this.AsignaturaRepo.findOne({
+            where: { ID_asignatura: aID },
+            relations: ['prerrequisitos'],
+        });
+        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+
+        const prerrequisito = await this.AsignaturaRepo.findOne({
+            where: { ID_asignatura: preID },
+            relations: ['esPrerequisitoDe'],
+        });
+        if (!prerrequisito)throw new NotFoundException('Asignatura no encontrada');
+
+        asignatura.prerrequisitos.push(prerrequisito);
+        prerrequisito.esPrerequisitoDe.push(asignatura);
+
+        await this.AsignaturaRepo.save(asignatura);
+        await this.AsignaturaRepo.save(prerrequisito);
+    }
+
+    /**
+     * Reemplaza a su totalidad los prerrequisitos de una asignatura
+     * y actualiza dependecias
+     * @param aID number - Número identificador de asignatura
+     * @param preID number[] - Números identificadores de asignaturas
+     */
+    async replacePrerrequisito(aID: number, preID: number[]){
+        const asignatura = await this.AsignaturaRepo.findOne({
+            where: { ID_asignatura: aID },
+            relations: ['prerrequisitos'],
+        });
+        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+
+        const prerrequisito = await this.AsignaturaRepo.find({
+            where: { ID_asignatura: In(preID) },
+            relations: ['esPrerequisitoDe'],
+        });
+        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
+
+        await asignatura.prerrequisitos.forEach(p => {
+            const actualizado = p.esPrerequisitoDe.filter(i => i.ID_asignatura !== aID);
+            p.esPrerequisitoDe = actualizado;
+            this.AsignaturaRepo.save(p);
+        });
+        asignatura.prerrequisitos = prerrequisito;
+        prerrequisito.forEach(p => {
+            p.esPrerequisitoDe.push(asignatura);
+        });
+
+        await this.AsignaturaRepo.save(asignatura);
+        await this.AsignaturaRepo.save(prerrequisito);
+    }
+
+    /**
+     * Elimina asignaturas como prerrequisitos de otra y actualiza dependecias
+     * @param aID number - Número identificador de asignatura
+     * @param preID number[] - Números identificadores de asignaturas
+     */
+    async removePrerrequisito(aID: number, preID: number[]){
+        const asignatura = await this.AsignaturaRepo.findOne({
+            where: { ID_asignatura: aID },
+            relations: ['prerrequisitos'],
+        });
+        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+
+        const prerrequisito = await this.AsignaturaRepo.find({
+            where: { ID_asignatura: In(preID) },
+            relations: ['esPrerequisitoDe'],
+        });
+        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
+
+        await asignatura.prerrequisitos.forEach(p => {
+            const actualizado = p.esPrerequisitoDe.filter(i => i.ID_asignatura !== aID);
+            p.esPrerequisitoDe = actualizado;
+            this.AsignaturaRepo.save(p);
+        });
+
+        const preIDset = new Set(preID);
+        asignatura.prerrequisitos.filter(i => !preIDset.has(i.ID_asignatura));
+        await this.AsignaturaRepo.save(asignatura);
+    }
+
+    /**
      * Verifica si el estudiante dado cumple con los prerequisitos
      * para cierta asignatura
      *
@@ -206,20 +306,8 @@ export class AsignaturaService {
         for (const p of prerrequisitos){
             const tomas_del_ramo =await this.EstudianteService.buscarTomaPorAsignatura(p.ID_asignatura);
             const aprobados = tomas_del_ramo.filter(item => item.estado === 'aprobado');
-            if (aprobados.length <= 0)throw new BadRequestException(
-                `Debes aprobar ${p.nombre} antes de ${asignatura.nombre}`,
-            );
+            if (aprobados.length <= 0)throw new BadRequestException(`Debes aprobar ${p.nombre} antes de ${asignatura.nombre}`);
         }
         return true;
-    }
-
-    public async delete(id: number) {
-        const result = await this.AsignaturaRepo.softDelete(id);
-
-        if (result.affected == 0) {
-          throw new NotFoundException('Asignatura no encontrada. No se hizo ningún cambio');
-        }
-
-        return result;
     }
 }
