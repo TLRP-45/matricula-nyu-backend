@@ -13,7 +13,7 @@ export class CarreraEntity {
     @Index({ unique: true })
     @Column({ length: 100, nullable: false })
     nombre!: string;
- 
+
     @Column({ length: 100, nullable: false })
     facultad!: string;
 

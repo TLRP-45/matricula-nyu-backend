@@ -8,6 +8,7 @@ import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { MatriculaEntity } from '../matricula/matricula.entity';
+import { AsignaturaPrerrequisitosDto } from './asignatura.controller';
 
 @Injectable()
 export class AsignaturaService {
@@ -186,24 +187,26 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param preID number - Número identificador de asignatura
      */
-    async pushPrerrequisito(aID: number, preID: number){
+    async pushPrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
         });
         if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
 
-        const prerrequisito = await this.AsignaturaRepo.findOne({
-            where: { ID_asignatura: preID },
+        const prerrequisito = await this.AsignaturaRepo.find({
+            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
             relations: ['esPrerequisitoDe'],
         });
-        if (!prerrequisito)throw new NotFoundException('Asignatura no encontrada');
+        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
 
-        asignatura.prerrequisitos.push(prerrequisito);
-        prerrequisito.esPrerequisitoDe.push(asignatura);
+        asignatura.prerrequisitos.concat(prerrequisito);
+        await prerrequisito.forEach(p => {
+            p.esPrerequisitoDe.push(asignatura);
+            this.AsignaturaRepo.save(p);
+        });
 
         await this.AsignaturaRepo.save(asignatura);
-        await this.AsignaturaRepo.save(prerrequisito);
     }
 
     /**
@@ -212,7 +215,7 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param preID number[] - Números identificadores de asignaturas
      */
-    async replacePrerrequisito(aID: number, preID: number[]){
+    async replacePrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
@@ -220,7 +223,7 @@ export class AsignaturaService {
         if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
 
         const prerrequisito = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID) },
+            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
             relations: ['esPrerequisitoDe'],
         });
         if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
@@ -244,7 +247,7 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param preID number[] - Números identificadores de asignaturas
      */
-    async removePrerrequisito(aID: number, preID: number[]){
+    async removePrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
@@ -252,7 +255,7 @@ export class AsignaturaService {
         if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
 
         const prerrequisito = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID) },
+            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
             relations: ['esPrerequisitoDe'],
         });
         if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
@@ -263,7 +266,7 @@ export class AsignaturaService {
             this.AsignaturaRepo.save(p);
         });
 
-        const preIDset = new Set(preID);
+        const preIDset = new Set(preID.ID_prerrequisitos);
         asignatura.prerrequisitos.filter(i => !preIDset.has(i.ID_asignatura));
         await this.AsignaturaRepo.save(asignatura);
     }
