@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { EstudianteService } from '../estudiante/estudiante.service';
 import { EstudianteEntity } from '../estudiante/estudiante.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In, Like } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
+import { AsignaturaCreateDto } from './dto/asignatura.dto';
+import { MatriculaEntity } from '../matricula/matricula.entity';
 
 @Injectable()
 export class AsignaturaService {
@@ -16,7 +18,9 @@ export class AsignaturaService {
         private AsignaturaRepo: Repository<AsignaturaEntity>,
         private readonly EstudianteService: EstudianteService,
         @InjectRepository(CarreraTieneAsignaturaEntity)
-        private readonly CarreraTieneAsignaturaRepository: Repository<CarreraTieneAsignaturaEntity>
+        private readonly CarreraTieneAsignaturaRepository: Repository<CarreraTieneAsignaturaEntity>,
+        @InjectRepository(MatriculaEntity)
+        private readonly MatriculaRepo: Repository<MatriculaEntity>
     ){}
 
     /**
@@ -105,6 +109,66 @@ export class AsignaturaService {
     }
 
     /**
+     * Encuentra las asignaturas buscándolas por el nombre que contenga lo dado
+     * @param busqueda - el string con el nombre a buscar
+     * @returns Promise<AsignaturaEntity[] | undefined> - Arreglo con las asignaturas
+     * encontradas, o nada
+     */
+    async getPorNombre(busqueda: string): Promise<AsignaturaEntity[] | undefined>{
+        return await this.AsignaturaRepo.find({
+            where: {nombre : Like(`%${busqueda}%`)}
+        });
+    }
+
+    /**
+     * Encuentra las asignaturas buscándolas por el código al inicio de su nombre
+     * @param busqueda - el string con el código de carrera a buscar
+     * @returns Promise<AsignaturaEntity[] | undefined> - Arreglo
+     * con las asignaturas encontradas, o nada
+     */
+    async getPorCodigo(busqueda: string): Promise<AsignaturaEntity[] | undefined>{
+        return await this.AsignaturaRepo.find({
+            where: {nombre: Like(`%${busqueda}%-%`)}
+        });
+    }
+
+    /**
+   * Crea una nueva asignatura junto con sus prerrequisitos si se proporcionan.
+   *
+   * - Valida que los prerrequisitos existan.
+   * - Inserta la asignatura con sus relaciones.
+   *
+   * @param dto Datos para la creación de la asignatura
+   * @returns La entidad Asignatura creada
+   * @throws NotFoundException Si algún prerrequisito no existe
+   */
+    async create(dto: AsignaturaCreateDto): Promise<AsignaturaEntity> {
+
+        let prereqEntities: AsignaturaEntity[] = [];
+
+        if (dto.prerrequisitos?.length) {
+            const prereqEntities = await this.AsignaturaRepo.find({
+                where: { ID_asignatura: In(dto.prerrequisitos) },
+            });
+
+            if (prereqEntities.length !== dto.prerrequisitos.length) {
+                throw new NotFoundException('Uno o más prerrequisitos no existen');
+            }
+        }
+
+        const asignatura = this.AsignaturaRepo.create({
+            nombre: dto.nombre,
+            creditos: dto.creditos,
+            caracter: dto.caracter,
+            hrs_presenciales: dto.hrs_presenciales,
+            hrs_autonomo: dto.hrs_autonomo,
+            prerrequisitos: prereqEntities,
+        });
+
+        return await this.AsignaturaRepo.save(asignatura);
+    }
+
+    /**
      * Verifica si el estudiante dado cumple con los prerequisitos
      * para cierta asignatura
      *
@@ -125,20 +189,37 @@ export class AsignaturaService {
         });
         if (!estudiante)throw new NotFoundException('Estudiante no encontrado');
 
+        const matricula = await this.MatriculaRepo.findOne({
+            where: {estudiante: estudiante,
+                estado: 'activa'}
+        });
+        if(!matricula)throw new BadRequestException('Estudiante no está matriculado')
+
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: asignaturaID },
             relations: ['prerrequisitos'],
         });
         if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
 
-        const prerrequisitos = asignatura.prerrequisitos;
+        const prerrequisitos = asignatura.prerrequisitos.filter(as => as.es_de.some(cta => cta.carrera === matricula.carrera));
+
         for (const p of prerrequisitos){
             const tomas_del_ramo =await this.EstudianteService.buscarTomaPorAsignatura(p.ID_asignatura);
             const aprobados = tomas_del_ramo.filter(item => item.estado === 'aprobado');
             if (aprobados.length <= 0)throw new BadRequestException(
                 `Debes aprobar ${p.nombre} antes de ${asignatura.nombre}`,
-                );
+            );
         }
         return true;
+    }
+
+    public async delete(id: number) {
+        const result = await this.AsignaturaRepo.softDelete(id);
+
+        if (result.affected == 0) {
+          throw new NotFoundException('Asignatura no encontrada. No se hizo ningún cambio');
+        }
+
+        return result;
     }
 }
