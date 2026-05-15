@@ -2,14 +2,26 @@ import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delet
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { AsignaturaEntity } from './asignatura.entity';
-import { IsArray, IsInt, ValidateIf } from 'class-validator';
+import { IsArray, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 
 export class AsignaturaPrerrequisitosDto {
-  @IsArray()
-  @IsInt({each:true})
-  @Type(()=> Number)
-  ID_prerrequisitos!: number[];
+    @IsArray()
+    @IsInt({each:true})
+    @Type(()=> Number)
+    ID_prerrequisitos!: number[];
+}
+
+export class AsignaturaCarreraDto {
+    @IsInt()
+    ID_carrera!: number;
+
+    @IsInt()
+    semestre!: number;
+
+    @IsInt()
+    posicion!: number;
 }
 
 @Controller('asignaturas')
@@ -37,6 +49,13 @@ export class AsignaturaController {
         return this.asignaturaService.getPrerrerequisitosPorCarrera(carreraID, asignaturaID);
     }
 
+    @Get(':asignaturaID/prerrequisitos/')
+    getPrerrerequisitos(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.getPrerrerequisitos(asignaturaID);
+    }
+
     @Get(':nombre')
     getPorNombre(@Param('nombre') nombre: string){
         return this.asignaturaService.getPorNombre(nombre);
@@ -53,7 +72,7 @@ export class AsignaturaController {
     }
 
     @Delete(':id')
-    deleteMatricula(@Param('id', ParseIntPipe) id: number) {
+    deleteAsignatura(@Param('id', ParseIntPipe) id: number) {
         if (isNaN(id)) throw new BadRequestException();
         return this.asignaturaService.delete(id);
     }
@@ -81,4 +100,30 @@ export class AsignaturaController {
         if (isNaN(asignaturaID)) throw new BadRequestException();
         return this.asignaturaService.removePrerrequisito(asignaturaID, prerreID);
     }
+
+    @Put(':asignaturaID/actualizar/')
+    putAsignatura(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() dto: AsignaturaPutDto){
+        if(isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.update(asignaturaID, dto);
+    }
+
+    @Put(':asignaturaID/actualizar/carrera/push')
+    putPushAsignaturaCarrera(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() carreraID: AsignaturaCarreraDto){
+        if(isNaN(asignaturaID)) throw new BadRequestException();
+        return this. asignaturaService.pushCarrera(asignaturaID, carreraID);
+    }
+
+    @Put(':asignaturaID/actualizar/carrera/push')
+    putRemoveAsignaturaCarrera(
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+    @Body() carreraID: AsignaturaCarreraDto){
+        if(isNaN(asignaturaID)) throw new BadRequestException();
+        return this. asignaturaService.removeCarrera(asignaturaID, carreraID);
+    }
 }
+
+// put oferta?

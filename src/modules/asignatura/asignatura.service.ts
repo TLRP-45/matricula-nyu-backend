@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EstudianteService } from '../estudiante/estudiante.service';
 import { EstudianteEntity } from '../estudiante/estudiante.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, Like } from 'typeorm';
+import { Repository, In, Like, UpdateResult } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { MatriculaEntity } from '../matricula/matricula.entity';
-import { AsignaturaPrerrequisitosDto } from './asignatura.controller';
+import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.controller';
+import { AsignaturaPutDto } from './dto/asignatura-update.dto';
+import { CarreraEntity } from '../carrera/carrera.entity';
 
 @Injectable()
 export class AsignaturaService {
@@ -19,9 +21,11 @@ export class AsignaturaService {
         private AsignaturaRepo: Repository<AsignaturaEntity>,
         private readonly EstudianteService: EstudianteService,
         @InjectRepository(CarreraTieneAsignaturaEntity)
-        private readonly CarreraTieneAsignaturaRepository: Repository<CarreraTieneAsignaturaEntity>,
+        private readonly CarreraTieneAsignaturaRepo: Repository<CarreraTieneAsignaturaEntity>,
         @InjectRepository(MatriculaEntity)
-        private readonly MatriculaRepo: Repository<MatriculaEntity>
+        private readonly MatriculaRepo: Repository<MatriculaEntity>,
+        @InjectRepository(CarreraEntity)
+        private readonly CarreraRepo: Repository<CarreraEntity>
     ){}
 
     /**
@@ -75,7 +79,7 @@ export class AsignaturaService {
      * para tal semestre o carrera
      */
     async getAsignaturasPorSemestre(carreraID: number, semestre: number) {
-        const result = await this.CarreraTieneAsignaturaRepository
+        const result = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .leftJoinAndSelect('cta.asignatura', 'asignatura')
             .where('cta.carrera = :carreraId', { carreraID })
@@ -87,7 +91,7 @@ export class AsignaturaService {
 
     /**
      * Obtiene el arreglo con todos los prerrequisitos directos a
-     * la asignatura indicada por id
+     * la asignatura indicada por id, de la carrera indicada
      * @param carreraID - Número identificador de la carrera
      * @param asignaturaID - Número identificador de la asignatura
      * @returns AsignaturaEntity[] - devuelve un arreglo de los
@@ -106,6 +110,25 @@ export class AsignaturaService {
             .andWhere('c.id = :carreraID', { carreraID })
             .getOne()
         if (!result)throw new NotFoundException('No se pudieron encontrar prerrequisitos para esta asignatura.')
+        return result.prerrequisitos;
+    }
+
+    /**
+     * Obtiene el arreglo con todos los prerrequisitos directos a
+     * la asignatura indicada por id
+     * @param carreraID - Número identificador de la carrera
+     * @param asignaturaID - Número identificador de la asignatura
+     * @returns AsignaturaEntity[] - devuelve un arreglo de los
+     * prerrequisitos de esa asignatura
+     * @throws NotFoundException - si no se encuentran prerrequisitos para esa asignatura
+     * no necesariamente es un error como por fallo de id de asignatura
+     * sino que, puede suceder que la asignatura no tenga prerrequisitos
+     */
+    async getPrerrerequisitos(asignaturaID:number){
+        const result = await this.AsignaturaRepo.findOneBy({
+            ID_asignatura : asignaturaID
+        });
+        if (!result)throw new NotFoundException('No se pudieron encontrar la asignatura.')
         return result.prerrequisitos;
     }
 
@@ -267,8 +290,77 @@ export class AsignaturaService {
         });
 
         const preIDset = new Set(preID.ID_prerrequisitos);
-        asignatura.prerrequisitos.filter(i => !preIDset.has(i.ID_asignatura));
+        asignatura.prerrequisitos = asignatura.prerrequisitos.filter(i => !preIDset.has(i.ID_asignatura));
         await this.AsignaturaRepo.save(asignatura);
+    }
+
+    /**
+     * Actualiza los datos de la asignatura con los dados en la
+     * Base de datos, utilizando el método update te typeorm
+     * @param id - Número identificador de la asignatura
+     * @param actualizado - Asignatura actualziada
+     * @returns UpdateResult - resultado de la actualziación
+     */
+    async update(id: number, actualizado: AsignaturaPutDto): Promise<UpdateResult>{
+        const result: UpdateResult = await this.AsignaturaRepo.update(id, actualizado);
+        if(result.affected == 0) throw new NotFoundException('Asignatura no encontrada');
+        return result;
+    }
+
+    /**
+     * Agrega una carrera a una asignatura, y actualiza dependencias
+     * @param aID number - Número identificador de asignatura
+     * @param ctaDto AsignaturaCarreraDto - DTO con datos
+     */
+    async pushCarrera(aID: number, ctaDto: AsignaturaCarreraDto){
+        const asignatura = await this.AsignaturaRepo.findOne({
+            where: { ID_asignatura: aID },
+            relations: ['es_de'],
+        });
+        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+
+        const carrera = await this.CarreraRepo.findOne({
+            where: { id_carrera: ctaDto.ID_carrera },
+            relations: ['tiene'],
+        });
+        if (!carrera)throw new NotFoundException('Carrera no encontrada');
+
+        const nuevaRelacion = this.CarreraTieneAsignaturaRepo.create({
+            carrera: carrera,
+            asignatura: asignatura,
+            semestre: ctaDto.semestre,
+            posicion: ctaDto.posicion
+        });
+        await this.CarreraTieneAsignaturaRepo.save(nuevaRelacion);
+
+        asignatura.es_de.concat([nuevaRelacion]);
+        carrera.tiene.concat([nuevaRelacion]);
+
+        await this.AsignaturaRepo.save(asignatura);
+        await this.CarreraRepo.save(carrera);
+    }
+
+    /**
+     * Elimina las relaciones entre carrera y asignatura, y actualiza dependecias
+     * @param aID number - Número identificador de asignatura
+     * @param ctaDto AsignaturaCarreraDto - DTO con datos
+     */
+    async removeCarrera(aID: number, ctaDto: AsignaturaCarreraDto){
+        const cID = ctaDto.ID_carrera
+        const relacion = await this.CarreraTieneAsignaturaRepo
+        .createQueryBuilder('cta')
+        .leftJoinAndSelect('cta.asignatura', 'a')
+        .leftJoinAndSelect('cta.carrera', 'c')
+        .where('a.ID_asignatura = :aID', {aID})
+        .andWhere('c.id_carrera = :cID', {cID})
+        .getOne();
+        if(relacion){
+            await this.CarreraTieneAsignaturaRepo.remove(relacion);
+            relacion.asignatura.es_de = relacion.asignatura.es_de.filter(c => c.ID_toma !== relacion.ID_toma);
+            relacion.carrera.tiene = relacion.carrera.tiene.filter(c => c.ID_toma !== relacion.ID_toma);
+            await this.AsignaturaRepo.save(relacion.asignatura);
+            await this.CarreraRepo.save(relacion.carrera);
+        }
     }
 
     /**

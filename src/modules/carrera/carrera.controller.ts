@@ -3,6 +3,7 @@ import { PostCarreraDTO } from './dto/post-carrera.dto';
 import { CarreraEntity } from './carrera.entity';
 import { CarreraService } from './carrera.service';
 import { ParseIntPipe } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 @Controller('carrera')
 export class CarreraController {
@@ -15,7 +16,7 @@ export class CarreraController {
 
   @Get(':id')
   getCarrera(@Param('id', ParseIntPipe) id: number) {
-      console.log('ID recibido:', id);
+      if (isNaN(id)) throw new BadRequestException();
       return this.carreraService.getCarrera(id);
   }
 
@@ -31,26 +32,26 @@ export class CarreraController {
  * Carrera
  * get all 👍
  * get por id 👍
- * get por nombre
- * get por código
- * get por facultad
+ * get por nombre 💤
+ * get por código 💤
+ * get por facultad 💤 (queryBuilder capaz)
+ * get asignaturas 💤
+ * - get(carreraID/semestreID/) (por semestre)
+ * - get(carreraID) (todas) (¿quitar de asignatura?)
  *
- * post nueva carrera
+ * post nueva carrera ❕
  *
  * put (modificar?) los cupos (¿Hacer derivado?)
  * put asignatura?
- * put cualquier dato
+ * put cualquier dato ❕ A ASIGNATURA TAMBIÉN
  * put actualizar matriculados
  *
- * delete softdelete
+ * delete softdelete 💤
  *
- * crear asignaturas tomar asignaturas y asignarlas
- * en asignatura, cambiar el atributo de posición en malla
- * a la relación entre carrera y asignatura (que tenga semestre y posición en malla)
+ * put asignatura
+ * atributo de posición en malla y semestre
+ * a la relación entre carrera y asignatura
  *
- * get asignaturas (desde carrera, separadas por semestre)
- * o no sé, algo listo para mostrar
- * Tal vez, consultar carrera, luego qué semestre, y colocar las asignaturas
- *
- * validación de datos: check, pipes, dto
+ * Plazo matricula ❔
+ * Matricula ❔
  */
