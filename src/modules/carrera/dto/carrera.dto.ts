@@ -1,7 +1,7 @@
 import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 
-export class PostCarreraDTO {
+export class CarreraCreateDTO {
   @IsNotEmpty()
   @IsString()
   nombre!: string;

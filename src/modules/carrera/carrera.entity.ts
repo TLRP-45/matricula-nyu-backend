@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check, DeleteDateColumn } from "typeorm";
 import { CarreraTieneAsignaturaEntity } from "./carrera-tiene-asignatura.entity";
 import { MatriculaEntity } from "../matricula/matricula.entity";
 
@@ -34,4 +34,7 @@ export class CarreraEntity {
 
     @Column("int")
     cupos!: number;
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

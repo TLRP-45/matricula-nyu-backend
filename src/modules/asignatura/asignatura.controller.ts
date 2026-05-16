@@ -117,7 +117,7 @@ export class AsignaturaController {
         return this. asignaturaService.pushCarrera(asignaturaID, carreraID);
     }
 
-    @Put(':asignaturaID/actualizar/carrera/push')
+    @Put(':asignaturaID/actualizar/carrera/remove')
     putRemoveAsignaturaCarrera(
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
     @Body() carreraID: AsignaturaCarreraDto){
