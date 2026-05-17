@@ -283,7 +283,7 @@ export class AsignaturaService {
         });
         if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
 
-        await asignatura.prerrequisitos.forEach(p => {
+        asignatura.prerrequisitos.forEach(p => {
             const actualizado = p.esPrerequisitoDe.filter(i => i.ID_asignatura !== aID);
             p.esPrerequisitoDe = actualizado;
             this.AsignaturaRepo.save(p);

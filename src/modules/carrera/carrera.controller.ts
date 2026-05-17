@@ -6,7 +6,8 @@ import { ParseIntPipe } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
 import { AsignaturaService } from '../asignatura/asignatura.service';
 import { CarreraUpdateDTO } from './dto/carrera-update.dto';
-import { IsInt } from 'class-validator';
+import { IsInt, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AsignaturaCarreraDto } from '../asignatura/asignatura.controller';
 import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
@@ -34,6 +35,18 @@ export class CarreraAsignaturaDto {
     })
     @IsInt()
     posicion!: number;
+}
+
+export class CarreraMatriculaDto {
+    @ApiProperty({
+        description: 'Lista de IDs de matriculas a manipular',
+        type: [Number],
+        example: [1, 5, 12]
+    })
+    @IsArray()
+    @IsInt({each:true})
+    @Type(()=> Number)
+    ID_matriculas!: number[];
 }
 
 
