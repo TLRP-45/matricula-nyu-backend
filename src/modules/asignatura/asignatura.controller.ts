@@ -62,7 +62,7 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':carreraID')
+    @Get('carrera/:carreraID')
     @ApiOperation({ summary: 'Obtener asignaturas por carrera' })
     @ApiParam({ name: 'carreraID', type: Number, description: 'ID de la carrera' })
     @ApiResponse({ status: 200, description: 'Asignaturas obtenidas' })
@@ -80,7 +80,7 @@ export class AsignaturaController {
     @ApiResponse({ status: 200, description: 'Prerrequisitos encontrados' })
     @ApiResponse({ status: 400, description: 'Parámetros inválidos' })
     getPrerrerequisitosPorCarrera(
-    @Param('carreraID', ParseArrayPipe) carreraID: number,
+    @Param('carreraID', ParseIntPipe) carreraID: number,
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
         if (isNaN(carreraID)) throw new BadRequestException();
         if (isNaN(asignaturaID)) throw new BadRequestException();
@@ -216,4 +216,4 @@ export class AsignaturaController {
     }
 }
 
-// put oferta?
+// prerre todo - carrera remove, carrera push (qué pasa si ya se creó)

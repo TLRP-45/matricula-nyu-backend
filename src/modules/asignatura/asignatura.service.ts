@@ -82,7 +82,7 @@ export class AsignaturaService {
         const result = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .leftJoinAndSelect('cta.asignatura', 'asignatura')
-            .where('cta.carrera = :carreraId', { carreraID })
+            .where('cta.ID_carrera = :carreraId', { carreraID })
             .andWhere('cta.semestre = :semestre', { semestre })
             .getMany();
         if (!result)throw new NotFoundException('No se encontraron asignaturas hasta ese semestre.')
@@ -107,7 +107,7 @@ export class AsignaturaService {
             .leftJoin('cta.carrera', 'c')
             .leftJoinAndSelect('a.prerrequisitos', 'p')
             .where('a.ID_asignatura = :asignaturaID', { asignaturaID })
-            .andWhere('c.id = :carreraID', { carreraID })
+            .andWhere('c.id_carrera = :carreraID', { carreraID })
             .getOne()
         if (!result)throw new NotFoundException('No se pudieron encontrar prerrequisitos para esta asignatura.')
         return result.prerrequisitos;

@@ -220,24 +220,4 @@ export class CarreraController {
   }
 }
 
-/**
- * Carrera
- * get all 👍
- * get por id 👍
- * get por nombre 👍
- * get por facultad 👍 (queryBuilder capaz)
- * get asignaturas 👍
- * - get(carreraID/semestreID/) (por semestre)
- * - get(carreraID) (todas) (¿quitar de asignatura?)
- *
- * post nueva carrera 👍
- *
- * put asignatura 👍
- * put cualquier dato 👍
- * put actualizar matriculados
- *
- * delete softdelete 👍
- *
- * Plazo matricula ❔
- * Matricula ❔
- */
+// DELETE me falto poner el controller
