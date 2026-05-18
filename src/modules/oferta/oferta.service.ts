@@ -107,7 +107,7 @@ export class OfertaService {
       throw new NotFoundException('Oferta no encontrada');
     }
 
-    // 🔥 VALIDACIÓN IMPORTANTE
+    // Validacion
     if (!oferta.profesor) {
       throw new BadRequestException('Debe asignar profesor antes de publicar');
     }
