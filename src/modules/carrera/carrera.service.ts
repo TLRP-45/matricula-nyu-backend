@@ -1,11 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CarreraEntity } from './carrera.entity';
 import { Repository, Like, UpdateResult, In } from 'typeorm';
 import { CarreraCreateDTO } from './dto/carrera.dto';
 import { CarreraUpdateDTO } from './dto/carrera-update.dto';
 import { AsignaturaService } from '../asignatura/asignatura.service';
-import { CarreraMatriculaDto } from './carrera.controller';
 import { MatriculaEntity } from '../matricula/matricula.entity';
 
 @Injectable()
@@ -117,53 +116,5 @@ export class CarreraService {
         const result: UpdateResult = await this.carreraRepository.update(id, actualizado);
         if(result.affected == 0) throw new NotFoundException('Asignatura no encontrada');
         return result;
-    }
-
-    /**
-     * Crea la relación entre carrera y varias matriculas
-     * Debe de existir primero la matricula en la base de datos
-     * @param carreraID number - Número identificador de la carrera a matricularse
-     * @param matriculaDto CarreraMatriculaDto - DTO con el número identificador de matriculas
-     */
-    async matricular(carreraID: number, matriculaDto: CarreraMatriculaDto){
-        const carrera = await this.carreraRepository.findOneBy({
-            id_carrera: carreraID
-        });
-        if (!carrera) throw new NotFoundException('Carrera no encontrada');
-
-        const matriculas = await this.matriculaRepository.find({
-           where : {ID_matricula : In(matriculaDto.ID_matriculas)}
-        });
-        if (!matriculas) throw new NotFoundException('Matriculas no encontradas');
-
-        matriculas.forEach(m =>{
-            m.carrera = carrera;
-            this.matriculaRepository.save(m);
-        });
-
-        carrera.matriculados.concat(matriculas);
-        await this.carreraRepository.save(carrera);
-    }
-
-    /**
-     * Elimina la relación EN CARRERA con las matriculas
-     * Como una matricula no puede no tener carrera
-     * la lógica para eliminar matriculas NO SE HACE AQUI
-     * @param carreraID number - Número identificdor de la carrera
-     * @param matriculaDto CarreraMatriculaDto - DTO con número identificador de matriculas
-     */
-    async removeMatricula(carreraID: number, matriculaDto: CarreraMatriculaDto){
-        const carrera = await this.carreraRepository.findOneBy({
-            id_carrera: carreraID
-        });
-        if (!carrera) throw new NotFoundException('Carrera no encontrada');
-
-        const matriculas = await this.matriculaRepository.find({
-           where : {ID_matricula : In(matriculaDto.ID_matriculas)}
-        });
-        if (!matriculas) throw new NotFoundException('Matriculas no encontradas');
-
-        carrera.matriculados = carrera.matriculados.filter(m => !matriculas.includes(m));
-        await this.carreraRepository.save(carrera);
     }
 }
