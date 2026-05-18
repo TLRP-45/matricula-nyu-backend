@@ -31,7 +31,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // Revisa si hay un token de autorización (usuario loggeado)
+    // Revisa si hay un token de autenticación (usuario loggeado)
     const request = context.switchToHttp().getRequest();
     const token = this.extraerTokenEnHeader(request);
     if (!token) {

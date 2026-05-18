@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../estudiante/estudiante.entity';
 import { Repository } from 'typeorm';
+import { RegistroDTO } from './dto/registro.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.ID_estudiante, pass: user.rut }
+    const payload = { sub: user.ID_estudiante, rut: user.rut, rol: user.rol }
 
     return {
       token: await this.jwtService.signAsync(payload),
