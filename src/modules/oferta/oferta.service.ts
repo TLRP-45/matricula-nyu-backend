@@ -20,7 +20,7 @@ export class OfertaService {
     private readonly ofertaRepo: Repository<OfertaEntity>,
   ) {}
 
-  // ✅ CREAR (permite incompleto)
+  // CREAR (permite incompleto)
   async crearOferta(data: CreateOfertaDTO) {
 
     let horarios: BloqueHorarioEntity[] = [];
@@ -45,7 +45,7 @@ export class OfertaService {
       carrera: { id_carrera: data.carreraId } as any,
       periodo_inscripcion: { ID_periodo: data.periodoId } as any,
 
-      // ✅ SOLO si viene profesor
+      // 
       ...(data.profesorId && {
         profesor: { ID_profesor: data.profesorId } as any,
       }),
@@ -56,7 +56,7 @@ export class OfertaService {
     return this.ofertaRepo.save(oferta);
   }
 
-  // ✅ EDITAR
+  //  EDITAR
   async editarOferta(id: number, data: UpdateOfertaDTO) {
 
     const oferta = await this.ofertaRepo.findOne({
@@ -73,7 +73,7 @@ export class OfertaService {
     if (data.cupos !== undefined) oferta.cupos = data.cupos;
     if (data.hrs_semanales !== undefined) oferta.hrs_semanales = data.hrs_semanales;
 
-    // ✅ profesor opcional SIN null
+    //  profesor opcional SIN null
     if (data.profesorId !== undefined) {
       if (data.profesorId) {
         oferta.profesor = { ID_profesor: data.profesorId } as any;
@@ -95,7 +95,7 @@ export class OfertaService {
     return this.ofertaRepo.save(oferta);
   }
 
-  // ✅ PUBLICAR (con validación REAL)
+  // PUBLICAR
   async publicarOferta(id: number) {
 
     const oferta = await this.ofertaRepo.findOne({
@@ -125,7 +125,7 @@ export class OfertaService {
     return this.ofertaRepo.save(oferta);
   }
 
-  // ✅ VER PUBLICADAS
+  // VER PUBLICADAS
   async obtenerPublicadas(carreraId: number, periodoId: number) {
     return this.ofertaRepo.find({
       where: {
@@ -137,7 +137,7 @@ export class OfertaService {
     });
   }
 
-  // ✅ CUPOS
+  // CUPOS
   async cuposDisponibles(ofertaID: number): Promise<boolean> {
     const oferta = await this.ofertaRepo.findOne({
       where: { ID_oferta: ofertaID }
