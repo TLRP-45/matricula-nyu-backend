@@ -1,64 +1,67 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, Index, Check } from "typeorm";
+import {
+  Column, Entity, PrimaryGeneratedColumn,
+  ManyToOne, OneToMany, JoinColumn, Index
+} from "typeorm";
+
 import { ProfesorEntity } from "../profesor/profesor.entity";
 import { AsignaturaEntity } from "../asignatura/asignatura.entity";
 import { EstudianteTomaOfertaEntity } from "../estudiante/estudiante-toma-oferta.entity";
 import { BloqueHorarioEntity } from "../bloque-horario/bloque-horario.entity";
 import { PeriodoInscripcionEntity } from "../periodo-inscripcion/preiodo-inscripcion.entity";
+import { CarreraEntity } from "../carrera/carrera.entity";
 
-@Entity()
-@Check(`cupos > 0`)
-@Check(`hrs_semanales > 0`)
-@Check(`char_length(grupo) > 0`)
-@Check(`tipo IN ('C','T','L')`)
-export class OfertaEntity{
+@Entity('oferta_entity')
+export class OfertaEntity {
 
-    @PrimaryGeneratedColumn({ unsigned: true })
-    ID_oferta!: number;
+  @PrimaryGeneratedColumn()
+  ID_oferta!: number;
 
-    @Column({ type: 'enum', enum: ['C', 'T', 'L'], nullable: false })
-    tipo!: string;
+  @Column({ type: 'enum', enum: ['C', 'T', 'L'] })
+  tipo!: string;
 
-    @Column({ length: 20, nullable: false })
-    grupo!: string;
+  @Column({ nullable: true })
+  grupo?: string;
 
-    @Column({ type: 'smallint', unsigned: true, nullable: false })
-    cupos!: number;
+  @Column()
+  cupos!: number;
 
-    @Column({ type: 'smallint', unsigned: true, nullable: false })
-    hrs_semanales!: number;
+  @Column()
+  hrs_semanales!: number;
 
-    @Index()
-    @Column({ unsigned: true })
-    ID_profesor!: number;
+  //@Column({ unsigned: true, nullable: true })
+  //ID_profesor!: number;
 
-    @ManyToOne(() => ProfesorEntity, (prof) => prof.clases, {
-        nullable: false,
-        onDelete: 'RESTRICT',
-    })
-    @JoinColumn({ name: 'ID_profesor' })
-    profesor!: ProfesorEntity;
+  @ManyToOne(() => ProfesorEntity, (prof) => prof.clases, {
+    nullable: true,
+    //onDelete: 'SET NULL'
+  })
+  @JoinColumn({ name: 'ID_profesor' })
+  profesor?: ProfesorEntity | null;
 
-    @ManyToOne(() => AsignaturaEntity, (asig) => asig.ofertas, {
-        nullable: false,
-        onDelete: 'RESTRICT',
-    })
-    @JoinColumn({ name: 'ID_asignatura' })
-    asignatura!: AsignaturaEntity;
+  @ManyToOne(() => AsignaturaEntity, (asig) => asig.ofertas)
+  @JoinColumn({ name: 'ID_asignatura' })
+  asignatura!: AsignaturaEntity;
 
-    @OneToMany(() => EstudianteTomaOfertaEntity, (toma) => toma.oferta, {
-        nullable: true,
-    })
-    tomada!: EstudianteTomaOfertaEntity[];
+  @ManyToOne(() => CarreraEntity, (c) => c.ofertas)
+  @JoinColumn({ name: 'ID_carrera' })
+  carrera!: CarreraEntity;
 
-    @OneToMany(() => BloqueHorarioEntity, (bh) => bh.oferta, {
-        nullable: true,
-    })
-    horarios!: BloqueHorarioEntity[];
+  @ManyToOne(() => PeriodoInscripcionEntity, (p) => p.ofertas)
+  @JoinColumn({ name: 'ID_periodo' })
+  periodo_inscripcion!: PeriodoInscripcionEntity;
 
-    @ManyToOne(() => PeriodoInscripcionEntity, (per) => per.ofertas, {
-        nullable: false,
-        onDelete: 'RESTRICT',
-    })
-    @JoinColumn({ name: 'ID_periodo' })
-    periodo_inscripcion!: PeriodoInscripcionEntity;
+  @OneToMany(() => BloqueHorarioEntity, (bh) => bh.oferta, {
+    cascade: true
+  })
+  horarios!: BloqueHorarioEntity[];
+
+  @OneToMany(() => EstudianteTomaOfertaEntity, (t) => t.oferta)
+  tomada!: EstudianteTomaOfertaEntity[];
+
+  @Column({
+    type: 'enum',
+    enum: ['BORRADOR', 'PUBLICADA'],
+    default: 'BORRADOR'
+  })
+  estado!: string;
 }
