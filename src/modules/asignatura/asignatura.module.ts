@@ -3,7 +3,7 @@ import { AsignaturaController } from './asignatura.controller';
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaEntity } from './asignatura.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../estudiante/estudiante.entity';
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
 import { CarreraModule } from '../carrera/carrera.module';
@@ -21,7 +21,7 @@ import { CarreraEntity } from '../carrera/carrera.entity';
   imports: [
       TypeOrmModule.forFeature([
         AsignaturaEntity,
-        EstudianteEntity,
+        UsuarioEntity,
         EstudianteTomaOfertaEntity,
         CarreraTieneAsignaturaEntity,
         MatriculaEntity,
