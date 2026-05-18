@@ -9,6 +9,7 @@ import { CarreraModule } from './modules/carrera/carrera.module';
 import { MatriculaModule } from './modules/matricula/matricula.module';
 import { AuthModule } from './modules/auth/auth.module';
 
+import { OfertaModule } from './modules/oferta/oferta.module';
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,
@@ -18,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
     CarreraModule,
     MatriculaModule,
     AuthModule,
+    OfertaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
