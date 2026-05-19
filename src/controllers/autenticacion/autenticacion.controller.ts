@@ -1,14 +1,14 @@
 import { Controller,Post,Body } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
 
 @Controller('autenticacion')
 export class AutenticacionController {
 
   constructor(
-    @InjectRepository(EstudianteEntity)
-    private usuarioRepo: Repository<EstudianteEntity>,
+    @InjectRepository(UsuarioEntity)
+    private usuarioRepo: Repository<UsuarioEntity>,
   ) {}
 
   @Post('login')

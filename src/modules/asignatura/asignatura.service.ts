@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EstudianteService } from '../estudiante/estudiante.service';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../estudiante/estudiante.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, Like, UpdateResult } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
@@ -15,8 +15,8 @@ import { CarreraEntity } from '../carrera/carrera.entity';
 @Injectable()
 export class AsignaturaService {
     constructor(
-        @InjectRepository(EstudianteEntity)
-        private readonly estudianteRepo: Repository<EstudianteEntity>,
+        @InjectRepository(UsuarioEntity)
+        private readonly estudianteRepo: Repository<UsuarioEntity>,
         @InjectRepository(AsignaturaEntity)
         private AsignaturaRepo: Repository<AsignaturaEntity>,
         private readonly EstudianteService: EstudianteService,

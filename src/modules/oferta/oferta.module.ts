@@ -3,6 +3,9 @@ import { OfertaService } from './oferta.service';
 import { OfertaController } from './oferta.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OfertaEntity } from './oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta.entity';
+import { CarreraEntity } from '../carrera/carrera.entity';
+import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 import { AsignaturaModule } from '../asignatura/asignatura.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
 import { EstudianteModule } from '../estudiante/estudiante.module';
@@ -18,6 +21,9 @@ import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta
   imports: [
       TypeOrmModule.forFeature([
         OfertaEntity,
+        EstudianteTomaOfertaEntity,
+        CarreraEntity,
+        BloqueHorarioEntity,
         EstudianteTomaOfertaEntity
       ]),
       forwardRef(() =>PlazoMatriculaModule),
@@ -31,6 +37,6 @@ import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta
     ],
   providers: [OfertaService],
   controllers: [OfertaController],
-  exports: [OfertaService]
+  exports: [TypeOrmModule, OfertaService]
 })
 export class OfertaModule {}

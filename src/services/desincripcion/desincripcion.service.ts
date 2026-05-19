@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
 
@@ -12,8 +12,8 @@ export class DesincripcionService {
     constructor(
         @InjectRepository(EstudianteTomaOfertaEntity)
         private readonly TomaRepository: Repository<EstudianteTomaOfertaEntity>,
-        @InjectRepository(EstudianteEntity)
-        private readonly EstudianteRepository: Repository<EstudianteEntity>,
+        @InjectRepository(UsuarioEntity)
+        private readonly EstudianteRepository: Repository<UsuarioEntity>,
         @InjectRepository(OfertaEntity)
         private readonly OfertaRepository: Repository<OfertaEntity>,
         private readonly PeriodoService: PeriodoInscripcionService
@@ -30,7 +30,7 @@ export class DesincripcionService {
      * @param oferta - Entidad de la oferta académica.
      * @returns Promise<boolean> - true si está inscrito, false si no.
      */
-    async EstaInscrito(estudiante: EstudianteEntity, oferta: OfertaEntity): Promise<boolean> {
+    async EstaInscrito(estudiante: UsuarioEntity, oferta: OfertaEntity): Promise<boolean> {
          return (await this.TomaRepository.count({
             where: {
                 estudiante: { ID_estudiante: estudiante.ID_estudiante },
