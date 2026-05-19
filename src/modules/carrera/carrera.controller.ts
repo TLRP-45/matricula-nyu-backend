@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
 import { CarreraCreateDTO } from './dto/carrera.dto';
 import { CarreraEntity } from './carrera.entity';
 import { CarreraService } from './carrera.service';
@@ -161,7 +161,7 @@ export class CarreraController {
 
   // ───────────────────────────────────────────────────────────────
   @Put(':carreraID/actualizar/')
-  @ApiOperation({ summary: 'Actualizar carrera (posiciones/asignaturas)' })
+  @ApiOperation({ summary: 'Actualizar carrera' })
   @ApiParam({ name: 'carreraID', type: Number })
   @ApiBody({ type: CarreraUpdateDTO })
   @ApiResponse({
@@ -172,7 +172,7 @@ export class CarreraController {
   @Param('carreraID', ParseIntPipe) carreraID: number,
   @Body() dto: CarreraUpdateDTO){
       if(isNaN(carreraID)) throw new BadRequestException();
-      return this.asignaturaService.update(carreraID, dto);
+      return this.carreraService.update(carreraID, dto);
   }
 
   // ───────────────────────────────────────────────────────────────
@@ -218,6 +218,15 @@ export class CarreraController {
     aux.semestre = ctaDTO.semestre;
     return this. asignaturaService.removeCarrera(ctaDTO.ID_asignatura, aux);
   }
-}
 
-// DELETE me falto poner el controller
+  // ───────────────────────────────────────────────────────────────
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar una carrera' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'Carrera eliminada' })
+  @ApiResponse({ status: 400, description: 'ID inválido' })
+  deleteAsignatura(@Param('id', ParseIntPipe) id: number) {
+      if (isNaN(id)) throw new BadRequestException();
+      return this.carreraService.delete(id);
+  }
+}

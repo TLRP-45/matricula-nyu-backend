@@ -1,4 +1,4 @@
-import { IsInt, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString } from "class-validator";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class CarreraUpdateDTO {
@@ -7,6 +7,7 @@ export class CarreraUpdateDTO {
     type: String,
     example: 'Ingeniería Civil Informática'
   })
+  @IsOptional()
   @IsString()
   nombre?: string;
 
@@ -15,6 +16,7 @@ export class CarreraUpdateDTO {
     type: String,
     example: 'Facultad de Ciencias de la Ingeniería'
   })
+  @IsOptional()
   @IsString()
   facultad?: string;
 
@@ -23,6 +25,7 @@ export class CarreraUpdateDTO {
     type: Number,
     example: 12
   })
+  @IsOptional()
   @IsInt()
   duracion?: number;
 
@@ -31,6 +34,7 @@ export class CarreraUpdateDTO {
     type: Number,
     example: 150
   })
+  @IsOptional()
   @IsInt()
   cupos?: number;
 }

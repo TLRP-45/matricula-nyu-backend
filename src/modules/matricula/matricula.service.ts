@@ -84,7 +84,7 @@ export class MatriculaService {
 
         //____________________________________________________
         const carrera = await this.carreraService.getCarrera(matricula.ID_carrera);
-        if(carrera.cupos > 1) throw new BadRequestException(`Cupos insuficientes (${carrera.cupos} cupos disponibles)`);
+        if(carrera.cupos < 1) throw new BadRequestException(`Cupos insuficientes (${carrera.cupos} cupos disponibles)`);
 
         //____________________________________________________
         // u otro metodo en el service
@@ -101,19 +101,16 @@ export class MatriculaService {
             estudiante: estudiante
         });
 
-        let valido = await this.MatriculaRepo.save(result);
-        if(!valido)throw new ServiceUnavailableException('Algo falló en el sistema :(');
+        const savedMatricula = await this.MatriculaRepo.save(result);
 
-        carrera.matriculados.concat([result]);
+        carrera.matriculados = [...carrera.matriculados, savedMatricula];
         carrera.cupos -= 1;
-        await this.carreraRepository.save(result);
+        await this.carreraRepository.save(carrera);
 
-        estudiante.matriculas.concat([result]);
+        estudiante.matriculas = [...estudiante.matriculas, savedMatricula];
         await this.estudianteRepository.save(estudiante);
 
-        // algo para validar que se guardó todo bien?
-
-        return result;
+        return savedMatricula;
     }
 
     public async update(id: number, matricula: MatriculaUpdateDTO): Promise<UpdateResult> {

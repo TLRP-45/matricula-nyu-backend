@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delet
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { AsignaturaEntity } from './asignatura.entity';
-import { IsArray, IsInt } from 'class-validator';
+import { IsArray, IsInt, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
@@ -25,6 +25,7 @@ export class AsignaturaCarreraDto {
         type: Number,
         example: 3
     })
+    @Type(() => Number)
     @IsInt()
     ID_carrera!: number;
 
@@ -33,16 +34,20 @@ export class AsignaturaCarreraDto {
         type: Number,
         example: 2
     })
+    @IsOptional()
+    @Type(() => Number)
     @IsInt()
-    semestre!: number;
+    semestre?: number;
 
     @ApiProperty({
         description: 'Posición dentro del semestre (orden visual o de malla)',
         type: Number,
         example: 1
     })
+    @IsOptional()
+    @Type(() => Number)
     @IsInt()
-    posicion!: number;
+    posicion?: number;
 }
 
 @Controller('asignaturas')
@@ -151,19 +156,6 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/prerrequisitos/replace/')
-    @ApiOperation({ summary: 'Reemplazar prerrequisitos de una asignatura' })
-    @ApiParam({ name: 'asignaturaID', type: Number })
-    @ApiBody({ type: AsignaturaPrerrequisitosDto })
-    @ApiResponse({ status: 200, description: 'Prerrequisitos reemplazados' })
-    putReplacePrerrequisitos(
-    @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
-    @Body() prerreID: AsignaturaPrerrequisitosDto){
-        if (isNaN(asignaturaID)) throw new BadRequestException();
-        return this.asignaturaService.replacePrerrequisito(asignaturaID, prerreID);
-    }
-
-    // ───────────────────────────────────────────────────────────────
     @Put(':asignaturaID/prerrequisitos/remove/')
     @ApiOperation({ summary: 'Eliminar prerrequisito de una asignatura' })
     @ApiParam({ name: 'asignaturaID', type: Number })
@@ -217,3 +209,5 @@ export class AsignaturaController {
 }
 
 // prerre todo - carrera remove, carrera push (qué pasa si ya se creó)
+// prerrequisito - validar que no sea el mismo
+// validar que no se haga un push de algo que ya exista

@@ -210,59 +210,34 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param preID number - Número identificador de asignatura
      */
-    async pushPrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
+    async pushPrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto) {
+        const existe = await this.AsignaturaRepo
+        .createQueryBuilder('a')
+        .innerJoin('a.prerrequisitos', 'p')
+        .where('p.asignaturaEntityIDAsignatura_1 = :aID', { aID })
+        .andWhere('p.asignaturaEntityIDAsignatura_2 IN (:...preID)', { preID: preID.ID_prerrequisitos })
+        .getOne();
+        if(existe)throw new BadRequestException('Relación ya existente');
+
+        if(preID.ID_prerrequisitos.some(id => id === aID))
+            throw new BadRequestException('No se puede hacer prerrequisito la misma asignatura');
+        
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
         });
-        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+        if (!asignatura)
+            throw new NotFoundException('Asignatura no encontrada');
 
-        const prerrequisito = await this.AsignaturaRepo.find({
+        const prerrequisitos = await this.AsignaturaRepo.find({
             where: { ID_asignatura: In(preID.ID_prerrequisitos) },
-            relations: ['esPrerequisitoDe'],
         });
-        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
+        if (prerrequisitos.length === 0)
+            throw new NotFoundException('Prerrequisitos no encontrados');
 
-        asignatura.prerrequisitos.concat(prerrequisito);
-        await prerrequisito.forEach(p => {
-            p.esPrerequisitoDe.push(asignatura);
-            this.AsignaturaRepo.save(p);
-        });
+        asignatura.prerrequisitos.push(...prerrequisitos);
 
         await this.AsignaturaRepo.save(asignatura);
-    }
-
-    /**
-     * Reemplaza a su totalidad los prerrequisitos de una asignatura
-     * y actualiza dependecias
-     * @param aID number - Número identificador de asignatura
-     * @param preID number[] - Números identificadores de asignaturas
-     */
-    async replacePrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
-        const asignatura = await this.AsignaturaRepo.findOne({
-            where: { ID_asignatura: aID },
-            relations: ['prerrequisitos'],
-        });
-        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
-
-        const prerrequisito = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
-            relations: ['esPrerequisitoDe'],
-        });
-        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
-
-        await asignatura.prerrequisitos.forEach(p => {
-            const actualizado = p.esPrerequisitoDe.filter(i => i.ID_asignatura !== aID);
-            p.esPrerequisitoDe = actualizado;
-            this.AsignaturaRepo.save(p);
-        });
-        asignatura.prerrequisitos = prerrequisito;
-        prerrequisito.forEach(p => {
-            p.esPrerequisitoDe.push(asignatura);
-        });
-
-        await this.AsignaturaRepo.save(asignatura);
-        await this.AsignaturaRepo.save(prerrequisito);
     }
 
     /**
@@ -270,27 +245,28 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param preID number[] - Números identificadores de asignaturas
      */
-    async removePrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto){
+    async removePrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto) {
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
-            relations: ['prerrequisitos'],
+            relations: ['prerrequisitos','prerrequisitos.esPrerequisitoDe'],
         });
         if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
 
-        const prerrequisito = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
-            relations: ['esPrerequisitoDe'],
-        });
-        if (!prerrequisito)throw new NotFoundException('Asignaturas no encontradas');
+        const ids = new Set(preID.ID_prerrequisitos);
 
-        asignatura.prerrequisitos.forEach(p => {
-            const actualizado = p.esPrerequisitoDe.filter(i => i.ID_asignatura !== aID);
-            p.esPrerequisitoDe = actualizado;
-            this.AsignaturaRepo.save(p);
-        });
+        for (const p of asignatura.prerrequisitos) {
+            if (ids.has(p.ID_asignatura)) {
+                p.esPrerequisitoDe = (p.esPrerequisitoDe ?? []).filter(
+                    i => i.ID_asignatura !== aID,
+                );
+                await this.AsignaturaRepo.save(p);
+            }
+        }
 
-        const preIDset = new Set(preID.ID_prerrequisitos);
-        asignatura.prerrequisitos = asignatura.prerrequisitos.filter(i => !preIDset.has(i.ID_asignatura));
+        asignatura.prerrequisitos = asignatura.prerrequisitos.filter(
+            i => !ids.has(i.ID_asignatura),
+        );
+
         await this.AsignaturaRepo.save(asignatura);
     }
 
@@ -312,18 +288,26 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async pushCarrera(aID: number, ctaDto: AsignaturaCarreraDto){
+    async pushCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
+        const existe = await this.AsignaturaRepo
+        .createQueryBuilder('a')
+        .innerJoin('a.es_de', 'cta')
+        .where('a.ID_asignatura = :aID', { aID })
+        .andWhere('cta.carrera = :cID', { cID: ctaDto.ID_carrera })
+        .getOne();
+        if(existe)throw new BadRequestException('Relación ya existente');
+
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
-            relations: ['es_de'],
         });
-        if (!asignatura)throw new NotFoundException('Asignatura no encontrada');
+        if (!asignatura)
+            throw new NotFoundException('Asignatura no encontrada');
 
         const carrera = await this.CarreraRepo.findOne({
             where: { id_carrera: ctaDto.ID_carrera },
-            relations: ['tiene'],
         });
-        if (!carrera)throw new NotFoundException('Carrera no encontrada');
+        if (!carrera)
+            throw new NotFoundException('Carrera no encontrada');
 
         const nuevaRelacion = this.CarreraTieneAsignaturaRepo.create({
             carrera: carrera,
@@ -331,13 +315,9 @@ export class AsignaturaService {
             semestre: ctaDto.semestre,
             posicion: ctaDto.posicion
         });
+
         await this.CarreraTieneAsignaturaRepo.save(nuevaRelacion);
-
-        asignatura.es_de.concat([nuevaRelacion]);
-        carrera.tiene.concat([nuevaRelacion]);
-
-        await this.AsignaturaRepo.save(asignatura);
-        await this.CarreraRepo.save(carrera);
+        return nuevaRelacion;
     }
 
     /**
@@ -345,22 +325,20 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async removeCarrera(aID: number, ctaDto: AsignaturaCarreraDto){
-        const cID = ctaDto.ID_carrera
+    async removeCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
+        const cID = ctaDto.ID_carrera;
+
         const relacion = await this.CarreraTieneAsignaturaRepo
-        .createQueryBuilder('cta')
-        .leftJoinAndSelect('cta.asignatura', 'a')
-        .leftJoinAndSelect('cta.carrera', 'c')
-        .where('a.ID_asignatura = :aID', {aID})
-        .andWhere('c.id_carrera = :cID', {cID})
-        .getOne();
-        if(relacion){
-            await this.CarreraTieneAsignaturaRepo.remove(relacion);
-            relacion.asignatura.es_de = relacion.asignatura.es_de.filter(c => c.ID_toma !== relacion.ID_toma);
-            relacion.carrera.tiene = relacion.carrera.tiene.filter(c => c.ID_toma !== relacion.ID_toma);
-            await this.AsignaturaRepo.save(relacion.asignatura);
-            await this.CarreraRepo.save(relacion.carrera);
+            .createQueryBuilder('cta')
+            .where('cta.ID_asignatura = :aID', { aID })
+            .andWhere('cta.ID_carrera = :cID', { cID })
+            .getOne();
+
+        if (!relacion) {
+            throw new NotFoundException('Relación no encontrada');
         }
+
+        await this.CarreraTieneAsignaturaRepo.remove(relacion);
     }
 
     /**
