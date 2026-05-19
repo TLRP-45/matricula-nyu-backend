@@ -9,8 +9,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import { MatriculaDTO } from './dto/matricula.dto';
 import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 import { CarreraService } from '../carrera/carrera.service';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
 import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
+import { UsuarioEntity } from '../estudiante/estudiante.entity';
 
 @Injectable()
 export class MatriculaService {
@@ -23,8 +23,8 @@ export class MatriculaService {
         private readonly plazoRepository: Repository<PlazoMatricula>,
         private carreraService: CarreraService,
         private plazoService: PlazoMatriculaService,
-        @InjectRepository(EstudianteEntity)
-        private readonly estudianteRepository: Repository<EstudianteEntity>,
+        @InjectRepository(UsuarioEntity)
+        private readonly estudianteRepository: Repository<UsuarioEntity>,
     ){}
 
     async ultimaMatricula(estudianteId: number) {
