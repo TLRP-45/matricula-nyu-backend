@@ -43,7 +43,6 @@ import { AutenticacionController } from './autenticacion/autenticacion.controlle
   controllers: [
     DesinscripcionController,
     InscripcionesController,
-    AutenticacionController],
     AutenticacionController,
     RegistrarUsuarioController],
   providers: [
