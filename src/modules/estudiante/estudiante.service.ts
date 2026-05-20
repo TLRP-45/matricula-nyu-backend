@@ -11,7 +11,6 @@ export class EstudianteService {
         @InjectRepository(EstudianteTomaOfertaEntity)
         private readonly TomaRepo: Repository<EstudianteTomaOfertaEntity>,
         @InjectRepository(EstudianteEntity)
-        private readonly EstudianteRepo: Repository<EstudianteEntity>
     ) {}
 
     async buscarTomaPorAsignatura(ID_asignatura: number){
