@@ -149,6 +149,7 @@ const toma = this.TomaRepo.create({
 
 await this.TomaRepo.save(toma);
 }
+
     return {
         mensaje: 'Usuario registrado correctamente',
         estudiante: estudianteGuardado,
