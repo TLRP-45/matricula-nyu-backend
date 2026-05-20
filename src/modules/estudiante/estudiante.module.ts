@@ -10,6 +10,11 @@ import { EstudianteEntity } from './estudiante.entity';
     TypeOrmModule.forFeature([
       EstudianteTomaOfertaEntity,
       EstudianteEntity
+      EstudianteEntity,
+      MatriculaEntity,
+      CarreraEntity,
+      CarreraTieneAsignaturaEntity,
+      OfertaEntity
     ])
   ],
   controllers: [EstudianteController],
