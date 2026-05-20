@@ -41,5 +41,6 @@ export class EstudianteService {
         return horarios;
     }
     //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
+    async registrar(dto: any) {
 
 }
