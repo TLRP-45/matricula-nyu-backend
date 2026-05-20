@@ -139,15 +139,15 @@ for (const ramo of asignaturasPrimerSemestre) {
 
     if (!oferta) continue;
 
-    const toma =
-        this.TomaRepo.create({
-            estudiante: estudianteGuardado,
-            oferta: oferta,
-            estado: 'inscrita',
-            inscrita: new Date()
-        });
 
-    await this.TomaRepo.save(toma);
+const toma = this.TomaRepo.create({
+    estudiante: { ID_estudiante: estudianteGuardado.ID_estudiante } as any,
+    oferta: { ID_oferta: oferta.ID_oferta } as any,
+    estado: 'inscrita',
+    inscrita: new Date()
+});
+
+await this.TomaRepo.save(toma);
 }
     return {
         mensaje: 'Usuario registrado correctamente',
