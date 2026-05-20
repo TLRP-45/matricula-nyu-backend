@@ -44,6 +44,8 @@ import { AutenticacionController } from './autenticacion/autenticacion.controlle
     DesinscripcionController,
     InscripcionesController,
     AutenticacionController],
+    AutenticacionController,
+    RegistrarUsuarioController],
   providers: [
     DesincripcionService,
     InscripcionesService,
