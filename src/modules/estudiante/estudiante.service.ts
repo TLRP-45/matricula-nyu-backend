@@ -11,6 +11,15 @@ export class EstudianteService {
         @InjectRepository(EstudianteTomaOfertaEntity)
         private readonly TomaRepo: Repository<EstudianteTomaOfertaEntity>,
         @InjectRepository(EstudianteEntity)
+        private readonly EstudianteRepo: Repository<EstudianteEntity>,
+        @InjectRepository(MatriculaEntity)
+        private readonly MatriculaRepo: Repository<MatriculaEntity>,
+        @InjectRepository(CarreraEntity)
+        private readonly CarreraRepo: Repository<CarreraEntity>,
+        @InjectRepository(CarreraTieneAsignaturaEntity)
+        private readonly CarreraAsignaturaRepo:Repository<CarreraTieneAsignaturaEntity>,
+        @InjectRepository(OfertaEntity)
+        private readonly OfertaRepo:Repository<OfertaEntity>,
     ) {}
 
     async buscarTomaPorAsignatura(ID_asignatura: number){
