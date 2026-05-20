@@ -9,7 +9,6 @@ import { EstudianteEntity } from './estudiante.entity';
   imports: [
     TypeOrmModule.forFeature([
       EstudianteTomaOfertaEntity,
-      EstudianteEntity
       EstudianteEntity,
       MatriculaEntity,
       CarreraEntity,
