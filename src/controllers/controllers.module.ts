@@ -24,6 +24,8 @@ import { PeriodoInscripcionService } from '../modules/periodo-inscripcion/period
 import { ProfesorService } from '../modules/profesor/profesor.service';
 import { PlazoMatricula } from '../modules/plazo-matricula/plazo-matricula.entity';
 import { AutenticacionController } from './autenticacion/autenticacion.controller';
+import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuario.controller';
+
 
 @Module({
   imports: [TypeOrmModule.forFeature([
