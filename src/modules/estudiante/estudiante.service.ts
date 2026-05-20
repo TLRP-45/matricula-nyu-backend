@@ -43,4 +43,103 @@ export class EstudianteService {
     //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
     async registrar(dto: any) {
 
+    const existenteEmail = await this.EstudianteRepo.findOne({
+        where: { email: dto.email }
+    });
+
+    if (existenteEmail) {
+        throw new BadRequestException(
+            'El correo ya está registrado'
+        );
+    }
+
+    const existenteRut = await this.EstudianteRepo.findOne({
+        where: { rut: dto.rut }
+    });
+
+    if (existenteRut) {
+        throw new BadRequestException(
+            'El RUT ya está registrado'
+        );
+    }
+
+    const carrera = await this.CarreraRepo.findOne({
+        where: {
+            id_carrera: dto.ID_carrera
+        }
+    });
+
+    if (!carrera) {
+        throw new NotFoundException(
+            'Carrera no encontrada'
+        );
+    }
+
+    const estudiante = this.EstudianteRepo.create({
+        nombre: dto.nombre,
+        apellido: dto.apellido,
+        email: dto.email,
+        rut: dto.rut,
+        nacionalidad: dto.nacionalidad,
+        sexo: dto.sexo,
+        nacimiento: dto.nacimiento,
+        direccion: dto.direccion,
+        telefono: dto.telefono,
+        password: dto.password
+    });
+
+    const estudianteGuardado =
+        await this.EstudianteRepo.save(estudiante);
+
+    const matricula = this.MatriculaRepo.create({
+        estudiante: estudianteGuardado,
+        carrera: carrera,
+        semestre: 1,
+        estado: 'activa',
+        arancel_aldia: true
+    });
+
+    await this.MatriculaRepo.save(matricula);
+    const asignaturasPrimerSemestre =
+    await this.CarreraAsignaturaRepo.find({
+        where: {
+            carrera: {
+                id_carrera: carrera.id_carrera
+            },
+            semestre: 1
+        },
+        relations: ['asignatura']
+    });
+
+for (const ramo of asignaturasPrimerSemestre) {
+
+    const oferta = await this.OfertaRepo.findOne({
+        where: {
+            asignatura: {
+                ID_asignatura:
+                ramo.asignatura.ID_asignatura
+            }
+        },
+        relations: ['asignatura']
+    });
+
+    if (!oferta) continue;
+
+    const toma =
+        this.TomaRepo.create({
+            estudiante: estudianteGuardado,
+            oferta: oferta,
+            estado: 'inscrita',
+            inscrita: new Date()
+        });
+
+    await this.TomaRepo.save(toma);
+}
+    return {
+        mensaje: 'Usuario registrado correctamente',
+        estudiante: estudianteGuardado,
+        matricula
+    };
+}
+
 }
