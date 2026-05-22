@@ -5,11 +5,12 @@ import {
   IsEmail,
   IsString,
   Length,
-  IsDateString,
   IsIn
 } from 'class-validator';
 
 class RegistroEstudianteDto {
+    
+    ID_carrera!: number;
 
     @IsString()
     @Length(2,100)
