@@ -1,13 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { MatriculaEntity } from './matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { PlazoMatricula } from '../plazo-matricula/plazo-matricula.entity';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
-import { MatriculaDTO } from '../../controllers/matricula/dto/matricula.dto';
-import { MatriculaUpdateDTO } from '../../controllers/matricula/dto/matricula-update.dto';
+import { MatriculaDTO } from './dto/matricula.dto';
+import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
+import { CarreraService } from '../carrera/carrera.service';
+import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
+import { UsuarioEntity } from '../estudiante/estudiante.entity';
 
 @Injectable()
 export class MatriculaService {
@@ -18,7 +21,10 @@ export class MatriculaService {
         private readonly carreraRepository: Repository<CarreraEntity>,
         @InjectRepository(PlazoMatricula)
         private readonly plazoRepository: Repository<PlazoMatricula>,
-
+        private carreraService: CarreraService,
+        private plazoService: PlazoMatriculaService,
+        @InjectRepository(UsuarioEntity)
+        private readonly estudianteRepository: Repository<UsuarioEntity>,
     ){}
 
     async ultimaMatricula(estudianteId: number) {
@@ -32,14 +38,12 @@ export class MatriculaService {
 
     public async getAllMatriculas(): Promise<MatriculaEntity[]> {
         const result = await this.MatriculaRepo.find();
-
         return result;
       }
 
     public async getMatricula(id: number): Promise<MatriculaEntity> {
         try {
             const result = await this.MatriculaRepo.findOneByOrFail({ ID_matricula: id });
-
             return result;
         }
         catch (error: any) {
@@ -47,54 +51,66 @@ export class MatriculaService {
         }
     }
 
+    /**
+     *
+     * @param matricula
+     * @returns
+     * @description
+     * 1. validar Plazo
+     * 2. validar si pagado (integrar con sistema de pagos)
+     * 3. validar carrera y cupos
+     * 4. validar estudiante (debe crearse antes de la matricula)
+     */
     public async create(matricula: MatriculaDTO): Promise<MatriculaEntity> {
+        // mover la lógica de matricular para acá nomas
         // TODO: Integrar con el sistema de pagos, revisar si existe deuda
         // TODO: Definir bien cómo se designan los plazos
         // Revisar si se está dentro del plazo
-        // const now = new Date();
-        const plazo = await this.plazoRepository.findOneBy({ id: 1 });
-        if (!plazo) {
-        throw new NotFoundException('No existe un plazo definido para este proceso');
-        }
-        // console.log(now)
-        // console.log(plazo)
 
-        if (!(matricula.fecha >= plazo.inicio && matricula.fecha <= plazo.fin)) {
-        throw new UnauthorizedException('Proceso de matrícula fuera de plazo');
-        }
+        // Lógica en plazos
 
-        // Buscar la carrera asociada
-        const carrera = await this.carreraRepository.findOneBy({ id_carrera: matricula.carreraId });
-        // const carrera = await this.carreraService.getCarrera(matricula.carreraId)
+        //___________________________________________________
+        const now = new Date();
+        const plazo = await this.plazoService.getLastPlazo();
+        if (!plazo)
+            throw new NotFoundException('No existe un plazo definido para este proceso');
 
-        if (!carrera) {
-        throw new NotFoundException(`Carrera con id: ${matricula.carreraId} no encontrada`);
-        }
+        if (!(now >= plazo.inicio && now <= plazo.fin))
+            throw new UnauthorizedException('Proceso de matrícula fuera de plazo');
 
-        // TODO: Definir si cupos disponibles debe ser un atributo de carrera
-        // Revisar si hay cupos disponibles
-        const numeroMatriculados = await this.MatriculaRepo.count({
-        where: { carrera: carrera }
-        })
+        //____________________________________________________
 
-        if (numeroMatriculados >= carrera.cupos) {
-            throw new UnauthorizedException('No existen cupos disponibles para esta carrera');
-        }
+        // Espacio para lógica de arancel
 
-        const carrera2 = await this.carreraRepository.findOneBy({
-            id_carrera: matricula.carreraId
+        //____________________________________________________
+        const carrera = await this.carreraService.getCarrera(matricula.ID_carrera);
+        if(carrera.cupos < 1) throw new BadRequestException(`Cupos insuficientes (${carrera.cupos} cupos disponibles)`);
+
+        //____________________________________________________
+        // u otro metodo en el service
+        const estudiante = await this.estudianteRepository.findOneBy({
+            ID_estudiante: matricula.ID_estudiante
         });
+        if(!estudiante)throw new NotFoundException('Estudiante no encontrado');
 
-        if (!carrera2) {
-            throw new NotFoundException(`Carrera con id ${matricula.carreraId} no encontrada`);
-        }
+        //____________________________________________________
 
         const result = this.MatriculaRepo.create({
-            estado: matricula.estado ?? 'activa',
-            carrera: carrera2,
+            semestre: matricula.semestre,
+            carrera: carrera,
+            estudiante: estudiante
         });
 
-        return await this.MatriculaRepo.save(result);
+        const savedMatricula = await this.MatriculaRepo.save(result);
+
+        carrera.matriculados = [...carrera.matriculados, savedMatricula];
+        carrera.cupos -= 1;
+        await this.carreraRepository.save(carrera);
+
+        estudiante.matriculas = [...estudiante.matriculas, savedMatricula];
+        await this.estudianteRepository.save(estudiante);
+
+        return savedMatricula;
     }
 
     public async update(id: number, matricula: MatriculaUpdateDTO): Promise<UpdateResult> {
@@ -110,6 +126,8 @@ export class MatriculaService {
       // Método que supongo útil para cancelar matrículas de estudiantes, sea por
       // expulsión o por término del período académico
       public async desactivar(id: number) {
+        // remover de carrera?
+        // carrera.matriculados = carrera.matriculados.filter(m => !matriculas.includes(m));
         const matricula = await this.MatriculaRepo.findOneBy({ ID_matricula: id });
 
         if (!matricula) {

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable, Check } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable, Check, DeleteDateColumn } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 import { CarreraTieneAsignaturaEntity } from "../carrera/carrera-tiene-asignatura.entity";
 
@@ -26,7 +26,6 @@ export class AsignaturaEntity{
     @Column({ type: 'smallint', unsigned: true, nullable: false })
     hrs_autonomo!: number;
 
-    // Relación autoreferenciada: asignatura → prerrequisitos
     @ManyToMany(() => AsignaturaEntity, (asig) => asig.esPrerequisitoDe, {
         nullable: true,
     })
@@ -47,4 +46,7 @@ export class AsignaturaEntity{
         nullable: false,
     })
     es_de!: CarreraTieneAsignaturaEntity[];
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

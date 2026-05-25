@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check, DeleteDateColumn } from "typeorm";
 import { CarreraTieneAsignaturaEntity } from "./carrera-tiene-asignatura.entity";
 import { MatriculaEntity } from "../matricula/matricula.entity";
 import { OfertaEntity } from "../oferta/oferta.entity";
@@ -13,7 +13,7 @@ export class CarreraEntity {
 
     @Index({ unique: true })
     @Column({ length: 100, nullable: false })
-    nombre!: string;   // Normalmente no quieres dos carreras con el mismo nombre
+    nombre!: string;
 
     @Column({ length: 100, nullable: false })
     facultad!: string;
@@ -39,4 +39,7 @@ export class CarreraEntity {
 
     @Column("int")
     cupos!: number;
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

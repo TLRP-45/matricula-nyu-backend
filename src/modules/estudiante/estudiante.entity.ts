@@ -41,7 +41,7 @@ export class UsuarioEntity {
     @OneToMany(
         () => MatriculaEntity,
         (toma) => toma.estudiante,
-        { nullable: false }
+        { nullable: true }
     )
     matriculas!: MatriculaEntity[];
 
