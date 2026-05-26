@@ -13,7 +13,7 @@ import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module'
 import { ProfesorModule } from '../profesor/profesor.module';
 import { EstudianteModule } from '../estudiante/estudiante.module';
 import { CarreraModule } from '../carrera/carrera.module';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../estudiante/estudiante.entity';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { EstudianteEntity } from '../estudiante/estudiante.entity';
       MatriculaEntity,
       CarreraEntity,
       PlazoMatricula,
-      EstudianteEntity
+      UsuarioEntity
     ]),
     forwardRef(() =>PlazoMatriculaModule),
     forwardRef(() =>AsignaturaModule),

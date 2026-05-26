@@ -13,7 +13,7 @@ import { CarreraEntity } from "../carrera/carrera.entity";
 @Entity('oferta_entity')
 export class OfertaEntity {
 
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ unsigned: true })
   ID_oferta!: number;
 
   @Column({ type: 'enum', enum: ['C', 'T', 'L'] })
