@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { EstudianteService } from '../estudiante/estudiante.service';
-import { UsuarioEntity } from '../estudiante/estudiante.entity';
+import { EstudianteService } from '../usuario/usuario.service';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, Like, UpdateResult } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';

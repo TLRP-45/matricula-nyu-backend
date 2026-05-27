@@ -1,7 +1,7 @@
 import { Controller,Post,Body } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 
 @Controller('autenticacion')
 export class AutenticacionController {

@@ -4,7 +4,7 @@ import { LoginDTO } from './dto/login.dto';
 import { AuthGuard } from './auth.guard';
 import { Public } from './public.decorator';
 import { Roles } from './roles/roles.decorator';
-import { RolUsuario } from '../estudiante/rol-usuario.enum';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
 import { RolesGuard } from './roles/roles.guard';
 
 @Controller('auth')

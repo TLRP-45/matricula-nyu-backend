@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { DesincripcionService } from '../../services/desincripcion/desincripcion.service';
-import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 
 import { IsInt, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';

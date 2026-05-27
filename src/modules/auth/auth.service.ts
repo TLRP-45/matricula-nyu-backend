@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsuarioEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
 import { RegistroDTO } from './dto/registro.dto';
 

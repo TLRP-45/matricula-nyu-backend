@@ -1,9 +1,9 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { EstudianteController } from './estudiante.controller';
-import { EstudianteService } from './estudiante.service';
+import { EstudianteService } from './usuario.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
-import { UsuarioEntity } from './estudiante.entity';
+import { UsuarioEntity } from './usuario.entity';
 import { AsignaturaModule } from '../asignatura/asignatura.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
 import { MatriculaModule } from '../matricula/matricula.module';

@@ -1,5 +1,5 @@
 import { Entity, Index, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { UsuarioEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { DeleteDateColumn } from 'typeorm';
 
