@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { EstudianteController } from './estudiante.controller';
+import { UsuarioController } from './usuario.controller';
 import { EstudianteService } from './usuario.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
@@ -29,7 +29,7 @@ import { CarreraModule } from '../carrera/carrera.module';
     forwardRef(() =>ProfesorModule),
     forwardRef(() =>CarreraModule),
   ],
-  controllers: [EstudianteController],
+  controllers: [UsuarioController],
   providers: [EstudianteService],
   exports: [TypeOrmModule, EstudianteService]
 })

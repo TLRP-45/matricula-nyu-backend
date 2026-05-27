@@ -8,70 +8,70 @@ import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-tom
 import { IsInt, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';
 
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
+
 export class DesinscripcionDto {
+  @ApiProperty({
+    description: 'ID o lista de IDs de toma de oferta a desinscribir',
+    example: 12,
+    oneOf: [
+      { type: 'number' },
+      { type: 'array', items: { type: 'number' }, example: [12, 15, 18] }
+    ]
+  })
   @ValidateIf(o => !Array.isArray(o.ID_toma))
   @Type(() => Number)
   @IsInt()
   ID_toma!: number | number[];
 }
 
+@ApiTags('Desinscripción')
 @Controller('desinscripcion')
 export class DesinscripcionController {
   constructor(
     private readonly desincripcionService: DesincripcionService,
-
-     @InjectRepository(EstudianteTomaOfertaEntity)
+    @InjectRepository(EstudianteTomaOfertaEntity)
     private readonly tomaRepo: Repository<EstudianteTomaOfertaEntity>,
   ) {}
 
-  /**
-   * Desinscribe uno o varios registros de toma de oferta.
-   *
-   * ### Funcionamiento
-   * - Si `ID_toma` recibido en el DTO es un número:  
-   *   ➜ se procesa una sola desinscripción.
-   *
-   * - Si `ID_toma` es un arreglo de números:  
-   *   ➜ se procesan varias desinscripciones en paralelo mediante `Promise.all()`.
-   *
-   * ### Respuestas
-   * - `200 OK`: Desinscripción exitosa (individual o múltiple)
-   * - `404 NotFoundException`: Alguna inscripción no existe
-   * - `400 BadRequestException`: Alguna desinscripción es inválida o no permitida
-   *
-   * @param dto Objeto DTO que contiene un ID o lista de IDs de toma.
-   * @returns Un objeto de éxito o una lista de objetos de éxito.
-   */
   @Post()
+  @ApiOperation({
+    summary: 'Desinscribir uno o varios registros',
+    description:
+      'Permite desinscribir una o varias tomas de oferta. Si se envía un número → desinscripción individual. Si se envía un arreglo → desinscripción múltiple.'
+  })
+  @ApiBody({
+    description: 'ID o lista de IDs de toma de oferta a desinscribir',
+    type: DesinscripcionDto,
+    examples: {
+      unico: {
+        summary: 'Desinscripción individual',
+        value: { ID_toma: 12 }
+      },
+      multiple: {
+        summary: 'Desinscripción múltiple',
+        value: { ID_toma: [12, 15, 18] }
+      }
+    }
+  })
+  @ApiResponse({ status: 200, description: 'Desinscripción exitosa' })
+  @ApiResponse({ status: 404, description: 'Alguna inscripción no existe' })
+  @ApiResponse({ status: 400, description: 'Desinscripción inválida o no permitida' })
   async desinscribir(@Body() dto: DesinscripcionDto) {
     if (!Array.isArray(dto.ID_toma)) {
       return await this.desinscribirUnico(dto.ID_toma);
     } else {
-      return Promise.all(
-        dto.ID_toma.map(of =>
-          this.desinscribirUnico(of)
-        )
-      );
+      return Promise.all(dto.ID_toma.map(id => this.desinscribirUnico(id)));
     }
   }
 
-  /**
-   * Realiza la desinscripción de una sola toma.
-   *
-   * Flujo del método
-   * 1. Busca la toma por su ID, incluyendo relaciones `estudiante` y `oferta`.
-   * 2. Si la toma no existe → lanza `NotFoundException`.
-   * 3. Llama al servicio `Desinscribir()` con el estudiante y oferta asociados.
-   * 4. Si la operación falla → lanza `BadRequestException`.
-   * 5. Devuelve un mensaje de éxito.
-   *
-   * Excepciones
-   * - `NotFoundException`: La toma no existe.
-   * - `BadRequestException`: No fue posible realizar la desinscripción (reglas de negocio).
-   *
-   * @param tomaID ID numérico de la inscripción a desinscribir.
-   * @returns Mensaje estándar de éxito.
-   */
+  @ApiOperation({
+    summary: 'Desinscripción interna de un solo registro',
+    description: 'Método auxiliar usado por el endpoint principal.'
+  })
+  @ApiResponse({ status: 200, description: 'Desinscripción realizada correctamente' })
+  @ApiResponse({ status: 404, description: 'La toma no existe' })
+  @ApiResponse({ status: 400, description: 'No se pudo desinscribir' })
   async desinscribirUnico(tomaID: number) {
     const toma = await this.tomaRepo.findOne({
       where: { ID_toma: tomaID },
