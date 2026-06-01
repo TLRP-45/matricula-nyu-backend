@@ -10,7 +10,7 @@ import { MatriculaDTO } from './dto/matricula.dto';
 import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 import { CarreraService } from '../carrera/carrera.service';
 import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
-import { UsuarioEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 
 @Injectable()
 export class MatriculaService {

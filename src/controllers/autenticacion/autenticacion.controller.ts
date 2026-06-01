@@ -1,8 +1,11 @@
 import { Controller,Post,Body } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
+import { ApiTags, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
+@ApiTags('Autenticación')
 @Controller('autenticacion')
 export class AutenticacionController {
 
@@ -12,6 +15,11 @@ export class AutenticacionController {
   ) {}
 
   @Post('login')
+  @ApiOperation({ summary: 'Iniciar sesión con rut y contraseña' })
+  @ApiResponse({
+    status: 200,
+    description: 'Resultado del intento de login (éxito o error)',
+  })
   async login(@Body() body: any) {
 
     const { rut, password } = body;

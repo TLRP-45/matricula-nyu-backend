@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { AsignaturaModule } from '../asignatura/asignatura.module';
 import { CarreraModule } from '../carrera/carrera.module';
-import { EstudianteModule } from '../estudiante/estudiante.module';
+import { EstudianteModule } from '../usuario/usuario.module';
 import { MatriculaModule } from '../matricula/matricula.module';
 import { OfertaModule } from '../oferta/oferta.module';
 import { PeriodoInscripcionModule } from '../periodo-inscripcion/periodo-inscripcion.module';

@@ -1,5 +1,5 @@
 import { AppDataSource } from '../../config/typeorm.config';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 
 async function seed() {
   await AppDataSource.initialize();

@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeriodoInscripcionEntity } from './preiodo-inscripcion.entity';
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
-import { EstudianteModule } from '../estudiante/estudiante.module';
+import { EstudianteModule } from '../usuario/usuario.module';
 import { MatriculaModule } from '../matricula/matricula.module';
 import { OfertaModule } from '../oferta/oferta.module';
 import { ProfesorModule } from '../profesor/profesor.module';

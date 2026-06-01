@@ -11,9 +11,9 @@ import { OfertaModule } from '../oferta/oferta.module';
 import { PeriodoInscripcionModule } from '../periodo-inscripcion/periodo-inscripcion.module';
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { ProfesorModule } from '../profesor/profesor.module';
-import { EstudianteModule } from '../estudiante/estudiante.module';
+import { EstudianteModule } from '../usuario/usuario.module';
 import { CarreraModule } from '../carrera/carrera.module';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { EstudianteEntity } from '../estudiante/estudiante.entity';
       MatriculaEntity,
       CarreraEntity,
       PlazoMatricula,
-      EstudianteEntity
+      UsuarioEntity
     ]),
     forwardRef(() =>PlazoMatriculaModule),
     forwardRef(() =>AsignaturaModule),

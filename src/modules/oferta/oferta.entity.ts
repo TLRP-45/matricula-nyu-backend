@@ -5,7 +5,7 @@ import {
 
 import { ProfesorEntity } from "../profesor/profesor.entity";
 import { AsignaturaEntity } from "../asignatura/asignatura.entity";
-import { EstudianteTomaOfertaEntity } from "../estudiante/estudiante-toma-oferta.entity";
+import { EstudianteTomaOfertaEntity } from "../usuario/estudiante-toma-oferta.entity";
 import { BloqueHorarioEntity } from "../bloque-horario/bloque-horario.entity";
 import { PeriodoInscripcionEntity } from "../periodo-inscripcion/preiodo-inscripcion.entity";
 import { CarreraEntity } from "../carrera/carrera.entity";
@@ -13,7 +13,7 @@ import { CarreraEntity } from "../carrera/carrera.entity";
 @Entity('oferta_entity')
 export class OfertaEntity {
 
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ unsigned: true })
   ID_oferta!: number;
 
   @Column({ type: 'enum', enum: ['C', 'T', 'L'] })

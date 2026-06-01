@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
-import { UsuarioEntity } from './estudiante.entity';
+import { UsuarioEntity } from './usuario.entity';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 
 @Injectable()

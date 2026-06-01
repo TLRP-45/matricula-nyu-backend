@@ -3,19 +3,17 @@ import { OfertaService } from './oferta.service';
 import { OfertaController } from './oferta.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OfertaEntity } from './oferta.entity';
-import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 import { AsignaturaModule } from '../asignatura/asignatura.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
-import { EstudianteModule } from '../estudiante/estudiante.module';
+import { EstudianteModule } from '../usuario/usuario.module';
 import { MatriculaModule } from '../matricula/matricula.module';
 import { PeriodoInscripcionModule } from '../periodo-inscripcion/periodo-inscripcion.module';
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { ProfesorModule } from '../profesor/profesor.module';
 import { CarreraModule } from '../carrera/carrera.module';
-import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta.entity';
-
 
 @Module({
   imports: [
