@@ -99,8 +99,11 @@ export class EstudianteService {
         nacimiento: dto.nacimiento,
         direccion: dto.direccion,
         telefono: dto.telefono,
-        password: dto.password
+        password: dto.password,
+        rol: 1
     });
+
+
 
     const estudianteGuardado =
         await this.EstudianteRepo.save(estudiante);
