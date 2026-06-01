@@ -24,11 +24,11 @@ export class EstudianteEntity {
     @Column({ default: true })
     activo!: boolean;
 
-    @Column({ name: 'rol', default: 1 })
-    rol!: number;
-
     @CreateDateColumn({ type: 'timestamp' })
     createdAt!: Date;
+
+    @Column({ name: 'role', default: 1 })
+    rol!: number;
 
     @UpdateDateColumn({ type: 'timestamp' })
     updatedAt!: Date;
