@@ -100,9 +100,9 @@ export class EstudianteService {
         direccion: dto.direccion,
         telefono: dto.telefono,
         password: dto.password,
-        rol: 1
     });
 
+    estudiante.rol = 1;
 
 
     const estudianteGuardado =
