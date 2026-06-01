@@ -71,9 +71,9 @@ export class AsignaturaController {
     @ApiOperation({ summary: 'Obtener el estado de una asignatura por ID' })
     @ApiParam({ name: 'id', type: Number, description: 'ID de la asignatura' })
     @ApiParam({ name: 'usuarioID', type: Number, description: 'ID del estudiante' })
-    @ApiResponse({ status: 200, description: 'Asignatura encontrada' })
+    @ApiResponse({ status: 200, description: 'Estado encontrada' })
     @ApiResponse({ status: 400, description: 'ID inválido' })
-    @ApiResponse({ status: 404, description: 'Asignatura no encontrada' })
+    @ApiResponse({ status: 404, description: 'Estado no encontrado' })
     getEstadoAsignatura(@Param('id', ParseIntPipe) id: number, @Param('usuarioID', ParseIntPipe) usuarioID: number){
         if (isNaN(id)) throw new BadRequestException();
         return this.asignaturaService.getEstadoAsignatura(id, usuarioID);
