@@ -11,6 +11,7 @@ import { MatriculaEntity } from '../matricula/matricula.entity';
 import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.controller';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 @Injectable()
 export class AsignaturaService {
@@ -25,7 +26,9 @@ export class AsignaturaService {
         @InjectRepository(MatriculaEntity)
         private readonly MatriculaRepo: Repository<MatriculaEntity>,
         @InjectRepository(CarreraEntity)
-        private readonly CarreraRepo: Repository<CarreraEntity>
+        private readonly CarreraRepo: Repository<CarreraEntity>,
+        @InjectRepository(EstudianteTomaOfertaEntity)
+        private readonly EstudianteTomaOfertaRepo: Repository<EstudianteTomaOfertaEntity>
     ){}
 
     /**
@@ -44,6 +47,29 @@ export class AsignaturaService {
         });
         if(!result)throw new NotFoundException('Asignatura no encontrada');
         return result;
+    }
+
+    /**
+     * Retorna el estado de la asignatura en la base de datos
+     * buscándola por su ID
+     *
+     * @param id - número identificador de la asignatura
+     * @returns String - el valor del estado de la asignatura
+     * en la base de datos que coincide con el id dado
+     * @throws NotFoundException - Si la asignatura o el estudiante
+     * con el id buscado no es encontrado
+     */
+    async getEstadoAsignatura(id: number, uid: number){
+        const toma = await this.EstudianteTomaOfertaRepo
+        .createQueryBuilder('eto')
+        .innerJoinAndSelect('eto.oferta', 'o')
+        .innerJoin('o.asignatura', 'a')
+        .innerJoin('eto.estudiante', 'e')
+        .where('e.ID_estudiante = :uid', { uid })
+        .andWhere('a.ID_asignatura = :id', { id })
+        .orderBy('eto.ID_toma', 'DESC')
+        .getOne();
+        return toma?.estado;
     }
 
     /**
