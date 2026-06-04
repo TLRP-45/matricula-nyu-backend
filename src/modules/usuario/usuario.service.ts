@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 import { UsuarioEntity } from './usuario.entity';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
+import { BadRequestException } from '@nestjs/common';
+import { MatriculaEntity } from '../matricula/matricula.entity';
+import { CarreraEntity } from '../carrera/carrera.entity';
+import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
+import { OfertaEntity } from '../oferta/oferta.entity';
 
 @Injectable()
 export class EstudianteService {
@@ -11,7 +16,15 @@ export class EstudianteService {
         @InjectRepository(EstudianteTomaOfertaEntity)
         private readonly TomaRepo: Repository<EstudianteTomaOfertaEntity>,
         @InjectRepository(UsuarioEntity)
-        private readonly EstudianteRepo: Repository<UsuarioEntity>
+        private readonly EstudianteRepo: Repository<UsuarioEntity>,
+        @InjectRepository(MatriculaEntity)
+        private readonly MatriculaRepo: Repository<MatriculaEntity>,
+        @InjectRepository(CarreraEntity)
+        private readonly CarreraRepo: Repository<CarreraEntity>,
+        @InjectRepository(CarreraTieneAsignaturaEntity)
+        private readonly CarreraAsignaturaRepo:Repository<CarreraTieneAsignaturaEntity>,
+        @InjectRepository(OfertaEntity)
+        private readonly OfertaRepo:Repository<OfertaEntity>,
     ) {}
 
     async buscarTomaPorAsignatura(ID_asignatura: number){
@@ -41,5 +54,110 @@ export class EstudianteService {
         const horarios = ramos.flatMap(r => r.oferta?.horarios ?? []);
         return horarios;
     }
+    //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
+    async registrar(dto: any) {
+
+    const existenteEmail = await this.EstudianteRepo.findOne({
+        where: { email: dto.email }
+    });
+
+    if (existenteEmail) {
+        throw new BadRequestException(
+            'El correo ya está registrado'
+        );
+    }
+
+    const existenteRut = await this.EstudianteRepo.findOne({
+        where: { rut: dto.rut }
+    });
+
+    if (existenteRut) {
+        throw new BadRequestException(
+            'El RUT ya está registrado'
+        );
+    }
+
+    const carrera = await this.CarreraRepo.findOne({
+        where: {
+            id_carrera: dto.ID_carrera
+        }
+    });
+
+    if (!carrera) {
+        throw new NotFoundException(
+            'Carrera no encontrada'
+        );
+    }
+
+    const estudiante = this.EstudianteRepo.create({
+        nombre: dto.nombre,
+        apellido: dto.apellido,
+        email: dto.email,
+        rut: dto.rut,
+        nacionalidad: dto.nacionalidad,
+        sexo: dto.sexo,
+        nacimiento: dto.nacimiento,
+        direccion: dto.direccion,
+        telefono: dto.telefono,
+        password: dto.password,
+    });
+
+    estudiante.rol = 1;
+
+
+    const estudianteGuardado =
+        await this.EstudianteRepo.save(estudiante);
+
+    const matricula = this.MatriculaRepo.create({
+        estudiante: estudianteGuardado,
+        carrera: carrera,
+        semestre: 1,
+        estado: 'activa',
+        arancel_aldia: true
+    });
+
+    await this.MatriculaRepo.save(matricula);
+    const asignaturasPrimerSemestre =
+    await this.CarreraAsignaturaRepo.find({
+        where: {
+            carrera: {
+                id_carrera: carrera.id_carrera
+            },
+            semestre: 1
+        },
+        relations: ['asignatura']
+    });
+
+for (const ramo of asignaturasPrimerSemestre) {
+
+    const oferta = await this.OfertaRepo.findOne({
+        where: {
+            asignatura: {
+                ID_asignatura:
+                ramo.asignatura.ID_asignatura
+            }
+        },
+        relations: ['asignatura']
+    });
+
+    if (!oferta) continue;
+
+
+const toma = this.TomaRepo.create({
+    estudiante: { ID_estudiante: estudianteGuardado.ID_estudiante } as any,
+    oferta: { ID_oferta: oferta.ID_oferta } as any,
+    estado: 'inscrita',
+    inscrita: new Date()
+});
+
+await this.TomaRepo.save(toma);
+}
+
+    return {
+        mensaje: 'Usuario registrado correctamente',
+        estudiante: estudianteGuardado,
+        matricula
+    };
+}
 
 }

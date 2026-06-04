@@ -28,6 +28,9 @@ export class UsuarioEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createdAt!: Date;
 
+    @Column({ name: 'role', default: 1 })
+    rol!: number;
+
     @UpdateDateColumn({ type: 'timestamp' })
     updatedAt!: Date;
 
