@@ -106,6 +106,21 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
+    @Get(':asignaturaID/tributas/:carreraID')
+    @ApiOperation({ summary: 'Obtener tributas de una asignatura según una carrera' })
+    @ApiParam({ name: 'asignaturaID', type: Number })
+    @ApiParam({ name: 'carreraID', type: Number })
+    @ApiResponse({ status: 200, description: 'Tributas encontradas' })
+    @ApiResponse({ status: 400, description: 'Parámetros inválidos' })
+    getTributasPorCarrera(
+    @Param('carreraID', ParseIntPipe) carreraID: number,
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(carreraID)) throw new BadRequestException();
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.getTributasPorCarrera(carreraID, asignaturaID);
+    }
+
+    // ───────────────────────────────────────────────────────────────
     @Get(':asignaturaID/prerrequisitos/')
     @ApiOperation({ summary: 'Obtener prerrequisitos de una asignatura' })
     @ApiParam({ name: 'asignaturaID', type: Number })

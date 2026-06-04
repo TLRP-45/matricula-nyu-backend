@@ -140,6 +140,25 @@ export class AsignaturaService {
     }
 
     /**
+     * Obtiene las asignaturas tributas a la dada
+     * @param carreraID Number - Número identificador de la carrera
+     * @param asignaturaID Number - Número identificador de la asignatura
+     * @returns AsignaturaEntity[] - Las asignaturas tributas a la solicitada
+     */
+    async getTributasPorCarrera(carreraID: number, asignaturaID:number){
+        const result = await this.AsignaturaRepo
+        .createQueryBuilder('a')
+        .innerJoinAndSelect('a.esPrerequisitoDe', 'tributa')
+        .innerJoinAndSelect('tributa.es_de', 'cta')
+        .innerJoinAndSelect('cta.carrera', 'c')
+        .where('a.ID_asignatura = :asignaturaID', { asignaturaID })
+        .andWhere('c.id_carrera = :carreraID', { carreraID })
+        .getOne();
+        if (!result)throw new NotFoundException('No se pudieron encontrar tributas para esta asignatura.')
+        return result?.esPrerequisitoDe ?? [];
+    }
+
+    /**
      * Obtiene el arreglo con todos los prerrequisitos directos a
      * la asignatura indicada por id
      * @param carreraID - Número identificador de la carrera
