@@ -31,11 +31,15 @@ export class CreateOfertaDTO {
   hrs_semanales!: number;
 
   @IsInt()
+  semestre!: number;
+
+  @IsInt()
   periodoId!: number;
 
   @IsOptional()
   @IsArray()
   horarios?: {
+    dia: string;
     hora: string;
     duracion: number;
     lugar: string;

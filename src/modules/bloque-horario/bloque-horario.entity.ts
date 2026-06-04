@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, Check } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('')
+@Entity('bloque_horario_entity')
 @Check(`hora IS NOT NULL`)
 @Check(`duracion > 0 AND duracion <= 24`)
 export class BloqueHorarioEntity{
@@ -16,8 +16,15 @@ export class BloqueHorarioEntity{
     @Column({ length: 100, nullable: false })
     lugar!: string;
 
-    @Column({ type: 'datetime', nullable: false })
-    hora!: Date;
+    @Column({ length: 20, nullable: false })
+    dia!: string;
+
+    @Column({ length: 5, nullable: false })
+    hora!: string;
+
+
+    //@Column({ type: 'datetime', nullable: false })
+    //hora!: Date;
 
     @Column()
     duracion!: number;

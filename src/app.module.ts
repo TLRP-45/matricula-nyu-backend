@@ -16,7 +16,6 @@ import { PeriodoInscripcionModule } from './modules/periodo-inscripcion/periodo-
 import { PlazoMatriculaModule } from './modules/plazo-matricula/plazo-matricula.module';
 import { ProfesorModule } from './modules/profesor/profesor.module';
 
-import { OfertaModule } from './modules/oferta/oferta.module';
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,

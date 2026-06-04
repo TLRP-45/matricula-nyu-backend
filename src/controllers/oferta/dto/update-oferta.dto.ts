@@ -27,9 +27,11 @@ export class UpdateOfertaDTO {
   @Min(1)
   hrs_semanales?: number;
 
+
   @IsOptional()
   @IsArray()
   horarios?: {
+    dia: string;
     hora: string;
     duracion: number;
     lugar: string;

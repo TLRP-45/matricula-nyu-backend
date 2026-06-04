@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException
-} from '@nestjs/common';
+import {Injectable,NotFoundException,BadRequestException} from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,50 +14,163 @@ export class OfertaService {
   constructor(
     @InjectRepository(OfertaEntity)
     private readonly ofertaRepo: Repository<OfertaEntity>,
+
+    @InjectRepository(BloqueHorarioEntity)
+    private readonly horarioRepo: Repository<BloqueHorarioEntity>,
   ) {}
 
-  // CREAR (permite incompleto)
-  async crearOferta(data: CreateOfertaDTO) {
 
-    let horarios: BloqueHorarioEntity[] = [];
+  private async validarChoques(
+  carreraId: number,
+  semestre: number,
+  horarios: any[],
+  ofertaId?: number,
+) {
 
-    if (data.horarios?.length) {
-      horarios = data.horarios.map(h => {
-        const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
-        bh.duracion = h.duracion;
-        bh.lugar = h.lugar;
-        return bh;
-      });
+  const ofertas = await this.ofertaRepo.find({
+    where: {
+      carrera: {
+        id_carrera: carreraId,
+      } as any,
+      semestre,
+    },
+    relations: ['horarios'],
+  });
+
+  for (const oferta of ofertas) {
+
+    if (ofertaId && oferta.ID_oferta === ofertaId) {
+      continue;
     }
 
-    const oferta = this.ofertaRepo.create({
-      tipo: data.tipo,
-      grupo: data.grupo,
-      cupos: data.cupos,
-      hrs_semanales: data.hrs_semanales,
+    for (const horarioExistente of oferta.horarios) {
 
-      asignatura: { ID_asignatura: data.asignaturaId } as any,
-      carrera: { id_carrera: data.carreraId } as any,
-      periodo_inscripcion: { ID_periodo: data.periodoId } as any,
+      for (const horarioNuevo of horarios) {
 
-      // 
-      ...(data.profesorId && {
-        profesor: { ID_profesor: data.profesorId } as any,
-      }),
+        const mismoHorario =
+          horarioExistente.dia === horarioNuevo.dia &&
+          horarioExistente.hora === horarioNuevo.hora;
 
-      ...(horarios.length && { horarios }),
+        if (mismoHorario) {
+          throw new BadRequestException(
+            'Ya existe una oferta del mismo semestre en ese horario'
+          );
+        }
+
+        const mismaSala =
+          horarioExistente.dia === horarioNuevo.dia &&
+          horarioExistente.hora === horarioNuevo.hora &&
+          horarioExistente.lugar === horarioNuevo.lugar;
+
+        if (mismaSala) {
+          throw new BadRequestException(
+            'La sala ya está ocupada'
+          );
+        }
+      }
+    }
+  }
+}
+
+  // CREAR (permite incompleto)
+async crearOferta(data: CreateOfertaDTO) {
+
+  let horarios: BloqueHorarioEntity[] = [];
+
+  if (data.horarios?.length) {
+
+    const ofertasExistentes = await this.ofertaRepo.find({
+      where: {
+        semestre: data.semestre,
+        carrera: {
+          id_carrera: data.carreraId,
+        } as any,
+      },
+      relations: ['horarios'],
     });
 
-    return this.ofertaRepo.save(oferta);
+    for (const ofertaExistente of ofertasExistentes) {
+
+      for (const horarioExistente of ofertaExistente.horarios) {
+
+        for (const nuevoHorario of data.horarios) {
+
+          const mismoHorario =
+            horarioExistente.dia === nuevoHorario.dia &&
+            horarioExistente.hora === nuevoHorario.hora;
+
+          if (mismoHorario) {
+            throw new BadRequestException(
+              'Ya existe una oferta del mismo semestre con ese horario'
+            );
+          }
+
+          const mismaSala =
+            horarioExistente.dia === nuevoHorario.dia &&
+            horarioExistente.hora === nuevoHorario.hora &&
+            horarioExistente.lugar === nuevoHorario.lugar;
+
+          if (mismaSala) {
+            throw new BadRequestException(
+              'La sala ya está ocupada en ese horario'
+            );
+          }
+        }
+      }
+    }
+
+    horarios = data.horarios.map(h => {
+
+      const bh = new BloqueHorarioEntity();
+
+      bh.dia = h.dia;
+      bh.hora = h.hora;
+      bh.duracion = h.duracion;
+      bh.lugar = h.lugar;
+
+      return bh;
+    });
   }
 
+  const oferta = this.ofertaRepo.create({
+
+    tipo: data.tipo,
+    grupo: data.grupo,
+    cupos: data.cupos,
+    hrs_semanales: data.hrs_semanales,
+    semestre: data.semestre,
+
+    asignatura: {
+      ID_asignatura: data.asignaturaId,
+    } as any,
+
+    carrera: {
+      id_carrera: data.carreraId,
+    } as any,
+
+    periodo_inscripcion: {
+      ID_periodo: data.periodoId,
+    } as any,
+
+    ...(data.profesorId && {
+      profesor: {
+        ID_profesor: data.profesorId,
+      } as any,
+    }),
+
+    ...(horarios.length && {
+      horarios,
+    }),
+  });
+
+  return this.ofertaRepo.save(oferta);
+}
   //  EDITAR
   async editarOferta(id: number, data: UpdateOfertaDTO) {
 
     const oferta = await this.ofertaRepo.findOne({
       where: { ID_oferta: id },
-      relations: ['horarios']
+      relations: ['horarios','carrera']
     });
 
     if (!oferta) {
@@ -81,20 +190,127 @@ export class OfertaService {
         (oferta as any).profesor = undefined;
       }
     }
+if (data.horarios) {
 
-    if (data.horarios) {
-      oferta.horarios = data.horarios.map(h => {
-        const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
-        bh.duracion = h.duracion;
-        bh.lugar = h.lugar;
-        return bh;
-      });
+  const ofertasExistentes = await this.ofertaRepo.find({
+    where: {
+      semestre: oferta.semestre,
+      carrera: {
+        id_carrera: oferta.carrera.id_carrera,
+      } as any,
+    },
+    relations: ['horarios'],
+  });
+
+  for (const ofertaExistente of ofertasExistentes) {
+
+    if (ofertaExistente.ID_oferta === oferta.ID_oferta) {
+      continue;
     }
 
-    return this.ofertaRepo.save(oferta);
+    for (const horarioExistente of ofertaExistente.horarios) {
+
+      for (const nuevoHorario of data.horarios) {
+
+        const mismoHorario =
+          horarioExistente.dia === nuevoHorario.dia &&
+          horarioExistente.hora === nuevoHorario.hora;
+
+        if (mismoHorario) {
+          throw new BadRequestException(
+            'Ya existe una oferta del mismo semestre con ese horario'
+          );
+        }
+
+        const mismaSala =
+          horarioExistente.dia === nuevoHorario.dia &&
+          horarioExistente.hora === nuevoHorario.hora &&
+          horarioExistente.lugar === nuevoHorario.lugar;
+
+        if (mismaSala) {
+          throw new BadRequestException(
+            'La sala ya está ocupada en ese horario'
+          );
+        }
+      }
+    }
+  }
+if (data.horarios){
+  await this.horarioRepo.delete({
+    ID_oferta: oferta.ID_oferta,
+  })
+}
+    oferta.horarios = data.horarios.map(h => {
+
+      const bh = new BloqueHorarioEntity();
+
+      bh.dia = h.dia;
+      bh.hora = h.hora;
+      bh.duracion = h.duracion;
+      bh.lugar = h.lugar;
+
+      return bh;
+    });
+}if (data.horarios) {
+
+  const ofertasExistentes = await this.ofertaRepo.find({
+    where: {
+      semestre: oferta.semestre,
+      carrera: {
+        id_carrera: oferta.carrera.id_carrera,
+      } as any,
+    },
+    relations: ['horarios'],
+  });
+
+  for (const ofertaExistente of ofertasExistentes) {
+
+    if (ofertaExistente.ID_oferta === oferta.ID_oferta) {
+      continue;
+    }
+
+    for (const horarioExistente of ofertaExistente.horarios) {
+
+      for (const nuevoHorario of data.horarios) {
+
+        const mismoHorario =
+          horarioExistente.dia === nuevoHorario.dia &&
+          horarioExistente.hora === nuevoHorario.hora;
+
+        if (mismoHorario) {
+          throw new BadRequestException(
+            'Ya existe una oferta del mismo semestre con ese horario'
+          );
+        }
+
+        const mismaSala =
+          horarioExistente.dia === nuevoHorario.dia &&
+          horarioExistente.hora === nuevoHorario.hora &&
+          horarioExistente.lugar === nuevoHorario.lugar;
+
+        if (mismaSala) {
+          throw new BadRequestException(
+            'La sala ya está ocupada en ese horario'
+          );
+        }
+      }
+    }
   }
 
+  oferta.horarios = data.horarios.map(h => {
+
+    const bh = new BloqueHorarioEntity();
+
+    bh.dia = h.dia;
+    bh.hora = h.hora;
+    bh.duracion = h.duracion;
+    bh.lugar = h.lugar;
+
+    return bh;
+  });
+  return this.ofertaRepo.save(oferta);
+  }
+}
   // PUBLICAR
   async publicarOferta(id: number) {
 

@@ -35,7 +35,9 @@ export class BloqueHorarioService {
     }
   }
 
-  private toMinutes(date: Date): number {
-    return date.getHours() * 60 + date.getMinutes();
+  private toMinutes(hora: string): number {
+    const [horas, minutos] = hora.split(':').map(Number);
+
+    return horas * 60 + minutos;
     }
 }

@@ -13,7 +13,7 @@ import { CarreraEntity } from "../carrera/carrera.entity";
 @Entity('oferta_entity')
 export class OfertaEntity {
 
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({unsigned: true})
   ID_oferta!: number;
 
   @Column({ type: 'enum', enum: ['C', 'T', 'L'] })
@@ -28,9 +28,9 @@ export class OfertaEntity {
   @Column()
   hrs_semanales!: number;
 
-  //@Column({ unsigned: true, nullable: true })
-  //ID_profesor!: number;
-
+  @Column()
+  semestre!: number;
+  
   @ManyToOne(() => ProfesorEntity, (prof) => prof.clases, {
     nullable: true,
     //onDelete: 'SET NULL'
@@ -51,7 +51,8 @@ export class OfertaEntity {
   periodo_inscripcion!: PeriodoInscripcionEntity;
 
   @OneToMany(() => BloqueHorarioEntity, (bh) => bh.oferta, {
-    cascade: true
+    cascade: true,
+    orphanedRowAction: 'delete',
   })
   horarios!: BloqueHorarioEntity[];
 
