@@ -11,11 +11,11 @@ import { Type } from 'class-transformer';
 import { AsignaturaCarreraDto } from '../asignatura/asignatura.controller';
 import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
-export class CarreraAsignaturaDto {
+export class CarreraAgregarAsignaturaDto {
     @ApiProperty({
         description: 'ID de la asignatura a la que se asociará a la carrera',
-        type: [Number],
-        example: [1, 5, 12]
+        type: Number,
+        example: 1
     })
     @IsInt()
     ID_asignatura!: number;
@@ -37,16 +37,14 @@ export class CarreraAsignaturaDto {
     posicion!: number;
 }
 
-export class CarreraMatriculaDto {
+export class CarreraEliminarAsignaturaDto {
     @ApiProperty({
-        description: 'Lista de IDs de matriculas a manipular',
-        type: [Number],
-        example: [1, 5, 12]
+        description: 'ID de la asignatura a la que se asociará a la carrera',
+        type: Number,
+        example: 4
     })
-    @IsArray()
-    @IsInt({each:true})
-    @Type(()=> Number)
-    ID_matriculas!: number[];
+    @IsInt()
+    ID_asignatura!: number;
 }
 
 
@@ -214,14 +212,14 @@ export class CarreraController {
     summary: 'Agregar una asignatura a una carrera',
   })
   @ApiParam({ name: 'carreraID', type: Number })
-  @ApiBody({ type: CarreraAsignaturaDto })
+  @ApiBody({ type: CarreraAgregarAsignaturaDto })
   @ApiResponse({
     status: 200,
     description: 'Asignatura agregada correctamente',
   })
   putPushAsignaturaCarrera(
   @Param('carreraID', ParseIntPipe) carreraID: number,
-  @Body() ctaDTO: CarreraAsignaturaDto){
+  @Body() ctaDTO: CarreraAgregarAsignaturaDto){
     if(isNaN(carreraID)) throw new BadRequestException();
     const aux = new AsignaturaCarreraDto();
     aux.ID_carrera = carreraID;
@@ -236,19 +234,17 @@ export class CarreraController {
     summary: 'Eliminar una asignatura de una carrera',
   })
   @ApiParam({ name: 'carreraID', type: Number })
-  @ApiBody({ type: CarreraAsignaturaDto })
+  @ApiBody({ type: CarreraEliminarAsignaturaDto })
   @ApiResponse({
     status: 200,
     description: 'Asignatura removida correctamente',
   })
   putRemoveAsignaturaCarrera(
   @Param('carreraID', ParseIntPipe) carreraID: number,
-  @Body() ctaDTO: CarreraAsignaturaDto){
+  @Body() ctaDTO: CarreraEliminarAsignaturaDto){
     if(isNaN(carreraID)) throw new BadRequestException();
     const aux = new AsignaturaCarreraDto();
     aux.ID_carrera = carreraID;
-    aux.posicion = ctaDTO.posicion;
-    aux.semestre = ctaDTO.semestre;
     return this. asignaturaService.removeCarrera(ctaDTO.ID_asignatura, aux);
   }
 
