@@ -8,8 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { OfertaEntity } from './oferta.entity';
-import { CreateOfertaDTO } from '../../controllers/oferta/dto/create-oferta.dto';
-import { UpdateOfertaDTO } from '../../controllers/oferta/dto/update-oferta.dto';
+import { CreateOfertaDTO } from './dto/create-oferta.dto';
+import { UpdateOfertaDTO } from './dto/update-oferta.dto';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 
 @Injectable()

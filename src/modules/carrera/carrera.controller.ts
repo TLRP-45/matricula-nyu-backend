@@ -71,6 +71,21 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
+  @Get('estudiante/:estudianteID')
+  @ApiOperation({ summary: 'Obtener carrera por estudiante' })
+  @ApiParam({ name: 'estudianteID', type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Carrera del estudiante solicitado',
+  })
+  getCarreraEstudiante(
+    @Param('estudianteID', ParseIntPipe) estudianteID: number,
+  ){
+    if (isNaN(estudianteID)) throw new BadRequestException();
+    return this.carreraService.getCarreraPorEstudiante(estudianteID);
+  }
+
+  // ───────────────────────────────────────────────────────────────
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una carrera por ID' })
   @ApiParam({ name: 'id', type: Number, description: 'ID de la carrera' })
@@ -86,6 +101,24 @@ export class CarreraController {
   async getCarrera(@Param('id', ParseIntPipe) id: number) {
       if (isNaN(id)) throw new BadRequestException();
       return await this.carreraService.getCarrera(id);
+  }
+
+  // ───────────────────────────────────────────────────────────────
+  @Get(':id/semestres')
+  @ApiOperation({ summary: 'Obtener cuántos semestres tiene una carrera por ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'ID de la carrera' })
+  @ApiResponse({
+    status: 200,
+    description: 'Carrera encontrada',
+    type: CarreraEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Carrera no encontrada',
+  })
+  async getCarreraSemestres(@Param('id', ParseIntPipe) id: number) {
+      if (isNaN(id)) throw new BadRequestException();
+      return await this.carreraService.getCarreraSemestres(id);
   }
 
   // ───────────────────────────────────────────────────────────────
