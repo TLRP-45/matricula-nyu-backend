@@ -1,19 +1,43 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AsignaturaController } from './asignatura.controller';
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaEntity } from './asignatura.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
+import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
+import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
+import { CarreraModule } from '../carrera/carrera.module';
+import { EstudianteModule } from '../usuario/usuario.module';
+import { MatriculaModule } from '../matricula/matricula.module';
+import { OfertaModule } from '../oferta/oferta.module';
+import { PeriodoInscripcionModule } from '../periodo-inscripcion/periodo-inscripcion.module';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
+import { ProfesorModule } from '../profesor/profesor.module';
+import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
+import { MatriculaEntity } from '../matricula/matricula.entity';
+import { CarreraEntity } from '../carrera/carrera.entity';
 
 @Module({
   imports: [
       TypeOrmModule.forFeature([
         AsignaturaEntity,
-        EstudianteEntity
+        UsuarioEntity,
+        EstudianteTomaOfertaEntity,
+        CarreraTieneAsignaturaEntity,
+        MatriculaEntity,
+        CarreraEntity
       ]),
+      forwardRef(() =>PlazoMatriculaModule),
+      forwardRef(() => BloqueHorarioModule),
+      forwardRef(() =>CarreraModule),
+      forwardRef(() =>EstudianteModule),
+      forwardRef(() =>MatriculaModule),
+      forwardRef(() =>OfertaModule),
+      forwardRef(() =>PeriodoInscripcionModule),
+      forwardRef(() =>ProfesorModule),
     ],
   controllers: [AsignaturaController],
   providers: [AsignaturaService],
-  exports: [TypeOrmModule, AsignaturaService, AsignaturaController],
+  exports: [AsignaturaService],
 })
 export class AsignaturaModule {}

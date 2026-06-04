@@ -1,12 +1,12 @@
 import { AppDataSource } from '../../config/typeorm.config';
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 
 async function seed() {
   await AppDataSource.initialize();
 
-  const repo = AppDataSource.getRepository(EstudianteEntity);
+  const repo = AppDataSource.getRepository(UsuarioEntity);
 
-  const estudiantes: Partial<EstudianteEntity>[] = [
+  const estudiantes: Partial<UsuarioEntity>[] = [
     {
       nombre: 'Juan',
       apellido: 'Pérez',

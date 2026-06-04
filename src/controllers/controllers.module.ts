@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DesinscripcionController } from './desinscripcion/desinscripcion.controller';
 import { DesincripcionService } from '../services/desincripcion/desincripcion.service';
-import { EstudianteTomaOfertaEntity } from '../modules/estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../modules/usuario/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../modules/periodo-inscripcion/preiodo-inscripcion.entity';
-import { EstudianteEntity } from '../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../modules/usuario/usuario.entity';
 import { InscripcionesController } from './inscripcion/inscripciones.controller';
 import { InscripcionesService } from '../services/inscripcion/inscripciones.service';
 import { AsignaturaEntity } from '../modules/asignatura/asignatura.entity';
@@ -17,13 +17,21 @@ import { ProfesorEntity } from '../modules/profesor/profesor.entity';
 import { AsignaturaService } from '../modules/asignatura/asignatura.service';
 import { BloqueHorarioService } from '../modules/bloque-horario/bloque-horario.service';
 import { CarreraService } from '../modules/carrera/carrera.service';
-import { EstudianteService } from '../modules/estudiante/estudiante.service';
+import { EstudianteService } from '../modules/usuario/usuario.service';
 import { MatriculaService } from '../modules/matricula/matricula.service';
 import { OfertaService } from '../modules/oferta/oferta.service';
 import { PeriodoInscripcionService } from '../modules/periodo-inscripcion/periodo-inscripcion.service';
 import { ProfesorService } from '../modules/profesor/profesor.service';
 import { PlazoMatricula } from '../modules/plazo-matricula/plazo-matricula.entity';
 import { AutenticacionController } from './autenticacion/autenticacion.controller';
+import { PlazoMatriculaModule } from '../modules/plazo-matricula/plazo-matricula.module';
+import { AsignaturaModule } from '../modules/asignatura/asignatura.module';
+import { BloqueHorarioModule } from '../modules/bloque-horario/bloque-horario.module';
+import { CarreraModule } from '../modules/carrera/carrera.module';
+import { EstudianteModule } from '../modules/usuario/usuario.module';
+import { MatriculaModule } from '../modules/matricula/matricula.module';
+import { OfertaModule } from '../modules/oferta/oferta.module';
+import { PeriodoInscripcionModule } from '../modules/periodo-inscripcion/periodo-inscripcion.module';
 import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuario.controller';
 
 
@@ -32,7 +40,7 @@ import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuari
     AsignaturaEntity,
     BloqueHorarioEntity,
     CarreraEntity,
-    EstudianteEntity,
+    UsuarioEntity,
     EstudianteTomaOfertaEntity,
     MatriculaEntity,
     CarreraTieneAsignaturaEntity,
@@ -40,7 +48,15 @@ import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuari
     OfertaEntity,
     PeriodoInscripcionEntity,
     PlazoMatricula,
-    ])
+    ]),
+    PlazoMatriculaModule,
+    AsignaturaModule,
+    BloqueHorarioModule,
+    CarreraModule,
+    EstudianteModule,
+    MatriculaModule,
+    OfertaModule,
+    PeriodoInscripcionModule
   ],
   controllers: [
     DesinscripcionController,

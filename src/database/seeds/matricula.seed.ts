@@ -1,13 +1,13 @@
 import { AppDataSource } from '../../config/typeorm.config';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { CarreraEntity } from '../../modules/carrera/carrera.entity';
 
 async function seed() {
   await AppDataSource.initialize();
 
   const matriculaRepo = AppDataSource.getRepository(MatriculaEntity);
-  const estudianteRepo = AppDataSource.getRepository(EstudianteEntity);
+  const estudianteRepo = AppDataSource.getRepository(UsuarioEntity);
   const carreraRepo = AppDataSource.getRepository(CarreraEntity);
 
   const estudiante1 = await estudianteRepo.findOneBy({ ID_estudiante: 1 });

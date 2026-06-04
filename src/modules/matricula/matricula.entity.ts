@@ -1,11 +1,11 @@
 import { Entity, Index, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { EstudianteEntity } from '../estudiante/estudiante.entity';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class MatriculaEntity {
-     @PrimaryGeneratedColumn({ unsigned: true })
+    @PrimaryGeneratedColumn({ unsigned: true })
     ID_matricula!: number;
 
     @DeleteDateColumn()
@@ -18,10 +18,10 @@ export class MatriculaEntity {
     arancel_aldia!: boolean;
 
     @Index()
-    @ManyToOne(() => EstudianteEntity, (est) => est.matriculas,
+    @ManyToOne(() => UsuarioEntity, (est) => est.matriculas,
     {nullable: false})
     @JoinColumn({name: 'ID_estudiante'})
-    estudiante!: EstudianteEntity;
+    estudiante!: UsuarioEntity;
 
     @Index()
     @ManyToOne(() => CarreraEntity, (est) => est.matriculados,

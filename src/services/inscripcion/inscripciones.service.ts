@@ -3,24 +3,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MoreThan } from 'typeorm';
 
-import { EstudianteEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
-import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
 import { OfertaService } from '../../modules/oferta/oferta.service';
 import { AsignaturaService } from '../../modules/asignatura/asignatura.service';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
-import { EstudianteService } from '../../modules/estudiante/estudiante.service';
+import { EstudianteService } from '../../modules/usuario/usuario.service';
 import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horario.service';
 
 @Injectable()
 export class InscripcionesService {
   constructor(
-    @InjectRepository(EstudianteEntity)
-    private readonly estudianteRepo: Repository<EstudianteEntity>,
+    @InjectRepository(UsuarioEntity)
+    private readonly estudianteRepo: Repository<UsuarioEntity>,
 
     @InjectRepository(OfertaEntity)
     private readonly ofertaRepo: Repository<OfertaEntity>,
@@ -78,7 +78,7 @@ export class InscripcionesService {
 
 
     // Validación de Prerrequisitos
-    if ( await !this.AsignaturaService.cumplePrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
+    if ( await !this.AsignaturaService.cumpleTodosLosPrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
 
     //  Validación de cupos
     if ( await !this.OfertaService.cuposDisponibles(ofertaId))throw new BadRequestException('No hay cupos disponibles');
