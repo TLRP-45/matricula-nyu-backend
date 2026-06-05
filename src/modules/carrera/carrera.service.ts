@@ -152,7 +152,6 @@ export class CarreraService {
             .innerJoin('cta.carrera', 'c')
             .where('c.id_carrera = :id', { id })
             .getRawOne();
-        console.log(result);
         if (!result)throw new NotFoundException('No se pudo encontrar carrera')
         return Number(result.maxSemestre);
     }

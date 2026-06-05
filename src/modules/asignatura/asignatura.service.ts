@@ -108,11 +108,11 @@ export class AsignaturaService {
         const result = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .leftJoinAndSelect('cta.asignatura', 'asignatura')
-            .where('cta.ID_carrera = :carreraId', { carreraID })
+            .where('cta.ID_carrera = :carreraID', { carreraID })
             .andWhere('cta.semestre = :semestre', { semestre })
             .getMany();
         if (!result)throw new NotFoundException('No se encontraron asignaturas hasta ese semestre.')
-        return result;
+        return result.map(cta => cta.asignatura);
     }
 
     /**
