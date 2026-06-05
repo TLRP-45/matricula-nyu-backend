@@ -256,31 +256,45 @@ export class AsignaturaService {
      * @param preID number - Número identificador de asignatura
      */
     async pushPrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto) {
-        const existe = await this.AsignaturaRepo
-        .createQueryBuilder('a')
-        .innerJoin('a.prerrequisitos', 'p')
-        .where('p.asignaturaEntityIDAsignatura_1 = :aID', { aID })
-        .andWhere('p.asignaturaEntityIDAsignatura_2 IN (:...preID)', { preID: preID.ID_prerrequisitos })
-        .getOne();
-        if(existe)throw new BadRequestException('Relación ya existente');
+        if (preID.ID_prerrequisitos.some(id => id === aID)) {
+            throw new BadRequestException(
+            'No se puede hacer prerrequisito la misma asignatura'
+            );
+        }
 
-        if(preID.ID_prerrequisitos.some(id => id === aID))
-            throw new BadRequestException('No se puede hacer prerrequisito la misma asignatura');
-        
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
         });
-        if (!asignatura)
+
+        if (!asignatura) {
             throw new NotFoundException('Asignatura no encontrada');
+        }
 
         const prerrequisitos = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
+            where: {
+            ID_asignatura: In(preID.ID_prerrequisitos),
+            },
         });
-        if (prerrequisitos.length === 0)
-            throw new NotFoundException('Prerrequisitos no encontrados');
 
-        asignatura.prerrequisitos.push(...prerrequisitos);
+        if (prerrequisitos.length === 0) {
+            throw new NotFoundException('Prerrequisitos no encontrados');
+        }
+
+        // evitar duplicados
+        const existentes = new Set(
+            asignatura.prerrequisitos.map(p => p.ID_asignatura)
+        );
+
+        const nuevos = prerrequisitos.filter(
+            p => !existentes.has(p.ID_asignatura)
+        );
+
+        if (nuevos.length === 0) {
+            throw new BadRequestException('Relación ya existente');
+        }
+
+        asignatura.prerrequisitos.push(...nuevos);
 
         await this.AsignaturaRepo.save(asignatura);
     }
