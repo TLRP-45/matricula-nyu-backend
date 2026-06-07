@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
 

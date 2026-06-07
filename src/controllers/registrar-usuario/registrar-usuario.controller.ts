@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { EstudianteService } from '../../modules/estudiante/estudiante.service';
+import { EstudianteService } from '../../modules/usuario/usuario.service';
 import { Type } from 'class-transformer';
 
 import {

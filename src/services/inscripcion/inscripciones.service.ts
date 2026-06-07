@@ -3,17 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MoreThan } from 'typeorm';
 
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
-import { EstudianteTomaOfertaEntity } from '../../modules/estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
 import { OfertaService } from '../../modules/oferta/oferta.service';
 import { AsignaturaService } from '../../modules/asignatura/asignatura.service';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
-import { EstudianteService } from '../../modules/estudiante/estudiante.service';
+import { EstudianteService } from '../../modules/usuario/usuario.service';
 import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horario.service';
 
 @Injectable()

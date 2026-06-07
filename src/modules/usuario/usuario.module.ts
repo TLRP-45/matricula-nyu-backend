@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { EstudianteController } from './estudiante.controller';
-import { EstudianteService } from './estudiante.service';
+import { EstudianteController } from './usuario.controller';
+import { EstudianteService } from './usuario.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
-import { UsuarioEntity } from './estudiante.entity';
+import { UsuarioEntity } from './usuario.entity';
 import { MatriculaEntity } from '../matricula/matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, Index, Check } from "typeorm";
 import { ProfesorEntity } from "../profesor/profesor.entity";
 import { AsignaturaEntity } from "../asignatura/asignatura.entity";
-import { EstudianteTomaOfertaEntity } from "../estudiante/estudiante-toma-oferta.entity";
+import { EstudianteTomaOfertaEntity } from "../usuario/estudiante-toma-oferta.entity";
 import { BloqueHorarioEntity } from "../bloque-horario/bloque-horario.entity";
 import { PeriodoInscripcionEntity } from "../periodo-inscripcion/preiodo-inscripcion.entity";
 

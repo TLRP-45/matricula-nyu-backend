@@ -3,7 +3,7 @@ import { OfertaEntity } from './oferta.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AsignaturaEntity } from '../asignatura/asignatura.entity';
-import { EstudianteTomaOfertaEntity } from '../estudiante/estudiante-toma-oferta.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 @Injectable()
 export class OfertaService {
