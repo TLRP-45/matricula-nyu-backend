@@ -56,7 +56,6 @@ export class EstudianteService {
     }
     //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
     async registrar(dto: any) {
-
     const existenteEmail = await this.EstudianteRepo.findOne({
         where: { email: dto.email }
     });
@@ -77,7 +76,16 @@ export class EstudianteService {
         );
     }
 
-    const carrera = await this.CarreraRepo.findOne({
+let carrera: CarreraEntity | null = null;
+if (dto.rol === 1) {
+
+    if (!dto.ID_carrera) {
+        throw new BadRequestException(
+            'Debe seleccionar una carrera'
+        );
+    }
+
+    carrera = await this.CarreraRepo.findOne({
         where: {
             id_carrera: dto.ID_carrera
         }
@@ -88,6 +96,7 @@ export class EstudianteService {
             'Carrera no encontrada'
         );
     }
+}
 
     const estudiante = this.EstudianteRepo.create({
         nombre: dto.nombre,
@@ -100,17 +109,24 @@ export class EstudianteService {
         direccion: dto.direccion,
         telefono: dto.telefono,
         password: dto.password,
+        rol: dto.rol
     });
 
-    estudiante.rol = 1;
 
 
     const estudianteGuardado =
         await this.EstudianteRepo.save(estudiante);
 
+        if (dto.rol === 0) {
+    return {
+        mensaje: 'Administrador registrado correctamente',
+        estudiante: estudianteGuardado
+    };
+}
+
     const matricula = this.MatriculaRepo.create({
         estudiante: estudianteGuardado,
-        carrera: carrera,
+        carrera: carrera!,
         semestre: 1,
         estado: 'activa',
         arancel_aldia: true
@@ -121,7 +137,7 @@ export class EstudianteService {
     await this.CarreraAsignaturaRepo.find({
         where: {
             carrera: {
-                id_carrera: carrera.id_carrera
+                id_carrera: carrera!.id_carrera
             },
             semestre: 1
         },
