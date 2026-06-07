@@ -3,7 +3,7 @@ import { EstudianteController } from './estudiante.controller';
 import { EstudianteService } from './estudiante.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
-import { EstudianteEntity } from './estudiante.entity';
+import { UsuarioEntity } from './estudiante.entity';
 import { MatriculaEntity } from '../matricula/matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
@@ -13,7 +13,7 @@ import { OfertaEntity } from '../oferta/oferta.entity';
   imports: [
     TypeOrmModule.forFeature([
       EstudianteTomaOfertaEntity,
-      EstudianteEntity,
+      UsuarioEntity,
       MatriculaEntity,
       CarreraEntity,
       CarreraTieneAsignaturaEntity,

@@ -7,7 +7,7 @@ import { MatriculaEntity } from '../matricula/matricula.entity';
 @Check(`char_length(apellido) >= 2`)
 @Check(`nacimiento <= CURRENT_DATE`)
 @Check(`sexo IN ('M','F','O')`)
-export class EstudianteEntity {
+export class UsuarioEntity {
      @PrimaryGeneratedColumn({ unsigned: true })
     ID_estudiante!: number;
 

@@ -5,7 +5,7 @@ import { DesincripcionService } from '../services/desincripcion/desincripcion.se
 import { EstudianteTomaOfertaEntity } from '../modules/estudiante/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../modules/periodo-inscripcion/preiodo-inscripcion.entity';
-import { EstudianteEntity } from '../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../modules/estudiante/estudiante.entity';
 import { InscripcionesController } from './inscripcion/inscripciones.controller';
 import { InscripcionesService } from '../services/inscripcion/inscripciones.service';
 import { AsignaturaEntity } from '../modules/asignatura/asignatura.entity';
@@ -32,7 +32,7 @@ import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuari
     AsignaturaEntity,
     BloqueHorarioEntity,
     CarreraEntity,
-    EstudianteEntity,
+    UsuarioEntity,
     EstudianteTomaOfertaEntity,
     MatriculaEntity,
     CarreraTieneAsignaturaEntity,
