@@ -1,16 +1,22 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { EstudianteService } from '../../modules/estudiante/estudiante.service';
+import { Type } from 'class-transformer';
 
 import {
+IsOptional,
   IsEmail,
   IsString,
   Length,
-  IsIn
+  IsIn,
+  IsNumber
 } from 'class-validator';
 
 class RegistroEstudianteDto {
     
-    ID_carrera!: number;
+ @IsOptional()
+@Type(() => Number)
+@IsNumber()
+ID_carrera?: number;
 
     @IsString()
     @Length(2,100)
@@ -22,6 +28,10 @@ class RegistroEstudianteDto {
 
     @IsEmail()
     email!: string;
+
+    @Type(() => Number)
+    @IsNumber()
+    rol!: number;
 
     @IsString()
     rut!: string;
