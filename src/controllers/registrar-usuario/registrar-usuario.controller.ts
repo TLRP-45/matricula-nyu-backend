@@ -13,10 +13,10 @@ IsOptional,
 
 class RegistroEstudianteDto {
     
- @IsOptional()
-@Type(() => Number)
-@IsNumber()
-ID_carrera?: number;
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    ID_carrera?: number;
 
     @IsString()
     @Length(2,100)
