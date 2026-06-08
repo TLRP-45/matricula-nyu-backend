@@ -24,6 +24,14 @@ import { PeriodoInscripcionService } from '../modules/periodo-inscripcion/period
 import { ProfesorService } from '../modules/profesor/profesor.service';
 import { PlazoMatricula } from '../modules/plazo-matricula/plazo-matricula.entity';
 import { AutenticacionController } from './autenticacion/autenticacion.controller';
+import { PlazoMatriculaModule } from '../modules/plazo-matricula/plazo-matricula.module';
+import { AsignaturaModule } from '../modules/asignatura/asignatura.module';
+import { BloqueHorarioModule } from '../modules/bloque-horario/bloque-horario.module';
+import { CarreraModule } from '../modules/carrera/carrera.module';
+import { EstudianteModule } from '../modules/usuario/usuario.module';
+import { MatriculaModule } from '../modules/matricula/matricula.module';
+import { OfertaModule } from '../modules/oferta/oferta.module';
+import { PeriodoInscripcionModule } from '../modules/periodo-inscripcion/periodo-inscripcion.module';
 import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuario.controller';
 
 
@@ -40,7 +48,15 @@ import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuari
     OfertaEntity,
     PeriodoInscripcionEntity,
     PlazoMatricula,
-    ])
+    ]),
+    PlazoMatriculaModule,
+    AsignaturaModule,
+    BloqueHorarioModule,
+    CarreraModule,
+    EstudianteModule,
+    MatriculaModule,
+    OfertaModule,
+    PeriodoInscripcionModule
   ],
   controllers: [
     DesinscripcionController,

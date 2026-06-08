@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
 import { UsuarioEntity } from "./usuario.entity";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
@@ -22,4 +22,7 @@ export class EstudianteTomaOfertaEntity{
 
     @Column({type: 'date'})
     inscrita!: Date;
+
+    @DeleteDateColumn()
+    deletedAt!: Date;
 }

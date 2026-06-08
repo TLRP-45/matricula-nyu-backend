@@ -78,7 +78,7 @@ export class InscripcionesService {
 
 
     // Validación de Prerrequisitos
-    if ( await !this.AsignaturaService.cumplePrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
+    if ( await !this.AsignaturaService.cumpleTodosLosPrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
 
     //  Validación de cupos
     if ( await !this.OfertaService.cuposDisponibles(ofertaId))throw new BadRequestException('No hay cupos disponibles');

@@ -5,7 +5,7 @@ import { DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class MatriculaEntity {
-     @PrimaryGeneratedColumn({ unsigned: true })
+    @PrimaryGeneratedColumn({ unsigned: true })
     ID_matricula!: number;
 
     @DeleteDateColumn()

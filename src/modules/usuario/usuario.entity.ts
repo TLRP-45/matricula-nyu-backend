@@ -1,6 +1,7 @@
 import { Check, Entity, Index, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 import { MatriculaEntity } from '../matricula/matricula.entity';
+import { RolUsuario } from './rol-usuario.enum';
 
 @Entity()
 @Check(`char_length(nombre) >= 2`)
@@ -8,7 +9,7 @@ import { MatriculaEntity } from '../matricula/matricula.entity';
 @Check(`nacimiento <= CURRENT_DATE`)
 @Check(`sexo IN ('M','F','O')`)
 export class UsuarioEntity {
-     @PrimaryGeneratedColumn({ unsigned: true })
+    @PrimaryGeneratedColumn({ unsigned: true })
     ID_estudiante!: number;
 
     @Column({ length: 100, nullable: false })
@@ -43,7 +44,7 @@ export class UsuarioEntity {
     @OneToMany(
         () => MatriculaEntity,
         (toma) => toma.estudiante,
-        { nullable: false }
+        { nullable: true }
     )
     matriculas!: MatriculaEntity[];
 
@@ -68,5 +69,10 @@ export class UsuarioEntity {
 
     @Column()
     password!: string;
-}
 
+    @Column({
+        type: "enum",
+        enum: RolUsuario,
+    })
+    rol!: RolUsuario;
+}

@@ -56,6 +56,7 @@ export class EstudianteService {
     }
     //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
     async registrar(dto: any) {
+
     const existenteEmail = await this.EstudianteRepo.findOne({
         where: { email: dto.email }
     });
@@ -86,6 +87,7 @@ if (dto.rol === 1) {
     }
 
     carrera = await this.CarreraRepo.findOne({
+    const carrera = await this.CarreraRepo.findOne({
         where: {
             id_carrera: dto.ID_carrera
         }
@@ -96,7 +98,6 @@ if (dto.rol === 1) {
             'Carrera no encontrada'
         );
     }
-}
 
     const estudiante = this.EstudianteRepo.create({
         nombre: dto.nombre,
@@ -109,9 +110,9 @@ if (dto.rol === 1) {
         direccion: dto.direccion,
         telefono: dto.telefono,
         password: dto.password,
-        rol: dto.rol
     });
 
+    estudiante.rol = 1;
 
 
     const estudianteGuardado =
@@ -126,7 +127,7 @@ if (dto.rol === 1) {
 
     const matricula = this.MatriculaRepo.create({
         estudiante: estudianteGuardado,
-        carrera: carrera!,
+        carrera: carrera,
         semestre: 1,
         estado: 'activa',
         arancel_aldia: true
@@ -137,7 +138,7 @@ if (dto.rol === 1) {
     await this.CarreraAsignaturaRepo.find({
         where: {
             carrera: {
-                id_carrera: carrera!.id_carrera
+                id_carrera: carrera.id_carrera
             },
             semestre: 1
         },

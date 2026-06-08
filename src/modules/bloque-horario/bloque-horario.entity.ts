@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Index, Check } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('')
+@Entity('bloque_horario_entity')
 @Check(`hora IS NOT NULL`)
 @Check(`duracion > 0 AND duracion <= 24`)
 export class BloqueHorarioEntity{
