@@ -47,6 +47,16 @@ export class CarreraEliminarAsignaturaDto {
     ID_asignatura!: number;
 }
 
+export class SemestreDto {
+  @ApiProperty({
+        description: 'Número de semestre a borrar',
+        type: Number,
+        example: 4
+    })
+    @IsInt()
+  semestre!: number;
+}
+
 
 @Controller('carrera')
 export class CarreraController {
@@ -257,5 +267,23 @@ export class CarreraController {
   deleteAsignatura(@Param('id', ParseIntPipe) id: number) {
       if (isNaN(id)) throw new BadRequestException();
       return this.carreraService.delete(id);
+  }
+
+  // ───────────────────────────────────────────────────────────────
+  @Put(':carreraID/asignaturas/semestre/remove')
+  @ApiOperation({
+    summary: 'Eliminar asignaturas de una carrera por semestre',
+  })
+  @ApiParam({ name: 'carreraID', type: Number })
+  @ApiBody({ type: SemestreDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Asignaturas borradas correctamente',
+  })
+  putDeleteAsignaturasPorSemestre(
+  @Param('carreraID', ParseIntPipe) carreraID: number,
+  @Body() semestreDto: SemestreDto){
+    if(isNaN(carreraID)) throw new BadRequestException();
+    return this.carreraService.putDeletePorSemestre(carreraID, semestreDto.semestre);
   }
 }

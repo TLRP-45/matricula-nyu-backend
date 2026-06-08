@@ -155,4 +155,27 @@ export class CarreraService {
         if (!result)throw new NotFoundException('No se pudo encontrar carrera')
         return Number(result.maxSemestre);
     }
+
+    /**
+     * Elimina todas las relaciones entre una carrera y las asignaturas
+     * pertenecientes a un semestre específico.
+     *
+     * @param carreraID Number - Numero identificador de la carrera.
+     * @param semestre Number - Numero de semestre cuyos registros serán eliminados.
+     *
+     * @returns Objeto con la cantidad de registros eliminados.
+     */
+    async putDeletePorSemestre(carreraID: number, semestre: number) {
+        const result = await this.ctaRepository
+            .createQueryBuilder()
+            .delete()
+            .from(CarreraTieneAsignaturaEntity)
+            .where('ID_carrera = :carreraID', { carreraID })
+            .andWhere('semestre = :semestre', { semestre })
+            .execute();
+
+        return {
+            eliminados: result.affected
+        };
+    }
 }
