@@ -77,6 +77,16 @@ export class EstudianteService {
         );
     }
 
+let carrera: CarreraEntity | null = null;
+if (dto.rol === 1) {
+
+    if (!dto.ID_carrera) {
+        throw new BadRequestException(
+            'Debe seleccionar una carrera'
+        );
+    }
+
+    carrera = await this.CarreraRepo.findOne({
     const carrera = await this.CarreraRepo.findOne({
         where: {
             id_carrera: dto.ID_carrera
@@ -107,6 +117,13 @@ export class EstudianteService {
 
     const estudianteGuardado =
         await this.EstudianteRepo.save(estudiante);
+
+        if (dto.rol === 0) {
+    return {
+        mensaje: 'Administrador registrado correctamente',
+        estudiante: estudianteGuardado
+    };
+}
 
     const matricula = this.MatriculaRepo.create({
         estudiante: estudianteGuardado,

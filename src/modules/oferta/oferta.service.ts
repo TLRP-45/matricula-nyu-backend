@@ -6,6 +6,8 @@ import {
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AsignaturaEntity } from '../asignatura/asignatura.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 import { OfertaEntity } from './oferta.entity';
 import { CreateOfertaDTO } from '../../controllers/oferta/dto/create-oferta.dto';
