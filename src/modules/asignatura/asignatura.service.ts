@@ -60,15 +60,27 @@ export class AsignaturaService {
      * con el id buscado no es encontrado
      */
     async getEstadoAsignatura(id: number, uid: number){
-        const toma = await this.EstudianteTomaOfertaRepo
-        .createQueryBuilder('eto')
-        .innerJoinAndSelect('eto.oferta', 'o')
-        .innerJoin('o.asignatura', 'a')
-        .innerJoin('eto.estudiante', 'e')
-        .where('e.ID_estudiante = :uid', { uid })
-        .andWhere('a.ID_asignatura = :id', { id })
-        .orderBy('eto.ID_toma', 'DESC')
-        .getOne();
+        const tomas = await this.EstudianteTomaOfertaRepo.find({
+        relations: {
+            estudiante: true,
+            oferta: {
+            asignatura: true,
+            },
+        },
+        where: {
+            estudiante: {
+            ID_estudiante: uid,
+            },
+        },
+        });
+
+        const toma = tomas.find(
+        t => t.oferta.asignatura.ID_asignatura === id
+        );
+
+        return toma?.estado;
+
+        console.log(toma);
         return toma?.estado;
     }
 
@@ -347,12 +359,12 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async pushCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
+    async pushCarrera(aID: number, cID: number, ctaDto: AsignaturaCarreraDto) {
         const existe = await this.AsignaturaRepo
         .createQueryBuilder('a')
         .innerJoin('a.es_de', 'cta')
         .where('a.ID_asignatura = :aID', { aID })
-        .andWhere('cta.carrera = :cID', { cID: ctaDto.ID_carrera })
+        .andWhere('cta.carrera = :cID', { cID })
         .getOne();
         if(existe)throw new BadRequestException('Relación ya existente');
 
@@ -363,7 +375,7 @@ export class AsignaturaService {
             throw new NotFoundException('Asignatura no encontrada');
 
         const carrera = await this.CarreraRepo.findOne({
-            where: { id_carrera: ctaDto.ID_carrera },
+            where: { id_carrera: cID },
         });
         if (!carrera)
             throw new NotFoundException('Carrera no encontrada');
@@ -384,9 +396,7 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async removeCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
-        const cID = ctaDto.ID_carrera;
-
+    async removeCarrera(aID: number, cID: number) {
         const relacion = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .where('cta.ID_asignatura = :aID', { aID })
@@ -422,8 +432,12 @@ export class AsignaturaService {
         if (!estudiante)throw new NotFoundException('Estudiante no encontrado');
 
         const matricula = await this.MatriculaRepo.findOne({
-            where: {estudiante: estudiante,
-                estado: 'activa'}
+            where: {
+                estado: 'activa',
+                estudiante: {
+                ID_estudiante: estudianteID,
+                },
+            },
         });
         if(!matricula)throw new BadRequestException('Estudiante no está matriculado')
 

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DesinscripcionController } from './desinscripcion/desinscripcion.controller';
 import { DesincripcionService } from '../services/desincripcion/desincripcion.service';
 import { EstudianteTomaOfertaEntity } from '../modules/usuario/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../modules/oferta/oferta.entity';
@@ -57,7 +56,6 @@ import { PeriodoInscripcionModule } from '../modules/periodo-inscripcion/periodo
     PeriodoInscripcionModule
   ],
   controllers: [
-    DesinscripcionController,
     InscripcionesController,
     AutenticacionController],
   providers: [

@@ -7,7 +7,7 @@ import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
-import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
 import { OfertaService } from '../../modules/oferta/oferta.service';

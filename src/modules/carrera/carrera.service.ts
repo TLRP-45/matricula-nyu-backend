@@ -165,7 +165,7 @@ export class CarreraService {
      *
      * @returns Objeto con la cantidad de registros eliminados.
      */
-    async putDeletePorSemestre(carreraID: number, semestre: number) {
+    async deletePorSemestre(carreraID: number, semestre: number) {
         const result = await this.ctaRepository
             .createQueryBuilder()
             .delete()

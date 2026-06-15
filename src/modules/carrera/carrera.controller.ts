@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, Query } from '@nestjs/common';
 import { CarreraCreateDTO } from './dto/carrera.dto';
 import { CarreraEntity } from './carrera.entity';
 import { CarreraService } from './carrera.service';
@@ -7,35 +7,8 @@ import { BadRequestException } from '@nestjs/common';
 import { AsignaturaService } from '../asignatura/asignatura.service';
 import { CarreraUpdateDTO } from './dto/carrera-update.dto';
 import { IsInt, IsArray } from 'class-validator';
-import { Type } from 'class-transformer';
 import { AsignaturaCarreraDto } from '../asignatura/asignatura.controller';
-import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
-
-export class CarreraAgregarAsignaturaDto {
-    @ApiProperty({
-        description: 'ID de la asignatura a la que se asociará a la carrera',
-        type: Number,
-        example: 1
-    })
-    @IsInt()
-    ID_asignatura!: number;
-
-    @ApiProperty({
-        description: 'Semestre en el que se ubica esta asignatura dentro de la carrera',
-        type: Number,
-        example: 2
-    })
-    @IsInt()
-    semestre!: number;
-
-    @ApiProperty({
-        description: 'Posición dentro del semestre (orden visual o de malla)',
-        type: Number,
-        example: 1
-    })
-    @IsInt()
-    posicion!: number;
-}
+import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 
 export class CarreraEliminarAsignaturaDto {
     @ApiProperty({
@@ -45,16 +18,6 @@ export class CarreraEliminarAsignaturaDto {
     })
     @IsInt()
     ID_asignatura!: number;
-}
-
-export class SemestreDto {
-  @ApiProperty({
-        description: 'Número de semestre a borrar',
-        type: Number,
-        example: 4
-    })
-    @IsInt()
-  semestre!: number;
 }
 
 
@@ -145,29 +108,35 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Get('buscar/nombre/:nombre')
-  @ApiOperation({ summary: 'Buscar carrera por nombre exacto' })
-  @ApiParam({ name: 'nombre', type: String })
-  @ApiResponse({
-    status: 200,
-    description: 'Carrera encontrada',
+  @Get()
+  @ApiOperation({
+      summary: 'Buscar carreras'
   })
-  getCarreraPorNombre(@Param('nombre') nombre: string){
-    return this.carreraService.getPorNombre(nombre);
-  }
+  @ApiQuery({
+      name: 'nombre',
+      required: false,
+      type: String
+  })
+  @ApiQuery({
+      name: 'facultad',
+      required: false,
+      type: String
+  })
+  async buscarCarreras(
+      @Query('nombre') nombre?: string,
+      @Query('facultad') facultad?: string,
+  ) {
+      if (nombre) {
+          return this.carreraService.getPorNombre(nombre);
+      }
 
-  // ───────────────────────────────────────────────────────────────
-  @Get('buscar/facultad/:facultad')
-  @ApiOperation({ summary: 'Obtener carreras por facultad' })
-  @ApiParam({ name: 'facultad', type: String })
-  @ApiResponse({
-    status: 200,
-    description: 'Carreras encontradas',
-    isArray: true,
-    type: CarreraEntity,
-  })
-  getCarrerasPorFacultad(@Param('facultad') facultad: string){
-    return this.carreraService.getPorFacultad(facultad);
+      if (facultad) {
+          return this.carreraService.getPorFacultad(facultad);
+      }
+
+      throw new BadRequestException(
+          'Debe proporcionar nombre o facultad'
+      );
   }
 
   // ───────────────────────────────────────────────────────────────
@@ -184,7 +153,7 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Get(':id/asignaturas/:semestre')
+  @Get(':id/asignaturas/semestre/:semestre')
   @ApiOperation({ summary: 'Obtener asignaturas por semestre' })
   @ApiParam({ name: 'id', type: Number })
   @ApiParam({ name: 'semestre', type: Number })
@@ -201,7 +170,7 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Put(':carreraID/actualizar/')
+  @Put(':carreraID/')
   @ApiOperation({ summary: 'Actualizar carrera' })
   @ApiParam({ name: 'carreraID', type: Number })
   @ApiBody({ type: CarreraUpdateDTO })
@@ -217,33 +186,32 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Put(':carreraID/actualizar/asignatura/push')
+  @Put(':carreraID/asignatura/:asignaturaID')
   @ApiOperation({
     summary: 'Agregar una asignatura a una carrera',
   })
   @ApiParam({ name: 'carreraID', type: Number })
-  @ApiBody({ type: CarreraAgregarAsignaturaDto })
+  @ApiParam({ name: 'asignaturaID', type: Number })
+  @ApiBody({ type: AsignaturaCarreraDto })
   @ApiResponse({
     status: 200,
     description: 'Asignatura agregada correctamente',
   })
   putPushAsignaturaCarrera(
   @Param('carreraID', ParseIntPipe) carreraID: number,
-  @Body() ctaDTO: CarreraAgregarAsignaturaDto){
+  @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
+  @Body() ctaDTO: AsignaturaCarreraDto){
     if(isNaN(carreraID)) throw new BadRequestException();
-    const aux = new AsignaturaCarreraDto();
-    aux.ID_carrera = carreraID;
-    aux.posicion = ctaDTO.posicion;
-    aux.semestre = ctaDTO.semestre;
-    return this. asignaturaService.pushCarrera(ctaDTO.ID_asignatura, aux);
+    return this. asignaturaService.pushCarrera(asignaturaID, carreraID, ctaDTO);
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Put(':carreraID/actualizar/asignatura/remove')
+  @Delete(':carreraID/asignatura/:asignaturaID')
   @ApiOperation({
     summary: 'Eliminar una asignatura de una carrera',
   })
   @ApiParam({ name: 'carreraID', type: Number })
+  @ApiParam({ name: 'asignaturaID', type: Number })
   @ApiBody({ type: CarreraEliminarAsignaturaDto })
   @ApiResponse({
     status: 200,
@@ -251,11 +219,9 @@ export class CarreraController {
   })
   putRemoveAsignaturaCarrera(
   @Param('carreraID', ParseIntPipe) carreraID: number,
-  @Body() ctaDTO: CarreraEliminarAsignaturaDto){
+  @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
     if(isNaN(carreraID)) throw new BadRequestException();
-    const aux = new AsignaturaCarreraDto();
-    aux.ID_carrera = carreraID;
-    return this. asignaturaService.removeCarrera(ctaDTO.ID_asignatura, aux);
+    return this. asignaturaService.removeCarrera(asignaturaID, carreraID);
   }
 
   // ───────────────────────────────────────────────────────────────
@@ -270,20 +236,50 @@ export class CarreraController {
   }
 
   // ───────────────────────────────────────────────────────────────
-  @Put(':carreraID/asignaturas/semestre/remove')
+  @Delete(':carreraID/asignaturas/semestre/:semestre')
   @ApiOperation({
     summary: 'Eliminar asignaturas de una carrera por semestre',
   })
   @ApiParam({ name: 'carreraID', type: Number })
-  @ApiBody({ type: SemestreDto })
+  @ApiParam({ name: 'semestre', type: Number })
   @ApiResponse({
     status: 200,
     description: 'Asignaturas borradas correctamente',
   })
   putDeleteAsignaturasPorSemestre(
   @Param('carreraID', ParseIntPipe) carreraID: number,
-  @Body() semestreDto: SemestreDto){
+  @Param('semestre', ParseIntPipe) semestre: number){
     if(isNaN(carreraID)) throw new BadRequestException();
-    return this.carreraService.putDeletePorSemestre(carreraID, semestreDto.semestre);
+    return this.carreraService.deletePorSemestre(carreraID, semestre);
   }
+
+  // ───────────────────────────────────────────────────────────────
+  @Get(':carreraID/asignatura/:asignaturaID/prerrequisitos')
+  @ApiOperation({ summary: 'Obtener prerrequisitos de una asignatura según una carrera' })
+  @ApiParam({ name: 'asignaturaID', type: Number })
+  @ApiParam({ name: 'carreraID', type: Number })
+  @ApiResponse({ status: 200, description: 'Prerrequisitos encontrados' })
+  @ApiResponse({ status: 400, description: 'Parámetros inválidos' })
+  getPrerrerequisitosPorCarrera(
+  @Param('carreraID', ParseIntPipe) carreraID: number,
+  @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+      if (isNaN(carreraID)) throw new BadRequestException();
+      if (isNaN(asignaturaID)) throw new BadRequestException();
+      return this.asignaturaService.getPrerrerequisitosPorCarrera(carreraID, asignaturaID);
+  }
+
+  // ───────────────────────────────────────────────────────────────
+    @Get(':carreraID/asignatura/:asignaturaID/tributas')
+    @ApiOperation({ summary: 'Obtener tributas de una asignatura según una carrera' })
+    @ApiParam({ name: 'asignaturaID', type: Number })
+    @ApiParam({ name: 'carreraID', type: Number })
+    @ApiResponse({ status: 200, description: 'Tributas encontradas' })
+    @ApiResponse({ status: 400, description: 'Parámetros inválidos' })
+    getTributasPorCarrera(
+    @Param('carreraID', ParseIntPipe) carreraID: number,
+    @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(carreraID)) throw new BadRequestException();
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.getTributasPorCarrera(carreraID, asignaturaID);
+    }
 }

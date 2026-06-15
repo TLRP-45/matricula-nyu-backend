@@ -57,6 +57,17 @@ export class MatriculaController {
     return this.matriculaService.create(matricula);
   }
 
+  @Post('test')
+  @ApiOperation({ summary: 'TEST Crear una nueva matrícula' })
+  @ApiBody({ type: MatriculaDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Matrícula creada exitosamente',
+  })
+  public postMatriculaTest(@Body() matricula: MatriculaDTO) {
+    return this.matriculaService.testCreate(matricula);
+  }
+
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar una matrícula existente' })
   @ApiParam({ name: 'id', type: Number })

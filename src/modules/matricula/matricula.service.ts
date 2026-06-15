@@ -140,6 +140,7 @@ export class MatriculaService {
       }
 
       public async delete(id: number) {
+        // TODO aumentar cupo de carrera?
         const result = await this.MatriculaRepo.softDelete(id);
 
         if (result.affected == 0) {
@@ -148,4 +149,28 @@ export class MatriculaService {
 
         return result;
       }
+
+    public async testCreate(matricula: MatriculaDTO){
+        const carrera = await this.carreraService.getCarrera(matricula.ID_carrera);
+        if (!carrera) throw new NotFoundException('Carrera no encontrada');
+        if(carrera.cupos < 1) throw new BadRequestException(`Cupos insuficientes (${carrera.cupos} cupos disponibles)`);
+
+        const estudiante = await this.estudianteRepository.findOneBy({
+            ID_estudiante: matricula.ID_estudiante
+        });
+        if(!estudiante)throw new NotFoundException('Estudiante no encontrado');
+
+        const result = this.MatriculaRepo.create({
+            semestre: matricula.semestre,
+            carrera: carrera,
+            estudiante: estudiante
+        });
+
+        const savedMatricula = await this.MatriculaRepo.save(result);
+
+        carrera.cupos -= 1;
+        await this.carreraRepository.save(carrera);
+
+        return savedMatricula;
+    }
 }
