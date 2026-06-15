@@ -1,6 +1,7 @@
-import { IsDate, IsInt, IsOptional, IsString } from "class-validator";
+import { IsDate, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import { EstadoOMatricula } from "../matricula-estado.enum";
 
 export class MatriculaDTO {
   @ApiProperty({
@@ -13,14 +14,11 @@ export class MatriculaDTO {
   semestre!: number;
 
   @ApiProperty({
-    description: 'Estado de la matrícula (opcional). Ej: "ACTIVA", "INACTIVA", "PENDIENTE"',
-    type: String,
-    required: false,
-    example: 'ACTIVA',
+    enum: EstadoOMatricula,
+    example: EstadoOMatricula.ACTIVA,
   })
-  @IsString()
-  @IsOptional()
-  estado!: string;
+  @IsEnum(EstadoOMatricula)
+  estado!: EstadoOMatricula;
 
   @ApiProperty({
     description: 'ID numérico de la carrera asociada a la matrícula',

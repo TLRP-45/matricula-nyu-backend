@@ -1,6 +1,7 @@
-import { IsBoolean, IsDate, IsInt, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import { EstadoOMatricula } from "../matricula-estado.enum";
 
 export class MatriculaUpdateDTO {
   @ApiProperty({
@@ -26,12 +27,9 @@ export class MatriculaUpdateDTO {
   arancel_aldia?: boolean;
 
   @ApiProperty({
-    description: 'Estado actual de la matrícula (opcional). Ej: "ACTIVA", "RETIRADA", "SUSPENDIDA"',
-    type: String,
-    required: false,
-    example: 'activa'
+    enum: EstadoOMatricula,
+    example: EstadoOMatricula.ACTIVA,
   })
-  @IsString()
-  @IsOptional()
-  estado?: string;
+  @IsEnum(EstadoOMatricula)
+  estado?: EstadoOMatricula;
 }

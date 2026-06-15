@@ -12,6 +12,7 @@ import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
+import { EstadoToma } from '../usuario/estado-toma.enum';
 
 @Injectable()
 export class AsignaturaService {
@@ -416,7 +417,7 @@ export class AsignaturaService {
 
         for (const p of prerrequisitos){
             const tomas_del_ramo =await this.EstudianteService.buscarTomaPorAsignatura(p.ID_asignatura);
-            const aprobados = tomas_del_ramo.filter(item => item.estado === 'aprobado');
+            const aprobados = tomas_del_ramo.filter(item => item.estado === EstadoToma.APROBADO);
             if (aprobados.length <= 0)throw new BadRequestException(`Debes aprobar ${p.nombre} antes de ${asignatura.nombre}`);
         }
         return true;

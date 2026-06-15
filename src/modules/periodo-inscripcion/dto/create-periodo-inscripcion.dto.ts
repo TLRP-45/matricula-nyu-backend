@@ -8,7 +8,7 @@ export class CreatePeriodoInscripcionDto {
   })
   @IsDateString()
   @IsNotEmpty()
-  inicio!: Date;
+  inicio!: string;
 
   @ApiProperty({
     description: 'Fecha y hora de término del período',
@@ -16,5 +16,5 @@ export class CreatePeriodoInscripcionDto {
   })
   @IsDateString()
   @IsNotEmpty()
-  final!: Date;
+  final!: string;
 }

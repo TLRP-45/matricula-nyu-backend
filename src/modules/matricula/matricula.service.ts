@@ -11,6 +11,7 @@ import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 import { CarreraService } from '../carrera/carrera.service';
 import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
 import { UsuarioEntity } from '../usuario/usuario.entity';
+import { EstadoOMatricula } from './matricula-estado.enum';
 
 @Injectable()
 export class MatriculaService {
@@ -127,7 +128,7 @@ export class MatriculaService {
           throw new NotFoundException('Matrícula no encontrada');
         }
 
-        matricula.estado = 'inactiva';
+        matricula.estado = EstadoOMatricula.INACTIVA;
 
         this.MatriculaRepo.save(matricula);
       }

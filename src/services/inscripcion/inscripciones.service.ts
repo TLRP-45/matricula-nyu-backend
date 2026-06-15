@@ -15,6 +15,7 @@ import { AsignaturaService } from '../../modules/asignatura/asignatura.service';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
 import { EstudianteService } from '../../modules/usuario/usuario.service';
 import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horario.service';
+import { EstadoToma } from '../../modules/usuario/estado-toma.enum';
 
 @Injectable()
 export class InscripcionesService {
@@ -75,7 +76,7 @@ export class InscripcionesService {
     const toma = await this.TomaRepo.findOne({
       where: {
         estudiante: {ID_estudiante: estudiante.ID_estudiante},
-        estado: 'inscrito',
+        estado: EstadoToma.INSCRITO,
         oferta: {ID_oferta: oferta.ID_oferta}
       }
     });
@@ -106,7 +107,6 @@ export class InscripcionesService {
     const inscripcion = this.TomaRepo.create({
       estudiante: estudiante,
       oferta: oferta,
-      estado: 'inscrito',
       inscrita: new Date(),
     });
 

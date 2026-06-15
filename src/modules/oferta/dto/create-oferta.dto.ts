@@ -72,9 +72,6 @@ export class CreateOfertaDTO {
 
   @ApiPropertyOptional({
     description: 'Horarios de la oferta',
-    example: [
-      { hora: '08:00', duracion: 90, lugar: 'Sala 101' },
-    ],
   })
   @IsOptional()
   @IsArray()

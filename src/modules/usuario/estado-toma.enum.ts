@@ -1,0 +1,5 @@
+export enum EstadoToma {
+  INSCRITO = 'INSCRITO',
+  APROBADO = 'APROBADO',
+  REPROBADO = 'REPROBADO'
+}
