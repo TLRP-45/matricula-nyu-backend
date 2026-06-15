@@ -10,8 +10,8 @@ import { AsignaturaEntity } from '../asignatura/asignatura.entity';
 import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 import { OfertaEntity } from './oferta.entity';
-import { CreateOfertaDTO } from '../../controllers/oferta/dto/create-oferta.dto';
-import { UpdateOfertaDTO } from '../../controllers/oferta/dto/update-oferta.dto';
+import { CreateOfertaDTO } from './dto/create-oferta.dto';
+import { UpdateOfertaDTO } from './dto/update-oferta.dto';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 
 @Injectable()

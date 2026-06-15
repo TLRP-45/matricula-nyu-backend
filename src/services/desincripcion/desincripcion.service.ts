@@ -84,7 +84,7 @@ export class DesincripcionService {
             }});
         if(!toma) throw new InternalServerErrorException('Cambios actuales en la base de datos');
 
-        if (await !this.PeriodoService.dentroDelPeriodo(fecha, periodo.ID_periodo)){
+        if (!this.PeriodoService.dentroDelPeriodo(fecha, periodo.ID_periodo)){
             toma.estado = 'casual';
             await this.TomaRepository.save(toma);
 

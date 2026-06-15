@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { OfertaService } from './oferta.service';
-import { CreateOfertaDTO } from '../../controllers/oferta/dto/create-oferta.dto';
-import { UpdateOfertaDTO } from '../../controllers/oferta/dto/update-oferta.dto';
+import { CreateOfertaDTO } from './dto/create-oferta.dto';
+import { UpdateOfertaDTO } from './dto/update-oferta.dto';
 
 @ApiTags('Oferta')
 @Controller('oferta')

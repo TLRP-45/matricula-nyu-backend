@@ -11,6 +11,7 @@ import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
 import { CarreraService } from '../carrera/carrera.service';
 import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
 import { UsuarioEntity } from '../usuario/usuario.entity';
+import { EstadoOMatricula } from './matricula-estado.enum';
 
 @Injectable()
 export class MatriculaService {
@@ -56,15 +57,12 @@ export class MatriculaService {
      * @param matricula
      * @returns
      * @description
-     * 1. validar Plazo
-     * 2. validar si pagado (integrar con sistema de pagos)
-     * 3. validar carrera y cupos
-     * 4. validar estudiante (debe crearse antes de la matricula)
      */
     public async create(matricula: MatriculaDTO): Promise<MatriculaEntity> {
         // mover la lógica de matricular para acá nomas
         // TODO: Integrar con el sistema de pagos, revisar si existe deuda
         // TODO: Definir bien cómo se designan los plazos
+        // TODO: Verificar que no haya otra matricula igual activa
         // Revisar si se está dentro del plazo
 
         // Lógica en plazos
@@ -103,12 +101,8 @@ export class MatriculaService {
 
         const savedMatricula = await this.MatriculaRepo.save(result);
 
-        carrera.matriculados = [...carrera.matriculados, savedMatricula];
         carrera.cupos -= 1;
         await this.carreraRepository.save(carrera);
-
-        estudiante.matriculas = [...estudiante.matriculas, savedMatricula];
-        await this.estudianteRepository.save(estudiante);
 
         return savedMatricula;
     }
@@ -134,12 +128,13 @@ export class MatriculaService {
           throw new NotFoundException('Matrícula no encontrada');
         }
 
-        matricula.estado = 'inactiva';
+        matricula.estado = EstadoOMatricula.INACTIVA;
 
         this.MatriculaRepo.save(matricula);
       }
 
       public async delete(id: number) {
+        // TODO aumentar cupo de carrera?
         const result = await this.MatriculaRepo.softDelete(id);
 
         if (result.affected == 0) {
@@ -148,4 +143,28 @@ export class MatriculaService {
 
         return result;
       }
+
+    public async testCreate(matricula: MatriculaDTO){
+        const carrera = await this.carreraService.getCarrera(matricula.ID_carrera);
+        if (!carrera) throw new NotFoundException('Carrera no encontrada');
+        if(carrera.cupos < 1) throw new BadRequestException(`Cupos insuficientes (${carrera.cupos} cupos disponibles)`);
+
+        const estudiante = await this.estudianteRepository.findOneBy({
+            ID_estudiante: matricula.ID_estudiante
+        });
+        if(!estudiante)throw new NotFoundException('Estudiante no encontrado');
+
+        const result = this.MatriculaRepo.create({
+            semestre: matricula.semestre,
+            carrera: carrera,
+            estudiante: estudiante
+        });
+
+        const savedMatricula = await this.MatriculaRepo.save(result);
+
+        carrera.cupos -= 1;
+        await this.carreraRepository.save(carrera);
+
+        return savedMatricula;
+    }
 }
