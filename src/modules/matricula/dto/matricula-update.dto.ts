@@ -4,19 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class MatriculaUpdateDTO {
   @ApiProperty({
-    description: 'Fecha de actualización de la matrícula',
-    type: String,
-    format: 'date-time',
-    required: false,
-    example: '2024-03-15T10:30:00Z'
-  })
-  @Type(() => Date)
-  @IsDate()
-  @IsOptional()
-  fecha?: Date;
-
-  @ApiProperty({
-    description: 'ID de la carrera a la que se desea cambiar la matrícula',
+    description: 'Semestre en el que se matricula',
     type: Number,
     required: false,
     example: 5
@@ -24,13 +12,24 @@ export class MatriculaUpdateDTO {
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  carreraId?: number;
+  semestre?: number;
+
+  @ApiProperty({
+    description: 'Arancel al día',
+    type: Boolean,
+    required: false,
+    example: 1
+  })
+  @Type(() => Boolean)
+  @IsBoolean()
+  @IsOptional()
+  arancel_aldia?: boolean;
 
   @ApiProperty({
     description: 'Estado actual de la matrícula (opcional). Ej: "ACTIVA", "RETIRADA", "SUSPENDIDA"',
     type: String,
     required: false,
-    example: 'ACTIVA'
+    example: 'activa'
   })
   @IsString()
   @IsOptional()

@@ -112,18 +112,6 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':asignaturaID/prerrequisitos/')
-    @ApiOperation({ summary: 'Obtener prerrequisitos de una asignatura' })
-    @ApiParam({ name: 'asignaturaID', type: Number })
-    @ApiResponse({ status: 200, description: 'Prerrequisitos encontrados' })
-    @ApiResponse({ status: 400, description: 'ID inválido' })
-    getPrerrerequisitos(
-    @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
-        if (isNaN(asignaturaID)) throw new BadRequestException();
-        return this.asignaturaService.getPrerrerequisitos(asignaturaID);
-    }
-
-    // ───────────────────────────────────────────────────────────────
     @Get()
     @ApiOperation({
         summary: 'Buscar asignaturas'

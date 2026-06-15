@@ -212,7 +212,6 @@ export class CarreraController {
   })
   @ApiParam({ name: 'carreraID', type: Number })
   @ApiParam({ name: 'asignaturaID', type: Number })
-  @ApiBody({ type: CarreraEliminarAsignaturaDto })
   @ApiResponse({
     status: 200,
     description: 'Asignatura removida correctamente',

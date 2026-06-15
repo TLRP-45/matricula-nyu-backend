@@ -50,8 +50,9 @@ export class AsignaturaService {
     }
 
     /**
-     * Retorna el estado de la asignatura en la base de datos
-     * buscándola por su ID
+     * Retorna el estado de la oferta que conecta al estudiante
+     * con la asignatura en la base de datos buscándola
+     * por ID de estudiante y luego filtrandola por asignatura
      *
      * @param id - número identificador de la asignatura
      * @returns String - el valor del estado de la asignatura
@@ -78,9 +79,6 @@ export class AsignaturaService {
         t => t.oferta.asignatura.ID_asignatura === id
         );
 
-        return toma?.estado;
-
-        console.log(toma);
         return toma?.estado;
     }
 
@@ -171,25 +169,6 @@ export class AsignaturaService {
     }
 
     /**
-     * Obtiene el arreglo con todos los prerrequisitos directos a
-     * la asignatura indicada por id
-     * @param carreraID - Número identificador de la carrera
-     * @param asignaturaID - Número identificador de la asignatura
-     * @returns AsignaturaEntity[] - devuelve un arreglo de los
-     * prerrequisitos de esa asignatura
-     * @throws NotFoundException - si no se encuentran prerrequisitos para esa asignatura
-     * no necesariamente es un error como por fallo de id de asignatura
-     * sino que, puede suceder que la asignatura no tenga prerrequisitos
-     */
-    async getPrerrerequisitos(asignaturaID:number){
-        const result = await this.AsignaturaRepo.findOneBy({
-            ID_asignatura : asignaturaID
-        });
-        if (!result)throw new NotFoundException('No se pudieron encontrar la asignatura.')
-        return result.prerrequisitos;
-    }
-
-    /**
      * Encuentra las asignaturas buscándolas por el nombre que contenga lo dado
      * @param busqueda - el string con el nombre a buscar
      * @returns Promise<AsignaturaEntity[] | undefined> - Arreglo con las asignaturas
@@ -224,26 +203,12 @@ export class AsignaturaService {
    * @throws NotFoundException Si algún prerrequisito no existe
    */
     async create(dto: AsignaturaCreateDto): Promise<AsignaturaEntity> {
-
-        let prereqEntities: AsignaturaEntity[] = [];
-
-        if (dto.prerrequisitos?.length) {
-            const prereqEntities = await this.AsignaturaRepo.find({
-                where: { ID_asignatura: In(dto.prerrequisitos) },
-            });
-
-            if (prereqEntities.length !== dto.prerrequisitos.length) {
-                throw new NotFoundException('Uno o más prerrequisitos no existen');
-            }
-        }
-
         const asignatura = this.AsignaturaRepo.create({
             nombre: dto.nombre,
             creditos: dto.creditos,
             caracter: dto.caracter,
             hrs_presenciales: dto.hrs_presenciales,
             hrs_autonomo: dto.hrs_autonomo,
-            prerrequisitos: prereqEntities,
         });
 
         return await this.AsignaturaRepo.save(asignatura);

@@ -56,15 +56,12 @@ export class MatriculaService {
      * @param matricula
      * @returns
      * @description
-     * 1. validar Plazo
-     * 2. validar si pagado (integrar con sistema de pagos)
-     * 3. validar carrera y cupos
-     * 4. validar estudiante (debe crearse antes de la matricula)
      */
     public async create(matricula: MatriculaDTO): Promise<MatriculaEntity> {
         // mover la lógica de matricular para acá nomas
         // TODO: Integrar con el sistema de pagos, revisar si existe deuda
         // TODO: Definir bien cómo se designan los plazos
+        // TODO: Verificar que no haya otra matricula igual activa
         // Revisar si se está dentro del plazo
 
         // Lógica en plazos
@@ -103,12 +100,8 @@ export class MatriculaService {
 
         const savedMatricula = await this.MatriculaRepo.save(result);
 
-        carrera.matriculados = [...carrera.matriculados, savedMatricula];
         carrera.cupos -= 1;
         await this.carreraRepository.save(carrera);
-
-        estudiante.matriculas = [...estudiante.matriculas, savedMatricula];
-        await this.estudianteRepository.save(estudiante);
 
         return savedMatricula;
     }
