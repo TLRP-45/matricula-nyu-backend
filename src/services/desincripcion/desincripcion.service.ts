@@ -6,6 +6,7 @@ import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
+import { EstadoToma } from '../../modules/usuario/estado-toma.enum';
 
 @Injectable()
 export class DesincripcionService {
@@ -85,7 +86,7 @@ export class DesincripcionService {
         if(!toma) throw new InternalServerErrorException('Cambios actuales en la base de datos');
 
         if (!this.PeriodoService.dentroDelPeriodo(fecha, periodo.ID_periodo)){
-            toma.estado = 'casual';
+            toma.estado = EstadoToma.CASUAL;
             await this.TomaRepository.save(toma);
 
             return true;

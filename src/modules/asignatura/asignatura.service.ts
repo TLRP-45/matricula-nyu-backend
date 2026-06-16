@@ -13,6 +13,7 @@ import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 import { EstadoToma } from '../usuario/estado-toma.enum';
+import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 
 @Injectable()
 export class AsignaturaService {
@@ -399,7 +400,7 @@ export class AsignaturaService {
 
         const matricula = await this.MatriculaRepo.findOne({
             where: {
-                estado: 'activa',
+                estado: EstadoOMatricula.ACTIVA,
                 estudiante: {
                 ID_estudiante: estudianteID,
                 },

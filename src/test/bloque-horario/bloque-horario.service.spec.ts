@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BloqueHorarioService } from './bloque-horario.service';
+import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horario.service';
 
 describe('BloqueHorarioService', () => {
   let service: BloqueHorarioService;
