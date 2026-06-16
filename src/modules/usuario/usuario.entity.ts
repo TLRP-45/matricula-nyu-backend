@@ -8,6 +8,7 @@ import { RolUsuario } from './rol-usuario.enum';
 @Check(`char_length(apellido) >= 2`)
 @Check(`nacimiento <= CURRENT_DATE`)
 @Check(`sexo IN ('M','F','O')`)
+
 export class UsuarioEntity {
     @PrimaryGeneratedColumn({ unsigned: true })
     ID_estudiante!: number;
@@ -28,8 +29,8 @@ export class UsuarioEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createdAt!: Date;
 
-    @Column({ name: 'role', default: 1 })
-    rol!: number;
+    //@Column({ name: 'role', default: 1 })
+    //rol!: number;
 
     @UpdateDateColumn({ type: 'timestamp' })
     updatedAt!: Date;
@@ -70,9 +71,6 @@ export class UsuarioEntity {
     @Column()
     password!: string;
 
-    @Column({
-        type: "enum",
-        enum: RolUsuario,
-    })
+    @Column()
     rol!: RolUsuario;
 }
