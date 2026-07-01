@@ -4,6 +4,10 @@ import { EstudianteService } from './usuario.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 import { UsuarioEntity } from './usuario.entity';
+import { MatriculaEntity } from '../matricula/matricula.entity';
+import { CarreraEntity } from '../carrera/carrera.entity';
+import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
+import { OfertaEntity } from '../oferta/oferta.entity';
 import { AsignaturaModule } from '../asignatura/asignatura.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
 import { MatriculaModule } from '../matricula/matricula.module';
@@ -18,7 +22,11 @@ import { CarreraModule } from '../carrera/carrera.module';
   imports: [
     TypeOrmModule.forFeature([
       EstudianteTomaOfertaEntity,
-      UsuarioEntity
+      UsuarioEntity,
+      MatriculaEntity,
+      CarreraEntity,
+      CarreraTieneAsignaturaEntity,
+      OfertaEntity
     ]),
     forwardRef(() =>PlazoMatriculaModule),
     forwardRef(() => AsignaturaModule),

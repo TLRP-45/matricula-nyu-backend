@@ -9,6 +9,9 @@ import { MatriculaEntity } from '../matricula/matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { OfertaEntity } from '../oferta/oferta.entity';
+import { EstadoToma } from './estado-toma.enum';
+import { RolUsuario } from './rol-usuario.enum';
+import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 
 @Injectable()
 export class EstudianteService {
@@ -87,7 +90,6 @@ if (dto.rol === 1) {
     }
 
     carrera = await this.CarreraRepo.findOne({
-    const carrera = await this.CarreraRepo.findOne({
         where: {
             id_carrera: dto.ID_carrera
         }
@@ -98,6 +100,7 @@ if (dto.rol === 1) {
             'Carrera no encontrada'
         );
     }
+}
 
     const estudiante = this.EstudianteRepo.create({
         nombre: dto.nombre,
@@ -112,24 +115,24 @@ if (dto.rol === 1) {
         password: dto.password,
     });
 
-    estudiante.rol = 1;
+    estudiante.rol = dto.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin;
 
 
     const estudianteGuardado =
         await this.EstudianteRepo.save(estudiante);
 
-        if (dto.rol === 0) {
-    return {
-        mensaje: 'Administrador registrado correctamente',
-        estudiante: estudianteGuardado
-    };
-}
+    if (dto.rol === 0) {
+        return {
+            mensaje: 'Administrador registrado correctamente',
+            estudiante: estudianteGuardado
+        };
+    }
 
     const matricula = this.MatriculaRepo.create({
         estudiante: estudianteGuardado,
-        carrera: carrera,
+        carrera: carrera!,
         semestre: 1,
-        estado: 'activa',
+        estado: EstadoOMatricula.ACTIVA,
         arancel_aldia: true
     });
 
@@ -138,7 +141,7 @@ if (dto.rol === 1) {
     await this.CarreraAsignaturaRepo.find({
         where: {
             carrera: {
-                id_carrera: carrera.id_carrera
+                id_carrera: carrera!.id_carrera
             },
             semestre: 1
         },
@@ -163,7 +166,7 @@ for (const ramo of asignaturasPrimerSemestre) {
 const toma = this.TomaRepo.create({
     estudiante: { ID_estudiante: estudianteGuardado.ID_estudiante } as any,
     oferta: { ID_oferta: oferta.ID_oferta } as any,
-    estado: 'inscrita',
+    estado: EstadoToma.INSCRITO,
     inscrita: new Date()
 });
 
