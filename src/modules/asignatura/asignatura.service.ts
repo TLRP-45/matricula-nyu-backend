@@ -8,6 +8,7 @@ import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { MatriculaEntity } from '../matricula/matricula.entity';
+import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.controller';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
@@ -399,7 +400,7 @@ export class AsignaturaService {
 
         const matricula = await this.MatriculaRepo.findOne({
             where: {
-                estado: 'activa',
+                estado: EstadoOMatricula.ACTIVA,
                 estudiante: {
                 ID_estudiante: estudianteID,
                 },

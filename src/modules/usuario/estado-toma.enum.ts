@@ -1,5 +1,6 @@
 export enum EstadoToma {
   INSCRITO = 'INSCRITO',
   APROBADO = 'APROBADO',
-  REPROBADO = 'REPROBADO'
+  REPROBADO = 'REPROBADO',
+  CASUAL = 'CASUAL'
 }

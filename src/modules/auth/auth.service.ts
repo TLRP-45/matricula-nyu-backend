@@ -30,12 +30,12 @@ export class AuthService {
    * @throws UnauthorizedException
    * Excepción si la contraseña es incorrecta
    */
-  async login(rut: string, pass: string): Promise<{ token: string }> {
+  async login(rut: string, pass: string): Promise<{ token: string, user: any }> {
     // TODO: Integrar con el sistema de usuarios
     const user = await this.estudianteRepository.findOneBy({ rut: rut })
 
     if (!user) {
-      throw new NotFoundException();
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
     if (user.password !== pass) {
@@ -46,6 +46,12 @@ export class AuthService {
 
     return {
       token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.ID_estudiante,
+        rut: user.rut,
+        nombre: user.nombre,
+        rol: user.rol,
+      }
     }
   }
 
