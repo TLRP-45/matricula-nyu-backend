@@ -27,6 +27,7 @@ import { EstadoOMatricula } from './matricula-estado.enum';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { RolUsuario } from '../usuario/rol-usuario.enum';
+import { EstadoMatriculaDTO } from './dto/estado.dto';
 
 @ApiTags('Matrícula')
 @ApiBearerAuth()
@@ -113,7 +114,7 @@ export class MatriculaController {
 
   @Post('estado')
   @ApiOperation({ summary: 'Obtener el estado de un estudiante con el RUT' })
-  @ApiBody({ type: String })
+  @ApiBody({ type: EstadoMatriculaDTO })
   @ApiResponse({
     status: 200,
     description: 'Matrícula y estudiante encontrados'
@@ -122,18 +123,22 @@ export class MatriculaController {
     status: 404,
     description: 'Estudiante no encontrado'
   })
-  async matriculaRut(@Body() rut: string): Promise<boolean> {
+  async matriculaRut(@Body() rut: EstadoMatriculaDTO): Promise<{ activa: boolean }> {
+    let estado: boolean;
     try {
-      const matricula: MatriculaEntity = await this.matriculaService.getMatriculaRut(rut);
-      return matricula.estado == EstadoOMatricula.ACTIVA;
+      const matricula: MatriculaEntity = await this.matriculaService.getMatriculaRut(rut.rut);
+      estado = matricula.estado == EstadoOMatricula.ACTIVA;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       } else if (error instanceof ForbiddenException) {
-        return false;
+        estado = false;
       } else {
         throw error;
       }
+    }
+    return {
+      activa: estado,
     }
   }
 }

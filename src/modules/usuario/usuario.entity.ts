@@ -12,7 +12,7 @@ export class UsuarioEntity {
     @PrimaryGeneratedColumn({ unsigned: true })
     ID_estudiante!: number;
 
-    @PrimaryColumn()
+    @Column({ nullable: false })
     ID_externo!: string;
 
     @Column({ length: 100, nullable: false })

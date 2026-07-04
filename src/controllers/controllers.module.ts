@@ -31,7 +31,6 @@ import { EstudianteModule } from '../modules/usuario/usuario.module';
 import { MatriculaModule } from '../modules/matricula/matricula.module';
 import { OfertaModule } from '../modules/oferta/oferta.module';
 import { PeriodoInscripcionModule } from '../modules/periodo-inscripcion/periodo-inscripcion.module';
-import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuario.controller';
 
 
 @Module({
@@ -60,7 +59,7 @@ import { RegistrarUsuarioController } from './registrar-usuario/registrar-usuari
   controllers: [
     InscripcionesController,
     AutenticacionController,
-    RegistrarUsuarioController],
+    ],
   providers: [
     DesincripcionService,
     InscripcionesService,

@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
-import { RegistroDTO } from './dto/registro.dto';
 import { UsuarioExternoRespuesta } from './dto/respuesta-login.interface';
 
 @Injectable()
@@ -14,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(UsuarioEntity)
     private estudianteRepository: Repository<UsuarioEntity>,
-  ) {}
+  ) { }
 
   /**
    * Inicia sesión al usuario.
@@ -34,6 +33,7 @@ export class AuthService {
    * Excepción si la contraseña es incorrecta
    */
   async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
+
     // Login externo
     let respuesta: Response;
     try {
@@ -145,5 +145,5 @@ export class AuthService {
    * @param
    * @returns
    */
-   async registro() {}
+  async registro() { }
 }
