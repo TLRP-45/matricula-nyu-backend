@@ -12,7 +12,7 @@ import { AuthGuard } from './auth.guard';
     JwtModule.register({
       global: true,
       secret: process.env.AUTH_PK,
-      signOptions: { expiresIn: '300s' }
+      // signOptions: { expiresIn: '300s' }
     })
   ],
   controllers: [AuthController],

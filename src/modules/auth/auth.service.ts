@@ -42,10 +42,15 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.ID_estudiante, rut: user.rut, rol: user.rol }
+    const payload = {
+      sub: user.ID_estudiante,
+      rut: user.rut,
+      rol: user.rol,
+    }
 
     return {
-      token: await this.jwtService.signAsync(payload),
+      token: await this.jwtService.signAsync(
+        payload, { expiresIn: '2h' }),
       user: {
         id: user.ID_estudiante,
         rut: user.rut,
@@ -80,7 +85,8 @@ export class AuthService {
         throw new UnauthorizedException('Llave privada incorrecta')
     }
     return {
-      token: await this.jwtService.signAsync(payload),
+      token: await this.jwtService.signAsync(
+        payload, { expiresIn: '60s' }),
     }
   }
 
