@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('Matricula NYU')
     .setDescription('Sistema de Matrícula y Gestión Académica NYU')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);

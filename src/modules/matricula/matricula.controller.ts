@@ -8,7 +8,8 @@ import {
   Put,
   ParseIntPipe,
   NotFoundException,
-  ForbiddenException
+  ForbiddenException,
+  UseGuards
 } from '@nestjs/common';
 import { MatriculaDTO } from './dto/matricula.dto';
 import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
@@ -19,14 +20,20 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { MatriculaEntity } from './matricula.entity';
 import { EstadoOMatricula } from './matricula-estado.enum';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
 
 @ApiTags('Matrícula')
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
 @Controller('matricula')
 export class MatriculaController {
-  constructor(private matriculaService: MatriculaService) {}
+  constructor(private matriculaService: MatriculaService) { }
 
   @Get()
   @ApiOperation({ summary: 'Obtener todas las matrículas' })
@@ -51,6 +58,7 @@ export class MatriculaController {
   }
 
   @Post()
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Crear una nueva matrícula' })
   @ApiBody({ type: MatriculaDTO })
   @ApiResponse({
@@ -62,6 +70,7 @@ export class MatriculaController {
   }
 
   @Post('test')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'TEST Crear una nueva matrícula' })
   @ApiBody({ type: MatriculaDTO })
   @ApiResponse({
@@ -73,6 +82,7 @@ export class MatriculaController {
   }
 
   @Put(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Actualizar una matrícula existente' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: MatriculaUpdateDTO })
@@ -89,6 +99,7 @@ export class MatriculaController {
   }
 
   @Delete(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Eliminar una matrícula por ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({

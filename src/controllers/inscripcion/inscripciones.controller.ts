@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Delete, Param, ParseIntPipe, NotFoundException, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiBody, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { InscripcionesService } from '../../services/inscripcion/inscripciones.service';
 import { ApiProperty } from '@nestjs/swagger';
 import { DesincripcionService } from '../../services/desincripcion/desincripcion.service';
@@ -29,6 +29,7 @@ class InscripcionDto {
   ID_oferta!: number[];
 }
 
+@ApiBearerAuth()
 @ApiTags('Inscripciones')
 @Controller('inscripciones')
 export class InscripcionesController {
