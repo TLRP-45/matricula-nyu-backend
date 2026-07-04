@@ -56,6 +56,35 @@ export class AuthService {
   }
 
   /**
+   * Devuelve un token JWT para autenticar sistemas externos.
+   *
+   * @param privateKey La llave privada del sistema
+   * @returns Token JWT activo
+   *
+   * @throws UnauthorizedException
+   * Excepción si la llave privada no es correcta
+   */
+  async getToken(privateKey: string): Promise<{ token: string }> {
+    let payload: { sub: string };
+    switch (privateKey) {
+      case process.env.ALOJAMIENTO_PK:
+        payload = { sub: 'ALOJAMIENTO' };
+        break;
+      case process.env.BIBLIOTECA_PK:
+        payload = { sub: 'BIBLIOTECA' };
+        break;
+      case process.env.CAFETERIA_PK:
+        payload = { sub: 'CAFETERIA' };
+        break;
+      default:
+        throw new UnauthorizedException('Llave privada incorrecta')
+    }
+    return {
+      token: await this.jwtService.signAsync(payload),
+    }
+  }
+
+  /**
    * Registra la información del usuario y crea su cuenta.
    *
    * @remarks
