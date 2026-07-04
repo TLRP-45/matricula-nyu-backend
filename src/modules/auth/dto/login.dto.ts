@@ -2,13 +2,21 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDTO {
+  // @ApiProperty({
+  //   description: 'RUT del usuario (formato 12345678-9)',
+  //   example: '12345678-9',
+  // })
+  // @IsString()
+  // @IsNotEmpty()
+  // rut!: string;
+
   @ApiProperty({
-    description: 'RUT del usuario (formato 12345678-9)',
-    example: '12345678-9',
+    description: 'Correo del usuario',
+    example: 'nombre@dominio.com'
   })
   @IsString()
   @IsNotEmpty()
-  rut!: string;
+  correo!: string;
 
   @ApiProperty({
     description: 'Contraseña del usuario',

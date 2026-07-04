@@ -1,4 +1,4 @@
-import { Check, Entity, Index, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Check, Entity, Index, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, PrimaryColumn } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 import { MatriculaEntity } from '../matricula/matricula.entity';
 import { RolUsuario } from './rol-usuario.enum';
@@ -11,6 +11,9 @@ import { RolUsuario } from './rol-usuario.enum';
 export class UsuarioEntity {
     @PrimaryGeneratedColumn({ unsigned: true })
     ID_estudiante!: number;
+
+    @PrimaryColumn()
+    ID_externo!: string;
 
     @Column({ length: 100, nullable: false })
     nombre!: string;

@@ -4,9 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
 import { RegistroDTO } from './dto/registro.dto';
+import { UsuarioExternoRespuesta } from './dto/respuesta-login.interface';
 
 @Injectable()
 export class AuthService {
+  loginUrl: string = 'https://natural-generosity-production-1a76.up.railway.app'
+
   constructor(
     private jwtService: JwtService,
     @InjectRepository(UsuarioEntity)
@@ -17,8 +20,8 @@ export class AuthService {
    * Inicia sesión al usuario.
    *
    * @remarks
-   * La autenticación se hace primero con la base de datos
-   * local, y luego con el servicio de usuarios, manejado por Ravenclaw.
+   * La autenticación se realiza a través del sistema de usuarios manejado
+   * por Ravenclaw.
    *
    * @param rut - El rut del usuario
    * @param pass - La contraseña encriptada
@@ -30,16 +33,35 @@ export class AuthService {
    * @throws UnauthorizedException
    * Excepción si la contraseña es incorrecta
    */
-  async login(rut: string, pass: string): Promise<{ token: string, user: any }> {
-    // TODO: Integrar con el sistema de usuarios
-    const user = await this.estudianteRepository.findOneBy({ rut: rut })
-
-    if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+  async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
+    // Login externo
+    let respuesta: Response;
+    try {
+      respuesta = await fetch(this.loginUrl + '/v1/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: correo,
+          password: pass,
+        })
+      })
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException('Credenciales inválidas');
+      } else {
+        throw error;
+      }
     }
 
-    if (user.password !== pass) {
-      throw new UnauthorizedException();
+    const usuarioExterno: UsuarioExternoRespuesta = await respuesta.json();
+
+    let user: UsuarioEntity;
+    try {
+      user = await this.estudianteRepository.findOneByOrFail({
+        ID_externo: usuarioExterno.uuid
+      })
+    } catch (error: any) {
+      throw new NotFoundException('Usuario no encontrado')
     }
 
     const payload = {
@@ -61,7 +83,8 @@ export class AuthService {
   }
 
   /**
-   * Devuelve un token JWT para autenticar sistemas externos.
+   * Devuelve un token JWT para autenticar sistemas externos. Tiene una duración
+   * de 60 segundos.
    *
    * @param privateKey La llave privada del sistema
    * @returns Token JWT activo
@@ -89,6 +112,27 @@ export class AuthService {
         payload, { expiresIn: '60s' }),
     }
   }
+
+  // /**
+  //  * Obtiene un token de un sistema dado. Utilizado para los pagos y el manejo
+  //  * de usuarios.
+  //  *
+  //  * @param url La url del endpoint del sistema
+  //  * @param key La llave privada del sistema
+  //  * @returns El token de la petición
+  //  */
+  // async fetchToken(url: string, key: string): Promise<string> {
+  //   const respuesta = await fetch(url, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({
+  //       privateKey: key
+  //     })
+  //   });
+
+  //   const data = await respuesta.json();
+  //   return data.access_token;
+  // }
 
   /**
    * Registra la información del usuario y crea su cuenta.
