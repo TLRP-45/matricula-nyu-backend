@@ -230,5 +230,3 @@ export class AsignaturaController {
         return this. asignaturaService.removeCarrera(asignaturaID, carreraID);
     }
 }
-
-// PATCH para estado
