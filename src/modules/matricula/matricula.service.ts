@@ -1,4 +1,4 @@
-import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { ForbiddenException, HttpException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { MatriculaEntity } from './matricula.entity';
@@ -119,7 +119,7 @@ export class MatriculaService {
 
       // Método que supongo útil para cancelar matrículas de estudiantes, sea por
       // expulsión o por término del período académico
-      public async desactivar(id: number) {
+    public async desactivar(id: number) {
         // remover de carrera?
         // carrera.matriculados = carrera.matriculados.filter(m => !matriculas.includes(m));
         const matricula = await this.MatriculaRepo.findOneBy({ ID_matricula: id });
@@ -131,9 +131,9 @@ export class MatriculaService {
         matricula.estado = EstadoOMatricula.INACTIVA;
 
         this.MatriculaRepo.save(matricula);
-      }
+    }
 
-      public async delete(id: number) {
+    public async delete(id: number) {
         // TODO aumentar cupo de carrera?
         const result = await this.MatriculaRepo.softDelete(id);
 
@@ -142,7 +142,7 @@ export class MatriculaService {
         }
 
         return result;
-      }
+    }
 
     public async testCreate(matricula: MatriculaDTO){
         const carrera = await this.carreraService.getCarrera(matricula.ID_carrera);
@@ -166,5 +166,23 @@ export class MatriculaService {
         await this.carreraRepository.save(carrera);
 
         return savedMatricula;
+    }
+
+    /**
+     * Obtiene la última matrícula de un estudiante a partir de su RUT.
+     *
+     * @param rut El RUT del estudiante
+     * @returns La matrícula del estudiante
+     */
+    public async getMatriculaRut(rut: string): Promise<MatriculaEntity> {
+        const estudiante = await this.estudianteRepository.findOneBy({
+            rut: rut
+        });
+        if (!estudiante) throw new NotFoundException('Estudiante no encontrado');
+
+        const matricula = await this.ultimaMatricula(estudiante.ID_estudiante);
+        if (!matricula) throw new ForbiddenException('Estudiante no está matriculado')
+
+        return matricula;
     }
 }
