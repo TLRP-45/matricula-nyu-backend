@@ -1,22 +1,11 @@
-import { IsBoolean, IsDate, IsInt, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
+import { EstadoOMatricula } from "../matricula-estado.enum";
 
 export class MatriculaUpdateDTO {
   @ApiProperty({
-    description: 'Fecha de actualización de la matrícula',
-    type: String,
-    format: 'date-time',
-    required: false,
-    example: '2024-03-15T10:30:00Z'
-  })
-  @Type(() => Date)
-  @IsDate()
-  @IsOptional()
-  fecha?: Date;
-
-  @ApiProperty({
-    description: 'ID de la carrera a la que se desea cambiar la matrícula',
+    description: 'Semestre en el que se matricula',
     type: Number,
     required: false,
     example: 5
@@ -24,15 +13,23 @@ export class MatriculaUpdateDTO {
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  carreraId?: number;
+  semestre?: number;
 
   @ApiProperty({
-    description: 'Estado actual de la matrícula (opcional). Ej: "ACTIVA", "RETIRADA", "SUSPENDIDA"',
-    type: String,
+    description: 'Arancel al día',
+    type: Boolean,
     required: false,
-    example: 'ACTIVA'
+    example: 1
   })
-  @IsString()
+  @Type(() => Boolean)
+  @IsBoolean()
   @IsOptional()
-  estado?: string;
+  arancel_aldia?: boolean;
+
+  @ApiProperty({
+    enum: EstadoOMatricula,
+    example: EstadoOMatricula.ACTIVA,
+  })
+  @IsEnum(EstadoOMatricula)
+  estado?: EstadoOMatricula;
 }

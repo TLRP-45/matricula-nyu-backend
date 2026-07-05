@@ -49,14 +49,4 @@ export class AsignaturaCreateDto {
   @IsInt()
   @Min(0)
   hrs_autonomo!: number;
-
-  @ApiPropertyOptional({
-    description: 'Lista opcional de IDs de asignaturas que son prerrequisitos',
-    type: [Number],
-    example: [101, 102]
-  })
-  @IsArray()
-  @IsOptional()
-  @Type(() => Number)
-  prerrequisitos?: number[];
 }

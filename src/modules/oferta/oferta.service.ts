@@ -2,10 +2,12 @@ import {Injectable,NotFoundException,BadRequestException} from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AsignaturaEntity } from '../asignatura/asignatura.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 import { OfertaEntity } from './oferta.entity';
-import { CreateOfertaDTO } from '../../controllers/oferta/dto/create-oferta.dto';
-import { UpdateOfertaDTO } from '../../controllers/oferta/dto/update-oferta.dto';
+import { CreateOfertaDTO } from './dto/create-oferta.dto';
+import { UpdateOfertaDTO } from './dto/update-oferta.dto';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
 
 @Injectable()
@@ -77,60 +79,16 @@ async crearOferta(data: CreateOfertaDTO) {
 
   let horarios: BloqueHorarioEntity[] = [];
 
-  if (data.horarios?.length) {
-
-    const ofertasExistentes = await this.ofertaRepo.find({
-      where: {
-        semestre: data.semestre,
-        carrera: {
-          id_carrera: data.carreraId,
-        } as any,
-      },
-      relations: ['horarios'],
-    });
-
-    for (const ofertaExistente of ofertasExistentes) {
-
-      for (const horarioExistente of ofertaExistente.horarios) {
-
-        for (const nuevoHorario of data.horarios) {
-
-          const mismoHorario =
-            horarioExistente.dia === nuevoHorario.dia &&
-            horarioExistente.hora === nuevoHorario.hora;
-
-          if (mismoHorario) {
-            throw new BadRequestException(
-              'Ya existe una oferta del mismo semestre con ese horario'
-            );
-          }
-
-          const mismaSala =
-            horarioExistente.dia === nuevoHorario.dia &&
-            horarioExistente.hora === nuevoHorario.hora &&
-            horarioExistente.lugar === nuevoHorario.lugar;
-
-          if (mismaSala) {
-            throw new BadRequestException(
-              'La sala ya está ocupada en ese horario'
-            );
-          }
-        }
-      }
+    if (data.horarios?.length) {
+      horarios = data.horarios.map(h => {
+        const bh = new BloqueHorarioEntity();
+        bh.dia = h.dia;
+        bh.hora = h.hora;
+        bh.duracion = h.duracion;
+        bh.lugar = h.lugar;
+        return bh;
+      });
     }
-
-    horarios = data.horarios.map(h => {
-
-      const bh = new BloqueHorarioEntity();
-
-      bh.dia = h.dia;
-      bh.hora = h.hora;
-      bh.duracion = h.duracion;
-      bh.lugar = h.lugar;
-
-      return bh;
-    });
-  }
 
   const oferta = this.ofertaRepo.create({
 
@@ -190,125 +148,19 @@ async crearOferta(data: CreateOfertaDTO) {
         (oferta as any).profesor = undefined;
       }
     }
-if (data.horarios) {
 
-  const ofertasExistentes = await this.ofertaRepo.find({
-    where: {
-      semestre: oferta.semestre,
-      carrera: {
-        id_carrera: oferta.carrera.id_carrera,
-      } as any,
-    },
-    relations: ['horarios'],
-  });
-
-  for (const ofertaExistente of ofertasExistentes) {
-
-    if (ofertaExistente.ID_oferta === oferta.ID_oferta) {
-      continue;
+    if (data.horarios) {
+      oferta.horarios = data.horarios.map(h => {
+        const bh = new BloqueHorarioEntity();
+        bh.dia = h.dia;
+        bh.hora = h.hora;
+        bh.duracion = h.duracion;
+        bh.lugar = h.lugar;
+        return bh;
+      });
     }
 
-    for (const horarioExistente of ofertaExistente.horarios) {
-
-      for (const nuevoHorario of data.horarios) {
-
-        const mismoHorario =
-          horarioExistente.dia === nuevoHorario.dia &&
-          horarioExistente.hora === nuevoHorario.hora;
-
-        if (mismoHorario) {
-          throw new BadRequestException(
-            'Ya existe una oferta del mismo semestre con ese horario'
-          );
-        }
-
-        const mismaSala =
-          horarioExistente.dia === nuevoHorario.dia &&
-          horarioExistente.hora === nuevoHorario.hora &&
-          horarioExistente.lugar === nuevoHorario.lugar;
-
-        if (mismaSala) {
-          throw new BadRequestException(
-            'La sala ya está ocupada en ese horario'
-          );
-        }
-      }
-    }
-  }
-if (data.horarios){
-  await this.horarioRepo.delete({
-    ID_oferta: oferta.ID_oferta,
-  })
-}
-    oferta.horarios = data.horarios.map(h => {
-
-      const bh = new BloqueHorarioEntity();
-
-      bh.dia = h.dia;
-      bh.hora = h.hora;
-      bh.duracion = h.duracion;
-      bh.lugar = h.lugar;
-
-      return bh;
-    });
-}if (data.horarios) {
-
-  const ofertasExistentes = await this.ofertaRepo.find({
-    where: {
-      semestre: oferta.semestre,
-      carrera: {
-        id_carrera: oferta.carrera.id_carrera,
-      } as any,
-    },
-    relations: ['horarios'],
-  });
-
-  for (const ofertaExistente of ofertasExistentes) {
-
-    if (ofertaExistente.ID_oferta === oferta.ID_oferta) {
-      continue;
-    }
-
-    for (const horarioExistente of ofertaExistente.horarios) {
-
-      for (const nuevoHorario of data.horarios) {
-
-        const mismoHorario =
-          horarioExistente.dia === nuevoHorario.dia &&
-          horarioExistente.hora === nuevoHorario.hora;
-
-        if (mismoHorario) {
-          throw new BadRequestException(
-            'Ya existe una oferta del mismo semestre con ese horario'
-          );
-        }
-
-        const mismaSala =
-          horarioExistente.dia === nuevoHorario.dia &&
-          horarioExistente.hora === nuevoHorario.hora &&
-          horarioExistente.lugar === nuevoHorario.lugar;
-
-        if (mismaSala) {
-          throw new BadRequestException(
-            'La sala ya está ocupada en ese horario'
-          );
-        }
-      }
-    }
-  }
-
-  oferta.horarios = data.horarios.map(h => {
-
-    const bh = new BloqueHorarioEntity();
-
-    bh.dia = h.dia;
-    bh.hora = h.hora;
-    bh.duracion = h.duracion;
-    bh.lugar = h.lugar;
-
-    return bh;
-  });
-  return this.ofertaRepo.save(oferta);
+    return this.ofertaRepo.save(oferta);
   }
 }
   // PUBLICAR

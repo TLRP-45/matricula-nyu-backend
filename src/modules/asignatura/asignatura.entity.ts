@@ -1,4 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable, Check, DeleteDateColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    ManyToMany,
+    OneToMany,
+    JoinTable,
+    Check,
+    DeleteDateColumn
+} from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 import { CarreraTieneAsignaturaEntity } from "../carrera/carrera-tiene-asignatura.entity";
 

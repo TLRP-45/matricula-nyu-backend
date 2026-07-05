@@ -4,6 +4,7 @@ import { ProfesorEntity } from '../../modules/profesor/profesor.entity';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { CarreraEntity } from '../../modules/carrera/carrera.entity';
+
 async function seed() {
   await AppDataSource.initialize();
 

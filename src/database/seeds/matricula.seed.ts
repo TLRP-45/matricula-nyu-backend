@@ -1,6 +1,6 @@
 import { AppDataSource } from '../../config/typeorm.config';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { CarreraEntity } from '../../modules/carrera/carrera.entity';
 
 async function seed() {

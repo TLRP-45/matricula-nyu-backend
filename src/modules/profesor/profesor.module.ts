@@ -7,7 +7,7 @@ import { PeriodoInscripcionModule } from '../periodo-inscripcion/periodo-inscrip
 import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module';
 import { BloqueHorarioModule } from '../bloque-horario/bloque-horario.module';
 import { CarreraModule } from '../carrera/carrera.module';
-import { EstudianteModule } from '../estudiante/estudiante.module';
+import { EstudianteModule } from '../usuario/usuario.module';
 import { MatriculaModule } from '../matricula/matricula.module';
 import { OfertaModule } from '../oferta/oferta.module';
 import { AsignaturaModule } from '../asignatura/asignatura.module';

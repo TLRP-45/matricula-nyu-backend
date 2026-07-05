@@ -19,23 +19,23 @@ async function seed() {
 
   const horarios: Partial<BloqueHorarioEntity>[] = [
     {
+      dia: 'MARTES',
       lugar: 'Aula 101',
-      dia: 'LUNES',
-      hora: '08:00',
+      hora: '12:00',
       duracion: 2,
       oferta: oferta1,
     },
     {
+      dia: 'Miecoles',
       lugar: 'Laboratorio 2',
-      dia: 'MIERCOLES',
       hora: '10:00',
       duracion: 3,
       oferta: oferta1,
     },
     {
+      dia: 'LUNES',
       lugar: 'Aula 202',
-      dia: 'MARTES',
-      hora: '14:00',
+      hora: '08:00',
       duracion: 2,
       oferta: oferta2,
     },

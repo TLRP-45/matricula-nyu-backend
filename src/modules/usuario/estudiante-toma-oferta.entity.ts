@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, DeleteDateColumn } from "typeorm";
-import { UsuarioEntity } from "./estudiante.entity";
+import { UsuarioEntity } from "./usuario.entity";
 import { OfertaEntity } from "../oferta/oferta.entity";
+import { EstadoToma } from "./estado-toma.enum";
 
 @Entity()
 export class EstudianteTomaOfertaEntity{
@@ -17,8 +18,12 @@ export class EstudianteTomaOfertaEntity{
     @JoinColumn({name: 'ID_oferta'})
     oferta!: OfertaEntity;
 
-    @Column({length: 100})
-    estado!: string;
+    @Column({
+    type: 'enum',
+    enum: EstadoToma,
+    default: EstadoToma.INSCRITO,
+    })
+    estado!: EstadoToma;
 
     @Column({type: 'date'})
     inscrita!: Date;

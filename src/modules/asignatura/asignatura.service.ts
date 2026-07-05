@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { EstudianteService } from '../estudiante/estudiante.service';
-import { UsuarioEntity } from '../estudiante/estudiante.entity';
+import { EstudianteService } from '../usuario/usuario.service';
+import { UsuarioEntity } from '../usuario/usuario.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, Like, UpdateResult } from 'typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
@@ -8,9 +8,12 @@ import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { MatriculaEntity } from '../matricula/matricula.entity';
+import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.controller';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
+import { EstadoToma } from '../usuario/estado-toma.enum';
 
 @Injectable()
 export class AsignaturaService {
@@ -25,7 +28,9 @@ export class AsignaturaService {
         @InjectRepository(MatriculaEntity)
         private readonly MatriculaRepo: Repository<MatriculaEntity>,
         @InjectRepository(CarreraEntity)
-        private readonly CarreraRepo: Repository<CarreraEntity>
+        private readonly CarreraRepo: Repository<CarreraEntity>,
+        @InjectRepository(EstudianteTomaOfertaEntity)
+        private readonly EstudianteTomaOfertaRepo: Repository<EstudianteTomaOfertaEntity>
     ){}
 
     /**
@@ -44,6 +49,39 @@ export class AsignaturaService {
         });
         if(!result)throw new NotFoundException('Asignatura no encontrada');
         return result;
+    }
+
+    /**
+     * Retorna el estado de la oferta que conecta al estudiante
+     * con la asignatura en la base de datos buscándola
+     * por ID de estudiante y luego filtrandola por asignatura
+     *
+     * @param id - número identificador de la asignatura
+     * @returns String - el valor del estado de la asignatura
+     * en la base de datos que coincide con el id dado
+     * @throws NotFoundException - Si la asignatura o el estudiante
+     * con el id buscado no es encontrado
+     */
+    async getEstadoAsignatura(id: number, uid: number){
+        const tomas = await this.EstudianteTomaOfertaRepo.find({
+        relations: {
+            estudiante: true,
+            oferta: {
+            asignatura: true,
+            },
+        },
+        where: {
+            estudiante: {
+            ID_estudiante: uid,
+            },
+        },
+        });
+
+        const toma = tomas.find(
+        t => t.oferta.asignatura.ID_asignatura === id
+        );
+
+        return toma?.estado;
     }
 
     /**
@@ -82,11 +120,11 @@ export class AsignaturaService {
         const result = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .leftJoinAndSelect('cta.asignatura', 'asignatura')
-            .where('cta.ID_carrera = :carreraId', { carreraID })
+            .where('cta.ID_carrera = :carreraID', { carreraID })
             .andWhere('cta.semestre = :semestre', { semestre })
             .getMany();
         if (!result)throw new NotFoundException('No se encontraron asignaturas hasta ese semestre.')
-        return result;
+        return result.map(cta => cta.asignatura);
     }
 
     /**
@@ -114,22 +152,22 @@ export class AsignaturaService {
     }
 
     /**
-     * Obtiene el arreglo con todos los prerrequisitos directos a
-     * la asignatura indicada por id
-     * @param carreraID - Número identificador de la carrera
-     * @param asignaturaID - Número identificador de la asignatura
-     * @returns AsignaturaEntity[] - devuelve un arreglo de los
-     * prerrequisitos de esa asignatura
-     * @throws NotFoundException - si no se encuentran prerrequisitos para esa asignatura
-     * no necesariamente es un error como por fallo de id de asignatura
-     * sino que, puede suceder que la asignatura no tenga prerrequisitos
+     * Obtiene las asignaturas tributas a la dada
+     * @param carreraID Number - Número identificador de la carrera
+     * @param asignaturaID Number - Número identificador de la asignatura
+     * @returns AsignaturaEntity[] - Las asignaturas tributas a la solicitada
      */
-    async getPrerrerequisitos(asignaturaID:number){
-        const result = await this.AsignaturaRepo.findOneBy({
-            ID_asignatura : asignaturaID
-        });
-        if (!result)throw new NotFoundException('No se pudieron encontrar la asignatura.')
-        return result.prerrequisitos;
+    async getTributasPorCarrera(carreraID: number, asignaturaID:number){
+        const result = await this.AsignaturaRepo
+        .createQueryBuilder('a')
+        .innerJoinAndSelect('a.esPrerequisitoDe', 'tributa')
+        .innerJoinAndSelect('tributa.es_de', 'cta')
+        .innerJoinAndSelect('cta.carrera', 'c')
+        .where('a.ID_asignatura = :asignaturaID', { asignaturaID })
+        .andWhere('c.id_carrera = :carreraID', { carreraID })
+        .getOne();
+        if (!result)throw new NotFoundException('No se pudieron encontrar tributas para esta asignatura.')
+        return result?.esPrerequisitoDe ?? [];
     }
 
     /**
@@ -167,26 +205,12 @@ export class AsignaturaService {
    * @throws NotFoundException Si algún prerrequisito no existe
    */
     async create(dto: AsignaturaCreateDto): Promise<AsignaturaEntity> {
-
-        let prereqEntities: AsignaturaEntity[] = [];
-
-        if (dto.prerrequisitos?.length) {
-            const prereqEntities = await this.AsignaturaRepo.find({
-                where: { ID_asignatura: In(dto.prerrequisitos) },
-            });
-
-            if (prereqEntities.length !== dto.prerrequisitos.length) {
-                throw new NotFoundException('Uno o más prerrequisitos no existen');
-            }
-        }
-
         const asignatura = this.AsignaturaRepo.create({
             nombre: dto.nombre,
             creditos: dto.creditos,
             caracter: dto.caracter,
             hrs_presenciales: dto.hrs_presenciales,
             hrs_autonomo: dto.hrs_autonomo,
-            prerrequisitos: prereqEntities,
         });
 
         return await this.AsignaturaRepo.save(asignatura);
@@ -211,31 +235,45 @@ export class AsignaturaService {
      * @param preID number - Número identificador de asignatura
      */
     async pushPrerrequisito(aID: number, preID: AsignaturaPrerrequisitosDto) {
-        const existe = await this.AsignaturaRepo
-        .createQueryBuilder('a')
-        .innerJoin('a.prerrequisitos', 'p')
-        .where('p.asignaturaEntityIDAsignatura_1 = :aID', { aID })
-        .andWhere('p.asignaturaEntityIDAsignatura_2 IN (:...preID)', { preID: preID.ID_prerrequisitos })
-        .getOne();
-        if(existe)throw new BadRequestException('Relación ya existente');
+        if (preID.ID_prerrequisitos.some(id => id === aID)) {
+            throw new BadRequestException(
+            'No se puede hacer prerrequisito la misma asignatura'
+            );
+        }
 
-        if(preID.ID_prerrequisitos.some(id => id === aID))
-            throw new BadRequestException('No se puede hacer prerrequisito la misma asignatura');
-        
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
             relations: ['prerrequisitos'],
         });
-        if (!asignatura)
+
+        if (!asignatura) {
             throw new NotFoundException('Asignatura no encontrada');
+        }
 
         const prerrequisitos = await this.AsignaturaRepo.find({
-            where: { ID_asignatura: In(preID.ID_prerrequisitos) },
+            where: {
+            ID_asignatura: In(preID.ID_prerrequisitos),
+            },
         });
-        if (prerrequisitos.length === 0)
-            throw new NotFoundException('Prerrequisitos no encontrados');
 
-        asignatura.prerrequisitos.push(...prerrequisitos);
+        if (prerrequisitos.length === 0) {
+            throw new NotFoundException('Prerrequisitos no encontrados');
+        }
+
+        // evitar duplicados
+        const existentes = new Set(
+            asignatura.prerrequisitos.map(p => p.ID_asignatura)
+        );
+
+        const nuevos = prerrequisitos.filter(
+            p => !existentes.has(p.ID_asignatura)
+        );
+
+        if (nuevos.length === 0) {
+            throw new BadRequestException('Relación ya existente');
+        }
+
+        asignatura.prerrequisitos.push(...nuevos);
 
         await this.AsignaturaRepo.save(asignatura);
     }
@@ -288,12 +326,12 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async pushCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
+    async pushCarrera(aID: number, cID: number, ctaDto: AsignaturaCarreraDto) {
         const existe = await this.AsignaturaRepo
         .createQueryBuilder('a')
         .innerJoin('a.es_de', 'cta')
         .where('a.ID_asignatura = :aID', { aID })
-        .andWhere('cta.carrera = :cID', { cID: ctaDto.ID_carrera })
+        .andWhere('cta.carrera = :cID', { cID })
         .getOne();
         if(existe)throw new BadRequestException('Relación ya existente');
 
@@ -304,7 +342,7 @@ export class AsignaturaService {
             throw new NotFoundException('Asignatura no encontrada');
 
         const carrera = await this.CarreraRepo.findOne({
-            where: { id_carrera: ctaDto.ID_carrera },
+            where: { id_carrera: cID },
         });
         if (!carrera)
             throw new NotFoundException('Carrera no encontrada');
@@ -325,9 +363,7 @@ export class AsignaturaService {
      * @param aID number - Número identificador de asignatura
      * @param ctaDto AsignaturaCarreraDto - DTO con datos
      */
-    async removeCarrera(aID: number, ctaDto: AsignaturaCarreraDto) {
-        const cID = ctaDto.ID_carrera;
-
+    async removeCarrera(aID: number, cID: number) {
         const relacion = await this.CarreraTieneAsignaturaRepo
             .createQueryBuilder('cta')
             .where('cta.ID_asignatura = :aID', { aID })
@@ -363,8 +399,12 @@ export class AsignaturaService {
         if (!estudiante)throw new NotFoundException('Estudiante no encontrado');
 
         const matricula = await this.MatriculaRepo.findOne({
-            where: {estudiante: estudiante,
-                estado: 'activa'}
+            where: {
+                estado: EstadoOMatricula.ACTIVA,
+                estudiante: {
+                ID_estudiante: estudianteID,
+                },
+            },
         });
         if(!matricula)throw new BadRequestException('Estudiante no está matriculado')
 
@@ -378,7 +418,7 @@ export class AsignaturaService {
 
         for (const p of prerrequisitos){
             const tomas_del_ramo =await this.EstudianteService.buscarTomaPorAsignatura(p.ID_asignatura);
-            const aprobados = tomas_del_ramo.filter(item => item.estado === 'aprobado');
+            const aprobados = tomas_del_ramo.filter(item => item.estado === EstadoToma.APROBADO);
             if (aprobados.length <= 0)throw new BadRequestException(`Debes aprobar ${p.nombre} antes de ${asignatura.nombre}`);
         }
         return true;

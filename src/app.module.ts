@@ -10,7 +10,7 @@ import { MatriculaModule } from './modules/matricula/matricula.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AsignaturaModule } from './modules/asignatura/asignatura.module';
 import { BloqueHorarioModule } from './modules/bloque-horario/bloque-horario.module';
-import { EstudianteModule } from './modules/estudiante/estudiante.module';
+import { EstudianteModule } from './modules/usuario/usuario.module';
 import { OfertaModule } from './modules/oferta/oferta.module';
 import { PeriodoInscripcionModule } from './modules/periodo-inscripcion/periodo-inscripcion.module';
 import { PlazoMatriculaModule } from './modules/plazo-matricula/plazo-matricula.module';

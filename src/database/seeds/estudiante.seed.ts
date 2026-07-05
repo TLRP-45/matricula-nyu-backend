@@ -1,5 +1,5 @@
 import { AppDataSource } from '../../config/typeorm.config';
-import { UsuarioEntity } from '../../modules/estudiante/estudiante.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -11,7 +11,7 @@ async function seed() {
       nombre: 'Juan',
       apellido: 'Pérez',
       email: 'juan@test.com',
-      rut: '11111111-1',
+      rut: '23.579.418-7',
       nacionalidad: 'Chilena',
       sexo: 'M',
       nacimiento: new Date('2000-05-15T00:00:00'),
@@ -23,7 +23,7 @@ async function seed() {
       nombre: 'Ana',
       apellido: 'Gómez',
       email: 'ana@test.com',
-      rut: '22222222-2',
+      rut: '11.016.855-1',
       nacionalidad: 'Chilena',
       sexo: 'F',
       nacimiento: new Date('2001-08-20T00:00:00'),
