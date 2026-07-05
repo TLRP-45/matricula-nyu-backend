@@ -10,6 +10,13 @@ import { OfertaEntity } from '../oferta/oferta.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
+import { administradorFixture } from '../../../test/fixtures/usuario.fixture';
+import { asignaturaFixture } from '../../../test/fixtures/asignatura.fixture';
+import { ofertaFixture } from '../../../test/fixtures/oferta.fixture';
+import { estudianteFixture } from '../../../test/fixtures/usuario.fixture';
+import { carreraInformaticaFixture } from '../../../test/fixtures/carrera.fixture';
+import { matriculaActivaFixture } from '../../../test/fixtures/matricula.fixture';
+
 
 describe('UsuarioService', () => {
     let service: EstudianteService;
@@ -31,9 +38,8 @@ describe('UsuarioService', () => {
 
         mockUsuarioRepo = {
             findOne: jest.fn(),
-            find: jest.fn(),
-            create: jest.fn(),
             save: jest.fn(),
+            create: jest.fn().mockImplementation((dto) => dto),
         };
 
         mockMatriculaRepo = {
@@ -43,6 +49,7 @@ describe('UsuarioService', () => {
 
         mockCarreraRepo = {
             findOne: jest.fn(),
+            save: jest.fn(),
         };
 
         mockCarreraAsignaturaRepo = {
@@ -202,45 +209,203 @@ describe('registrar', () => {
 
     it('debería lanzar BadRequestException si el correo ya existe', async () => {
 
-        mockUsuarioRepo.findOne.mockResolvedValue({
+        mockUsuarioRepo.findOne.mockResolvedValue(administradorFixture);
 
-            ID_estudiante: 1,
-            email: 'pedro@gmail.com'
-
-        });
-
+        // Ambos datos son distintos a los del fixture
         const dto = {
-
-            nombre: 'Pedro',
-            apellido: 'Perez',
-            email: 'pedro@gmail.com',
-            rol: 0,
-
-            rut: '11111111-1',
-            nacionalidad: 'CHILENA',
-            sexo: 'M',
-
-            nacimiento: '2000-01-01',
-
-            direccion: 'Arica',
-
-            telefono: '999999999',
-
-            password: '123456'
-
+            email: administradorFixture.email,
+            nombre: 'Nuevo Nombre',
+            password: '123456',
         };
 
         await expect(
-
             service.registrar(dto)
-
         ).rejects.toThrow(BadRequestException);
+
+        expect(mockUsuarioRepo.save).not.toHaveBeenCalled();
 
     });
 
+    it('debería lanzar BadRequestException si el RUT ya existe', async () => {
+    
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null) // email OK
+        .mockResolvedValueOnce(administradorFixture); // rut duplicado
+
+    const dto = {
+        email: 'nuevo@email.com',
+        rut: administradorFixture.rut,
+        nombre: 'Nuevo',
+        apellido: 'Usuario',
+        password: '123456',
+        rol: 0,
+    };
+
+    await expect(service.registrar(dto))
+        .rejects.toThrow(BadRequestException);
+
+    expect(mockUsuarioRepo.save).not.toHaveBeenCalled();
 });
 
+it('debería lanzar BadRequestException si el estudiante no envía carrera', async () => {
 
+    mockUsuarioRepo.findOne.mockResolvedValue(null);
+
+    const dto = {
+        email: 'test@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Test',
+        apellido: 'User',
+        password: '123456',
+        rol: 1, // estudiante
+        ID_carrera: null,
+    };
+
+    await expect(service.registrar(dto))
+        .rejects.toThrow(BadRequestException);
+
+    expect(mockUsuarioRepo.save).not.toHaveBeenCalled();
 });
 
+it('debería lanzar NotFoundException si la carrera no existe', async () => {
 
+    mockUsuarioRepo.findOne.mockResolvedValue(null);
+    mockCarreraRepo.findOne.mockResolvedValue(null);
+
+    const dto = {
+        email: 'test@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Test',
+        apellido: 'User',
+        password: '123456',
+        rol: 1,
+        ID_carrera: 999,
+    };
+
+    await expect(service.registrar(dto))
+        .rejects.toThrow(NotFoundException);
+
+    expect(mockCarreraRepo.save).not.toHaveBeenCalled();
+});
+
+it('debería registrar correctamente un administrador', async () => {
+
+    mockUsuarioRepo.findOne.mockResolvedValue(null);
+    mockUsuarioRepo.save.mockResolvedValue({
+        ...administradorFixture,
+        ID_estudiante: 1
+    });
+
+    const dto = {
+        email: 'admin@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Admin',
+        apellido: 'User',
+        password: '123456',
+        rol: 0,
+    };
+
+    const result = await service.registrar(dto);
+
+    expect(result).toEqual({
+        mensaje: 'Administrador registrado correctamente',
+        estudiante: expect.any(Object),
+    });
+
+    expect(mockMatriculaRepo.save).not.toHaveBeenCalled();
+});
+
+it('debería registrar correctamente un estudiante', async () => {
+
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null); // email
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null); // rut
+
+    mockCarreraRepo.findOne.mockResolvedValue({ id_carrera: 1 });
+
+    mockUsuarioRepo.save.mockResolvedValue({
+        ID_estudiante: 1,
+    });
+
+    mockMatriculaRepo.save.mockResolvedValue({
+        id: 1,
+    });
+
+    mockCarreraAsignaturaRepo.find.mockResolvedValue([]);
+
+    const dto = {
+        email: 'est@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Est',
+        apellido: 'User',
+        password: '123456',
+        rol: 1,
+        ID_carrera: 1,
+    };
+
+    const result = await service.registrar(dto);
+
+    expect(result).toHaveProperty('mensaje');
+    expect(result).toHaveProperty('estudiante');
+    expect(result).toHaveProperty('matricula');
+});
+
+it('debería crear la matrícula inicial', async () => {
+
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null);
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null);
+
+    mockCarreraRepo.findOne.mockResolvedValue({ id_carrera: 1 });
+
+    mockUsuarioRepo.save.mockResolvedValue({ ID_estudiante: 1 });
+
+    mockMatriculaRepo.save.mockResolvedValue({ id: 1 });
+
+    mockCarreraAsignaturaRepo.find.mockResolvedValue([]);
+
+    const dto = {
+        email: 'est@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Est',
+        apellido: 'User',
+        password: '123456',
+        rol: 1,
+        ID_carrera: 1,
+    };
+
+    await service.registrar(dto);
+
+    expect(mockMatriculaRepo.save).toHaveBeenCalled();
+});
+
+it('debería inscribir asignaturas del primer semestre', async () => {
+
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null);
+    mockUsuarioRepo.findOne.mockResolvedValueOnce(null);
+
+    mockCarreraRepo.findOne.mockResolvedValue({ id_carrera: 1 });
+
+    mockUsuarioRepo.save.mockResolvedValue({ ID_estudiante: 1 });
+
+    mockMatriculaRepo.save.mockResolvedValue({ id: 1 });
+
+    mockCarreraAsignaturaRepo.find.mockResolvedValue(asignaturaFixture);
+
+    mockOfertaRepo.findOne.mockResolvedValue(ofertaFixture);
+
+    mockTomaRepo.save.mockResolvedValue({});
+
+    const dto = {
+        email: 'est@email.com',
+        rut: '11.111.111-1',
+        nombre: 'Est',
+        apellido: 'User',
+        password: '123456',
+        rol: 1,
+        ID_carrera: 1,
+    };
+
+    await service.registrar(dto);
+
+    expect(mockTomaRepo.save).toHaveBeenCalled();
+});
+});
+});
