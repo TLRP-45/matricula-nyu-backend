@@ -130,7 +130,7 @@ export class MatriculaService {
 
         matricula.estado = EstadoOMatricula.INACTIVA;
 
-        this.MatriculaRepo.save(matricula);
+        await this.MatriculaRepo.save(matricula);
       }
 
       public async delete(id: number) {
