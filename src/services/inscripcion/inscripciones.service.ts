@@ -7,7 +7,7 @@ import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
-import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
 import { OfertaService } from '../../modules/oferta/oferta.service';
@@ -15,6 +15,7 @@ import { AsignaturaService } from '../../modules/asignatura/asignatura.service';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
 import { EstudianteService } from '../../modules/usuario/usuario.service';
 import { BloqueHorarioService } from '../../modules/bloque-horario/bloque-horario.service';
+import { EstadoToma } from '../../modules/usuario/estado-toma.enum';
 
 @Injectable()
 export class InscripcionesService {
@@ -62,19 +63,34 @@ export class InscripcionesService {
       relations: ['periodo_inscripcion', 'tomada', 'asignatura'],
     });
     if (!oferta)throw new NotFoundException('Oferta no encontrada');
+    console.log(oferta.estado);
+    if (oferta.estado !== 'PUBLICADA')throw new BadRequestException('Oferta no publicada');
 
     // Validar periodo de inscripción
     if (!this.PeriodoService.dentroDelPeriodo(new Date(), oferta.periodo_inscripcion.ID_periodo)){
       throw new BadRequestException('Fuera del periodo de inscripción')
     }
 
+
+    // Validar existencia
+    const toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.INSCRITO,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    console.log(toma);
+    if (toma)throw new BadRequestException('Ya inscrito');
+
     // Validación de deuda
     const matricula = await this.MatriculaRepo.findOne({
       where: { estudiante: { ID_estudiante: estudiante.ID_estudiante } }
     });
     if (!matricula)throw new NotFoundException('Matricula no encontrada');
-
     if (!matricula.arancel_aldia)throw new BadRequestException('El estudiante tiene deuda pendiente');
+    // Validar carrera
+    if(oferta.carrera.id_carrera !== matricula.carrera.id_carrera)throw new BadRequestException('Estudiante no matriculado a carrera de la oferta');
 
 
     // Validación de Prerrequisitos
@@ -91,7 +107,6 @@ export class InscripcionesService {
     const inscripcion = this.TomaRepo.create({
       estudiante: estudiante,
       oferta: oferta,
-      estado: 'inscrito',
       inscrita: new Date(),
     });
 

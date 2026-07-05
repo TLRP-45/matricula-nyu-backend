@@ -3,6 +3,7 @@ import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { ProfesorEntity } from '../../modules/profesor/profesor.entity';
 import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
+import { CarreraEntity } from '../../modules/carrera/carrera.entity';
 
 async function seed() {
   await AppDataSource.initialize();
@@ -11,12 +12,14 @@ async function seed() {
   const profesorRepo = AppDataSource.getRepository(ProfesorEntity);
   const asignaturaRepo = AppDataSource.getRepository(AsignaturaEntity);
   const periodoRepo = AppDataSource.getRepository(PeriodoInscripcionEntity);
+  const carreraRepo = AppDataSource.getRepository(CarreraEntity);
 
   const profesor = await profesorRepo.findOneBy({ ID_profesor: 1 });
   const asignatura = await asignaturaRepo.findOneBy({ ID_asignatura: 2 });
   const periodo = await periodoRepo.findOneBy({ ID_periodo: 1 });
+  const carrera = await carreraRepo.findOneBy({id_carrera: 1});
 
-  if (!profesor || !asignatura || !periodo) {
+  if (!profesor || !asignatura || !periodo || !carrera) {
     throw new Error('❌ Faltan datos: profesor, asignatura o periodo');
   }
 
@@ -28,6 +31,7 @@ async function seed() {
       hrs_semanales: 4,
       profesor,
       asignatura,
+      carrera,
       periodo_inscripcion: periodo,
     },
     {
@@ -37,6 +41,7 @@ async function seed() {
       hrs_semanales: 2,
       profesor,
       asignatura,
+      carrera,
       periodo_inscripcion: periodo,
     },
   ];

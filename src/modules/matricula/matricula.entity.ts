@@ -2,6 +2,7 @@ import { Entity, Index, PrimaryGeneratedColumn, JoinColumn, ManyToOne, Column, C
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { DeleteDateColumn } from 'typeorm';
+import { EstadoOMatricula } from './matricula-estado.enum';
 
 @Entity()
 export class MatriculaEntity {
@@ -32,6 +33,10 @@ export class MatriculaEntity {
     @Column({ type: 'smallint' })
     semestre!: number;
 
-    @Column({ default: 'activa' })
-    estado!: string;
+    @Column({
+        type: 'enum',
+        enum: EstadoOMatricula,
+        default: EstadoOMatricula.ACTIVA,
+    })
+    estado!: EstadoOMatricula;
 }

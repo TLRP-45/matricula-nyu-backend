@@ -6,6 +6,8 @@ import { CarreraCreateDTO } from './dto/carrera.dto';
 import { CarreraUpdateDTO } from './dto/carrera-update.dto';
 import { AsignaturaService } from '../asignatura/asignatura.service';
 import { MatriculaEntity } from '../matricula/matricula.entity';
+import { AsignaturaEntity } from '../asignatura/asignatura.entity';
+import { CarreraTieneAsignaturaEntity } from './carrera-tiene-asignatura.entity';
 
 @Injectable()
 export class CarreraService {
@@ -14,7 +16,9 @@ export class CarreraService {
     private readonly carreraRepository: Repository<CarreraEntity>,
     private asignaturaService: AsignaturaService,
     @InjectRepository(MatriculaEntity)
-    private readonly matriculaRepository: Repository<MatriculaEntity>
+    private readonly matriculaRepository: Repository<MatriculaEntity>,
+    @InjectRepository(CarreraTieneAsignaturaEntity)
+    private readonly ctaRepository: Repository<CarreraTieneAsignaturaEntity>
     ) {}
 
     /**
@@ -116,5 +120,62 @@ export class CarreraService {
         const result: UpdateResult = await this.carreraRepository.update(id, actualizado);
         if(result.affected == 0) throw new NotFoundException('Asignatura no encontrada');
         return result;
+    }
+
+    /**
+     * Obtiene la carrera a la cual pertenece tal estudiante
+     * @param id - Numero identificador del estudiante
+     * @throws NotFoundException - Cuando no existe tal estudiante matriculado
+     */
+    async getCarreraPorEstudiante(id: number){
+        const result = await this.matriculaRepository
+            .createQueryBuilder('m')
+            .leftJoin('m.estudiante', 'u')
+            .leftJoinAndSelect('m.carrera', 'c')
+            .where('u.ID_estudiante = :id', {id})
+            .orderBy('m.ID_matricula', 'DESC')
+            .getOne();
+        if (!result)throw new NotFoundException('No se pudo encontrar carrera para este estudiante.')
+        return result.carrera;
+    }
+
+    /**
+     * Obtiene la cantidad de semestres de una carrera, por la asignatura con
+     * el semestre más alto de tal carrera
+     * @param id Number - número identificador de la carrera
+     * @throws NotFoundException - cuando no se encuentra carrera o asignaturas de ésta
+     */
+    async getCarreraSemestres(id: number){
+        const result = await this.ctaRepository
+            .createQueryBuilder('cta')
+            .select('MAX(cta.semestre)', 'maxSemestre')
+            .innerJoin('cta.carrera', 'c')
+            .where('c.id_carrera = :id', { id })
+            .getRawOne();
+        if (!result)throw new NotFoundException('No se pudo encontrar carrera')
+        return Number(result.maxSemestre);
+    }
+
+    /**
+     * Elimina todas las relaciones entre una carrera y las asignaturas
+     * pertenecientes a un semestre específico.
+     *
+     * @param carreraID Number - Numero identificador de la carrera.
+     * @param semestre Number - Numero de semestre cuyos registros serán eliminados.
+     *
+     * @returns Objeto con la cantidad de registros eliminados.
+     */
+    async deletePorSemestre(carreraID: number, semestre: number) {
+        const result = await this.ctaRepository
+            .createQueryBuilder()
+            .delete()
+            .from(CarreraTieneAsignaturaEntity)
+            .where('ID_carrera = :carreraID', { carreraID })
+            .andWhere('semestre = :semestre', { semestre })
+            .execute();
+
+        return {
+            eliminados: result.affected
+        };
     }
 }

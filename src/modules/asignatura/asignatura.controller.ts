@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delete, Put, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delete, Put, BadRequestException, Query } from '@nestjs/common';
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { AsignaturaEntity } from './asignatura.entity';
 import { IsArray, IsInt, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
-import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiProperty, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 
 export class AsignaturaPrerrequisitosDto {
     @ApiProperty({
@@ -20,15 +20,6 @@ export class AsignaturaPrerrequisitosDto {
 }
 
 export class AsignaturaCarreraDto {
-    @ApiProperty({
-        description: 'ID de la carrera a la que se asociará la asignatura',
-        type: Number,
-        example: 3
-    })
-    @Type(() => Number)
-    @IsInt()
-    ID_carrera!: number;
-
     @ApiProperty({
         description: 'Semestre en el que se ubica esta asignatura dentro de la carrera',
         type: Number,
@@ -55,28 +46,28 @@ export class AsignaturaController {
     constructor(private asignaturaService: AsignaturaService){}
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':id')
+    @Get(':asignaturaID')
     @ApiOperation({ summary: 'Obtener una asignatura por ID' })
-    @ApiParam({ name: 'id', type: Number, description: 'ID de la asignatura' })
+    @ApiParam({ name: 'asignaturaID', type: Number, description: 'ID de la asignatura' })
     @ApiResponse({ status: 200, description: 'Asignatura encontrada' })
     @ApiResponse({ status: 400, description: 'ID inválido' })
     @ApiResponse({ status: 404, description: 'Asignatura no encontrada' })
-    getAsignatura(@Param('id', ParseIntPipe) id: number){
-        if (isNaN(id)) throw new BadRequestException();
-        return this.asignaturaService.getAsignatura(id);
+    getAsignatura(@Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.getAsignatura(asignaturaID);
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':id/:usuarioID/estado')
+    @Get(':asignaturaID/usuario/:usuarioID/estado')
     @ApiOperation({ summary: 'Obtener el estado de una asignatura por ID' })
-    @ApiParam({ name: 'id', type: Number, description: 'ID de la asignatura' })
+    @ApiParam({ name: 'asignaturaID', type: Number, description: 'ID de la asignatura' })
     @ApiParam({ name: 'usuarioID', type: Number, description: 'ID del estudiante' })
     @ApiResponse({ status: 200, description: 'Estado encontrada' })
     @ApiResponse({ status: 400, description: 'ID inválido' })
     @ApiResponse({ status: 404, description: 'Estado no encontrado' })
-    getEstadoAsignatura(@Param('id', ParseIntPipe) id: number, @Param('usuarioID', ParseIntPipe) usuarioID: number){
-        if (isNaN(id)) throw new BadRequestException();
-        return this.asignaturaService.getEstadoAsignatura(id, usuarioID);
+    getEstadoAsignatura(@Param('asignaturaID', ParseIntPipe) asignaturaID: number, @Param('usuarioID', ParseIntPipe) usuarioID: number){
+        if (isNaN(asignaturaID)) throw new BadRequestException();
+        return this.asignaturaService.getEstadoAsignatura(asignaturaID, usuarioID);
     }
 
     // ───────────────────────────────────────────────────────────────
@@ -91,7 +82,7 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':asignaturaID/prerrequisitos/:carreraID')
+    @Get(':asignaturaID/carrera/:carreraID/prerrequisitos')
     @ApiOperation({ summary: 'Obtener prerrequisitos de una asignatura según una carrera' })
     @ApiParam({ name: 'asignaturaID', type: Number })
     @ApiParam({ name: 'carreraID', type: Number })
@@ -106,33 +97,50 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get(':asignaturaID/prerrequisitos/')
-    @ApiOperation({ summary: 'Obtener prerrequisitos de una asignatura' })
+    @Get(':asignaturaID/carrera/:carreraID/tributas')
+    @ApiOperation({ summary: 'Obtener tributas de una asignatura según una carrera' })
     @ApiParam({ name: 'asignaturaID', type: Number })
-    @ApiResponse({ status: 200, description: 'Prerrequisitos encontrados' })
-    @ApiResponse({ status: 400, description: 'ID inválido' })
-    getPrerrerequisitos(
+    @ApiParam({ name: 'carreraID', type: Number })
+    @ApiResponse({ status: 200, description: 'Tributas encontradas' })
+    @ApiResponse({ status: 400, description: 'Parámetros inválidos' })
+    getTributasPorCarrera(
+    @Param('carreraID', ParseIntPipe) carreraID: number,
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number){
+        if (isNaN(carreraID)) throw new BadRequestException();
         if (isNaN(asignaturaID)) throw new BadRequestException();
-        return this.asignaturaService.getPrerrerequisitos(asignaturaID);
+        return this.asignaturaService.getTributasPorCarrera(carreraID, asignaturaID);
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Get('buscar/nombre/:nombre')
-    @ApiOperation({ summary: 'Buscar asignaturas por nombre' })
-    @ApiParam({ name: 'nombre', type: String })
-    @ApiResponse({ status: 200, description: 'Asignaturas encontradas' })
-    getPorNombre(@Param('nombre') nombre: string){
-        return this.asignaturaService.getPorNombre(nombre);
-    }
+    @Get()
+    @ApiOperation({
+        summary: 'Buscar asignaturas'
+    })
+    @ApiQuery({
+        name: 'nombre',
+        required: false,
+        type: String
+    })
+    @ApiQuery({
+        name: 'codigo',
+        required: false,
+        type: String
+    })
+    async buscarAsignaturas(
+        @Query('nombre') nombre?: string,
+        @Query('codigo') codigo?: string,
+    ) {
+        if (nombre) {
+            return this.asignaturaService.getPorNombre(nombre);
+        }
 
-    // ───────────────────────────────────────────────────────────────
-    @Get('buscar/codigo/:codigo')
-    @ApiOperation({ summary: 'Buscar asignatura por código' })
-    @ApiParam({ name: 'codigo', type: String })
-    @ApiResponse({ status: 200, description: 'Asignatura encontrada' })
-    getPorCodigo(@Param('codigo') codigo: string){
-        return this.asignaturaService.getPorNombre(codigo);
+        if (codigo) {
+            return this.asignaturaService.getPorCodigo(codigo);
+        }
+
+        throw new BadRequestException(
+            'Debe proporcionar nombre o codigo'
+        );
     }
 
     // ───────────────────────────────────────────────────────────────
@@ -145,18 +153,18 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Delete(':id')
+    @Delete(':asignaturaID')
     @ApiOperation({ summary: 'Eliminar una asignatura' })
-    @ApiParam({ name: 'id', type: Number })
+    @ApiParam({ name: 'asignaturaID', type: Number })
     @ApiResponse({ status: 200, description: 'Asignatura eliminada' })
     @ApiResponse({ status: 400, description: 'ID inválido' })
-    deleteAsignatura(@Param('id', ParseIntPipe) id: number) {
+    deleteAsignatura(@Param('asignaturaID', ParseIntPipe) id: number) {
         if (isNaN(id)) throw new BadRequestException();
         return this.asignaturaService.delete(id);
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/prerrequisitos/push/')
+    @Post(':asignaturaID/prerrequisitos/')
     @ApiOperation({ summary: 'Añadir prerrequisito a una asignatura' })
     @ApiParam({ name: 'asignaturaID', type: Number })
     @ApiBody({ type: AsignaturaPrerrequisitosDto })
@@ -169,7 +177,7 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/prerrequisitos/remove/')
+    @Delete(':asignaturaID/prerrequisitos/')
     @ApiOperation({ summary: 'Eliminar prerrequisito de una asignatura' })
     @ApiParam({ name: 'asignaturaID', type: Number })
     @ApiBody({ type: AsignaturaPrerrequisitosDto })
@@ -182,7 +190,7 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/actualizar/')
+    @Put(':asignaturaID')
     @ApiOperation({ summary: 'Actualizar asignatura' })
     @ApiParam({ name: 'asignaturaID', type: Number })
     @ApiBody({ type: AsignaturaPutDto })
@@ -195,32 +203,32 @@ export class AsignaturaController {
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/actualizar/carrera/push')
+    @Put(':asignaturaID/carrera/:carreraID')
     @ApiOperation({ summary: 'Agregar relación Asignatura–Carrera' })
     @ApiParam({ name: 'asignaturaID', type: Number })
+    @ApiParam({ name: 'carreraID', type: Number })
     @ApiBody({ type: AsignaturaCarreraDto })
     @ApiResponse({ status: 200, description: 'Relación agregada' })
     putPushAsignaturaCarrera(
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
-    @Body() carreraID: AsignaturaCarreraDto){
+    @Param('carreraID', ParseIntPipe) carreraID: number,
+    @Body() dto: AsignaturaCarreraDto){
         if(isNaN(asignaturaID)) throw new BadRequestException();
-        return this. asignaturaService.pushCarrera(asignaturaID, carreraID);
+        return this. asignaturaService.pushCarrera(asignaturaID, carreraID, dto);
     }
 
     // ───────────────────────────────────────────────────────────────
-    @Put(':asignaturaID/actualizar/carrera/remove')
+    @Delete(':asignaturaID/carrera/:carreraID')
     @ApiOperation({ summary: 'Eliminar relación Asignatura–Carrera' })
     @ApiParam({ name: 'asignaturaID', type: Number })
-    @ApiBody({ type: AsignaturaCarreraDto })
+    @ApiParam({ name: 'carreraID', type: Number })
     @ApiResponse({ status: 200, description: 'Relación eliminada' })
     putRemoveAsignaturaCarrera(
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
-    @Body() carreraID: AsignaturaCarreraDto){
+    @Param('carreraID', ParseIntPipe) carreraID: number){
         if(isNaN(asignaturaID)) throw new BadRequestException();
         return this. asignaturaService.removeCarrera(asignaturaID, carreraID);
     }
 }
 
-// prerre todo - carrera remove, carrera push (qué pasa si ya se creó)
-// prerrequisito - validar que no sea el mismo
-// validar que no se haga un push de algo que ya exista
+// PATCH para estado

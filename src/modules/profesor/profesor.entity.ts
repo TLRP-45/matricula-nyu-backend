@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Index, Check, DeleteDateColumn } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
 @Entity()
@@ -23,4 +23,10 @@ export class ProfesorEntity{
         nullable: true,
     })
     clases!: OfertaEntity[];
+
+    @DeleteDateColumn({
+        nullable: true,
+        name: 'deleted_at',
+    })
+    deletedAt?: Date;
 }

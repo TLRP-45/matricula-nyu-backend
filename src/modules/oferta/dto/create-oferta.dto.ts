@@ -1,21 +1,35 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsOptional,
   IsInt,
+  IsOptional,
   IsString,
   IsEnum,
   Min,
   IsArray,
 } from 'class-validator';
 
-export class UpdateOfertaDTO {
+export class CreateOfertaDTO {
+  @ApiProperty({
+    description: 'ID de la asignatura',
+    example: 1,
+  })
+  @IsInt()
+  asignaturaId!: number;
+
   @ApiPropertyOptional({
-    description: 'ID del profesor',
+    description: 'ID del profesor (opcional)',
     example: 10,
   })
   @IsOptional()
   @IsInt()
   profesorId?: number;
+
+  @ApiProperty({
+    description: 'ID de la carrera',
+    example: 3,
+  })
+  @IsInt()
+  carreraId!: number;
 
   @ApiPropertyOptional({
     description: 'Grupo de la oferta',
@@ -25,38 +39,39 @@ export class UpdateOfertaDTO {
   @IsString()
   grupo?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Tipo de oferta',
     enum: ['C', 'T', 'L'],
     example: 'C',
   })
-  @IsOptional()
   @IsEnum(['C', 'T', 'L'])
-  tipo?: 'C' | 'T' | 'L';
+  tipo!: 'C' | 'T' | 'L';
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Cupos disponibles',
     example: 30,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
-  cupos?: number;
+  cupos!: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Horas semanales',
     example: 4,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
-  hrs_semanales?: number;
+  hrs_semanales!: number;
+
+  @ApiProperty({
+    description: 'ID del periodo',
+    example: 2,
+  })
+  @IsInt()
+  periodoId!: number;
 
   @ApiPropertyOptional({
     description: 'Horarios de la oferta',
-    example: [
-      { hora: '08:00', duracion: 90, lugar: 'Sala 101' },
-    ],
   })
   @IsOptional()
   @IsArray()

@@ -1,7 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Check } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Check, DeleteDateColumn } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('PeriodoInscripcion')
+@Entity('periodo_inscripcion')
 @Check(`inicio <= final`)
 export class PeriodoInscripcionEntity {
 
@@ -18,4 +18,10 @@ export class PeriodoInscripcionEntity {
         nullable: true,
     })
     ofertas!: OfertaEntity[];
+
+    @DeleteDateColumn({
+        nullable: true,
+        name: 'deleted_at',
+    })
+    deletedAt?: Date;
 }
