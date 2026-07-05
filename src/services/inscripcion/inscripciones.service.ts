@@ -72,7 +72,7 @@ export class InscripcionesService {
 
 
     // Validar existencia
-    const toma = await this.TomaRepo.findOne({
+    let toma = await this.TomaRepo.findOne({
       where: {
         estudiante: {ID_estudiante: estudiante.ID_estudiante},
         estado: EstadoToma.INSCRITO,
@@ -81,6 +81,36 @@ export class InscripcionesService {
     });
     //console.log(toma);
     if (toma)throw new BadRequestException('Ya inscrito');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.APROBADO,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Ya cursado y aprobado');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.REPROBADO,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Ya cursado. Cambiar estado');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.CASUAL,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Estado casual. Cambiar estado');
 
     // Validación de deuda
     const matricula = await this.MatriculaRepo.findOne({

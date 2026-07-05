@@ -243,18 +243,21 @@ export class AsignaturaService {
 
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
-            relations: ['prerrequisitos'],
+            relations: ['prerrequisitos', 'es_de'],
         });
 
         if (!asignatura) {
             throw new NotFoundException('Asignatura no encontrada');
         }
+        console.log('asdads', asignatura.es_de[0].semestre);
 
         const prerrequisitos = await this.AsignaturaRepo.find({
             where: {
             ID_asignatura: In(preID.ID_prerrequisitos),
             },
+            relations: ['es_de'],
         });
+        console.log('asdads', prerrequisitos[0].es_de[0].semestre);
 
         if (prerrequisitos.length === 0) {
             throw new NotFoundException('Prerrequisitos no encontrados');
@@ -271,6 +274,18 @@ export class AsignaturaService {
 
         if (nuevos.length === 0) {
             throw new BadRequestException('Relación ya existente');
+        }
+
+        const semestreAsignatura = asignatura.es_de?.[0]?.semestre;
+
+        const invalido = prerrequisitos.find(
+        p => p.es_de?.[0]?.semestre === semestreAsignatura,
+        );
+
+        if (invalido) {
+        throw new BadRequestException(
+            'No se pueden asignar prerrequisitos del mismo semestre',
+        );
         }
 
         asignatura.prerrequisitos.push(...nuevos);
