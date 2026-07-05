@@ -3,4 +3,4 @@ export enum EstadoToma {
   APROBADO = 'APROBADO',
   REPROBADO = 'REPROBADO',
   CASUAL = 'CASUAL'
-}
+} 
