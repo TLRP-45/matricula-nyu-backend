@@ -86,7 +86,7 @@ describe('ProfesorService', () => {
       const dto = {
         nombre: 'Juan',
         apellido: 'Pérez',
-        email: 'popoin@gmail.com'
+        email: 'popen@gmail.com'
       };
 
       profesorRepository.create.mockReturnValue(dto);
