@@ -30,7 +30,8 @@ export class OfertaService {
     if (data.horarios?.length) {
       horarios = data.horarios.map(h => {
         const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
+        bh.dia = h.dia;
+        bh.hora = h.hora;
         bh.duracion = h.duracion;
         bh.lugar = h.lugar;
         return bh;
@@ -87,7 +88,8 @@ export class OfertaService {
     if (data.horarios) {
       oferta.horarios = data.horarios.map(h => {
         const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
+        bh.dia = h.dia;
+        bh.hora = h.hora;
         bh.duracion = h.duracion;
         bh.lugar = h.lugar;
         return bh;

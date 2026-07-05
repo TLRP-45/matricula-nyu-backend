@@ -14,8 +14,6 @@ npx typeorm migration:run -d dist/config/typeorm.config.js
 
 npx typeorm migration:revert -d dist/config/typeorm.config.js
 
-Usar estos mejor:
-
 npx typeorm-ts-node-commonjs migration:generate src/database/migrations/Init -d src/config/typeorm.config.ts
 
 npx typeorm-ts-node-commonjs migration:run -d src/config/typeorm.config.ts

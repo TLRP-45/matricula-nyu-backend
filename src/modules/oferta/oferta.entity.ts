@@ -53,7 +53,7 @@ export class OfertaEntity {
   @OneToMany(() => BloqueHorarioEntity, (bh) => bh.oferta, {
     cascade: true
   })
-  horarios!: BloqueHorarioEntity[];
+  horarios?: BloqueHorarioEntity[];
 
   @OneToMany(() => EstudianteTomaOfertaEntity, (t) => t.oferta)
   tomada!: EstudianteTomaOfertaEntity[];

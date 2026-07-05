@@ -28,6 +28,7 @@ export class EstudianteService {
         private readonly CarreraAsignaturaRepo:Repository<CarreraTieneAsignaturaEntity>,
         @InjectRepository(OfertaEntity)
         private readonly OfertaRepo:Repository<OfertaEntity>,
+        
     ) {}
 
     async buscarTomaPorAsignatura(ID_asignatura: number){
@@ -170,6 +171,8 @@ const toma = this.TomaRepo.create({
     inscrita: new Date()
 });
 
+
+
 await this.TomaRepo.save(toma);
 }
 
@@ -178,6 +181,59 @@ await this.TomaRepo.save(toma);
         estudiante: estudianteGuardado,
         matricula
     };
-}
+}}
 
-}
+async generarComprobante(idEstudiante: number) {
+
+    const estudiante = await this.EstudianteRepo.findOne({
+        where: {
+            ID_estudiante: idEstudiante
+        }
+    });
+
+    if (!estudiante) {
+        throw new NotFoundException(
+            'Estudiante no encontrado'
+        );
+    }
+
+    const matricula = await this.MatriculaRepo.findOne({
+        where: {
+            estudiante: {
+                ID_estudiante: idEstudiante
+            }
+        },
+        relations: [
+            'carrera'
+        ]
+    });
+
+    const asignaturas = await this.TomaRepo.find({
+        where: {
+            estudiante: {
+                ID_estudiante: idEstudiante
+            }
+        },
+        relations: [
+            'oferta',
+            'oferta.asignatura'
+        ]
+    });
+
+    return {
+        fecha: new Date(),
+        estudiante: {
+            id: estudiante.ID_estudiante,
+            nombre: estudiante.nombre,
+            apellido: estudiante.apellido,
+            rut: estudiante.rut
+        },
+        carrera: matricula?.carrera?.nombre,
+        semestre: matricula?.semestre,
+        asignaturas: asignaturas.map(t => ({
+            codigo: t.oferta.asignatura.ID_asignatura,
+            nombre: t.oferta.asignatura.nombre,
+            grupo: t.oferta.grupo
+        }))
+    };
+}}
