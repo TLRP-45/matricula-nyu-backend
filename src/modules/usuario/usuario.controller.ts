@@ -6,9 +6,12 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  UseGuards,
+  Post,
 } from '@nestjs/common';
 
 import {
+    ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -21,6 +24,11 @@ import { EstudianteService } from './usuario.service';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 import { EstadoToma } from './estado-toma.enum';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolUsuario } from './rol-usuario.enum';
+import { Public } from '../auth/public.decorator';
+import { RegistroUsuarioDTO } from './dto/registro.dto';
 
 export class CambiarEstadoTomaDTO {
   @ApiProperty({
