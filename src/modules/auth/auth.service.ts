@@ -69,9 +69,9 @@ export class AuthService {
     }
 
     // Revisa si tienen el mismo UUID
-    if (!(usuarioExterno.uuid === user.ID_externo)) {
-      throw new ConflictException('Sistema externo y local no sincronizados')
-    }
+    // if (!(usuarioExterno.uuid === user.ID_externo)) {
+    //   throw new ConflictException('Sistema externo y local no sincronizados')
+    // }
 
     const payload = {
       sub: user.ID_estudiante,
