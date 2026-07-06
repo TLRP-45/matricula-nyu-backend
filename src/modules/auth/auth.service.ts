@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
 import { UsuarioExternoRespuesta } from './dto/respuesta-login.interface';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
 
 @Injectable()
 export class AuthService {
@@ -35,25 +36,20 @@ export class AuthService {
   async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
 
     // Login externo
-    let respuesta: Response;
-    try {
-      respuesta = await fetch(this.loginUrl + '/v1/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: correo,
-          password: pass,
-        })
+    const respuesta = await fetch(this.loginUrl + '/v1/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: correo,
+        password: pass,
       })
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw new UnauthorizedException('Credenciales inválidas');
-      } else {
-        throw error;
-      }
-    }
+    })
 
-    const usuarioExterno: UsuarioExternoRespuesta = await respuesta.json();
+    const usuarioExterno = await respuesta.json();
+
+    if (usuarioExterno.error) {
+      throw new UnauthorizedException(usuarioExterno.message);
+    }
 
     let user: UsuarioEntity;
     try {
@@ -66,9 +62,14 @@ export class AuthService {
 
     const payload = {
       sub: user.ID_estudiante,
-      rut: user.rut,
+      correo: user.email,
       rol: user.rol,
     }
+
+    // console.log(payload);
+    // console.log(user);
+    // console.log(user.rol === RolUsuario.Admin)
+    // console.log(user.rol === RolUsuario.Estudiante)
 
     return {
       token: await this.jwtService.signAsync(
@@ -133,17 +134,4 @@ export class AuthService {
   //   const data = await respuesta.json();
   //   return data.access_token;
   // }
-
-  /**
-   * Registra la información del usuario y crea su cuenta.
-   *
-   * @remarks
-   * La existencia de la cuenta se revisa primero localmente y luego con el
-   * sistema de usuarios, manejado por Ravenclaw.
-   *
-   * @param
-   * @param
-   * @returns
-   */
-  async registro() { }
 }

@@ -76,6 +76,8 @@ export class MatriculaService {
      *
      * @throws NotFoundException Si no existe plazo de inscripción de matrícula
      * @throws UnauthorizedException Si se está fuera de plazo para la inscripción
+     * @throws BadRequestException Si no hay cupos suficientes
+     * @throws NotFoundException Si el estudiante no existe
      */
     public async create(matricula: MatriculaDTO): Promise<MatriculaEntity> {
         // mover la lógica de matricular para acá nomas
@@ -126,6 +128,15 @@ export class MatriculaService {
         return savedMatricula;
     }
 
+    /**
+     * Actualiza los datos de una matrícula.
+     *
+     * @param id El ID de la matrícula a modificar
+     * @param matricula El objeto matrícula con la información nueva
+     * @returns La matrícula actualizada
+     *
+     * @throws NotFoundException Si la matrícula no existe
+     */
     public async update(id: number, matricula: MatriculaUpdateDTO): Promise<UpdateResult> {
         const result: UpdateResult = await this.MatriculaRepo.update(id, matricula);
 
