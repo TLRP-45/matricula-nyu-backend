@@ -42,7 +42,6 @@ export class CambiarEstadoTomaDTO {
 
 @ApiBearerAuth()
 @UseGuards(RolesGuard)
-@Roles(RolUsuario.Admin)
 @ApiTags('Usuario')
 @Controller('usuario')
 export class UsuarioController {
@@ -60,6 +59,7 @@ export class UsuarioController {
 
 
   @Patch('toma/:id/estado')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({
     summary: 'Cambiar el estado de una toma de oferta',
   })
