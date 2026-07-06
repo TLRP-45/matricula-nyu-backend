@@ -73,7 +73,7 @@ export class EstudianteService {
    * @param contraseña La contraseña del usuario
    * @returns El objeto usuario con UUID, nombre, apellido e email
    */
-  private async registroExterno(rut: string, nombre: string, apellido: string, correo: string, contraseña: string):
+  private async registroExterno(rut: string, nombre: string, apellido: string, correo: string, contraseña: string, genero: string):
     Promise<UsuarioExternoRespuesta> {
     const response = await fetch(this.usuarioUrl + '/v1/users/register', {
       method: 'POST',
@@ -82,6 +82,7 @@ export class EstudianteService {
         rut: rut,
         firstName: nombre,
         lastName: apellido,
+        gender: genero,
         email: correo,
         password: contraseña
       })
@@ -161,6 +162,8 @@ export class EstudianteService {
     // Registro en sistema externo
     let usuarioExterno: UsuarioExternoRespuesta;
 
+    const genero: string = usuario.sexo === 'F' ? 'Femenino' : 'Masculino'
+
     try {
       usuarioExterno = await this.registroExterno(
         usuario.rut,
@@ -168,6 +171,7 @@ export class EstudianteService {
         usuario.apellido,
         usuario.email,
         hashPass,
+        genero
       )
     } catch (error: any) {
       if (error instanceof ConflictException) {
