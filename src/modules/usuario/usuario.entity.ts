@@ -74,6 +74,7 @@ export class UsuarioEntity {
   @Column({
     type: "enum",
     enum: RolUsuario,
+    nullable: false,
   })
   rol!: RolUsuario;
 }

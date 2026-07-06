@@ -1,4 +1,4 @@
 export enum RolUsuario {
-  Estudiante = 0,
-  Admin = 1,
+  Admin = 0,
+  Estudiante = 1,
 }
