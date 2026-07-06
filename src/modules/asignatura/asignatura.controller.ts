@@ -237,10 +237,8 @@ export class AsignaturaController {
   @ApiResponse({ status: 200, description: 'Relación eliminada' })
   putRemoveAsignaturaCarrera(
     @Param('asignaturaID', ParseIntPipe) asignaturaID: number,
-    @Param('carreraID', ParseIntPipe) carreraID: number) {
-    if (isNaN(asignaturaID)) throw new BadRequestException();
-    return this.asignaturaService.removeCarrera(asignaturaID, carreraID);
-  }
+    @Param('carreraID', ParseIntPipe) carreraID: number){
+        if(isNaN(asignaturaID)) throw new BadRequestException();
+        return this. asignaturaService.removeCarrera(asignaturaID, carreraID);
+    }
 }
-
-// PATCH para estado

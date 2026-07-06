@@ -4,12 +4,12 @@ import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
 import { UsuarioEntity } from './usuario.entity';
 import { BloqueHorarioEntity } from '../bloque-horario/bloque-horario.entity';
+import { EstadoToma } from './estado-toma.enum';
 import { BadRequestException } from '@nestjs/common';
 import { MatriculaEntity } from '../matricula/matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { OfertaEntity } from '../oferta/oferta.entity';
-import { EstadoToma } from './estado-toma.enum';
 import { RolUsuario } from './rol-usuario.enum';
 import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { RegistroUsuarioDTO } from './dto/registro.dto';
@@ -132,6 +132,7 @@ export class EstudianteService {
         'El RUT ya está registrado'
       );
     }
+
 
     let carrera: CarreraEntity | null = null;
     if (usuario.rol === 1) {
@@ -305,4 +306,32 @@ export class EstudianteService {
       }))
     };
   }
+
+  /**
+   * Actualiza el estado de una inscripción de un estudiante en una oferta.
+   *
+   * Busca la toma mediante su identificador. Si no existe,
+   * lanza una excepción NotFoundException.
+   *
+   * @param ID_toma Identificador de la toma de oferta.
+   * @param estado Nuevo estado que tendrá la inscripción.
+   * @returns La entidad actualizada.
+   * @throws NotFoundException Si la toma no existe.
+   */
+  async cambiarEstado(ID_toma: number, estado: EstadoToma): Promise<EstudianteTomaOfertaEntity> {
+    const toma = await this.TomaRepo.findOne({
+      where: { ID_toma },
+    });
+
+    if (!toma) {
+      throw new NotFoundException(
+        `No existe una toma con ID ${ID_toma}`,
+      );
+    }
+
+    toma.estado = estado;
+
+    return this.TomaRepo.save(toma);
+  }
+
 }

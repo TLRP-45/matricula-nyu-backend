@@ -52,10 +52,9 @@ export class InscripcionesService {
 
     const oferta = await this.ofertaRepo.findOne({
       where: { ID_oferta: ofertaId },
-      relations: ['periodo_inscripcion', 'tomada', 'asignatura'],
+      relations: ['periodo_inscripcion', 'tomada', 'asignatura', 'carrera'],
     });
     if (!oferta)throw new NotFoundException('Oferta no encontrada');
-    console.log(oferta.estado);
     if (oferta.estado !== 'PUBLICADA')throw new BadRequestException('Oferta no publicada');
 
     // Validar periodo de inscripción
@@ -65,19 +64,50 @@ export class InscripcionesService {
 
 
     // Validar existencia
-    const toma = await this.TomaRepo.findOne({
+    let toma = await this.TomaRepo.findOne({
       where: {
         estudiante: {ID_estudiante: estudiante.ID_estudiante},
         estado: EstadoToma.INSCRITO,
         oferta: {ID_oferta: oferta.ID_oferta}
       }
     });
-    console.log(toma);
+    //console.log(toma);
     if (toma)throw new BadRequestException('Ya inscrito');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.APROBADO,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Ya cursado y aprobado');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.REPROBADO,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Ya cursado. Cambiar estado');
+
+    toma = await this.TomaRepo.findOne({
+      where: {
+        estudiante: {ID_estudiante: estudiante.ID_estudiante},
+        estado: EstadoToma.CASUAL,
+        oferta: {ID_oferta: oferta.ID_oferta}
+      }
+    });
+    //console.log(toma);
+    if (toma)throw new BadRequestException('Estado casual. Cambiar estado');
 
     // Validación de deuda
     const matricula = await this.MatriculaRepo.findOne({
-      where: { estudiante: { ID_estudiante: estudiante.ID_estudiante } }
+      where: { estudiante: { ID_estudiante: estudiante.ID_estudiante } },
+      relations: ['carrera'],
     });
     if (!matricula)throw new NotFoundException('Matricula no encontrada');
     if (!matricula.arancel_aldia)throw new BadRequestException('El estudiante tiene deuda pendiente');
