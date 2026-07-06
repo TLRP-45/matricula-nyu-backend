@@ -8,12 +8,12 @@ import { AsignaturaEntity } from './asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { MatriculaEntity } from '../matricula/matricula.entity';
-import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { AsignaturaPrerrequisitosDto, AsignaturaCarreraDto } from './asignatura.controller';
 import { AsignaturaPutDto } from './dto/asignatura-update.dto';
 import { CarreraEntity } from '../carrera/carrera.entity';
 import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 import { EstadoToma } from '../usuario/estado-toma.enum';
+import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 
 @Injectable()
 export class AsignaturaService {
@@ -243,7 +243,7 @@ export class AsignaturaService {
 
         const asignatura = await this.AsignaturaRepo.findOne({
             where: { ID_asignatura: aID },
-            relations: ['prerrequisitos'],
+            relations: ['prerrequisitos', 'es_de'],
         });
 
         if (!asignatura) {
@@ -254,6 +254,7 @@ export class AsignaturaService {
             where: {
             ID_asignatura: In(preID.ID_prerrequisitos),
             },
+            relations: ['es_de'],
         });
 
         if (prerrequisitos.length === 0) {
@@ -271,6 +272,18 @@ export class AsignaturaService {
 
         if (nuevos.length === 0) {
             throw new BadRequestException('Relación ya existente');
+        }
+
+        const semestreAsignatura = asignatura.es_de?.[0]?.semestre;
+
+        const invalido = prerrequisitos.find(
+        p => p.es_de?.[0]?.semestre === semestreAsignatura,
+        );
+
+        if (invalido) {
+        throw new BadRequestException(
+            'No se pueden asignar prerrequisitos del mismo semestre',
+        );
         }
 
         asignatura.prerrequisitos.push(...nuevos);

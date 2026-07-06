@@ -1,6 +1,7 @@
-import { IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsPositive, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { CaracterAsignatura } from '../asignatura-caracter.enum';
 
 export class AsignaturaPutDto {
   @ApiPropertyOptional({
@@ -23,11 +24,11 @@ export class AsignaturaPutDto {
 
   @ApiPropertyOptional({
     description: 'Carácter de la asignatura',
-    example: 'Obligatoria',
+    example: CaracterAsignatura.OBLIGATORIA,
   })
-  @IsString()
+  @IsEnum(CaracterAsignatura)
   @IsOptional()
-  caracter?: string;
+  caracter?: CaracterAsignatura;
 
   @ApiPropertyOptional({
     description: 'Horas presenciales',

@@ -46,10 +46,37 @@ export class BloqueHorarioService {
     }
   }
 
-  private toMinutes(hora: string): number {
+  private toMinutes(hora: string | Date | number | null | undefined): number {
+    if (hora == null) {
+      throw new BadRequestException('Hora inválida');
+    }
 
-    const [hours, minutes] = hora.split(':').map(Number);
+    if (hora instanceof Date) {
+      return hora.getHours() * 60 + hora.getMinutes();
+    }
 
-    return hours * 60 + minutes;
+    if (typeof hora === 'number') {
+      return hora;
+    }
+
+    if (typeof hora === 'string') {
+      const normalized = hora.trim();
+      const match = normalized.match(/^(\d{1,2}):(\d{2})$/);
+
+      if (!match) {
+        throw new BadRequestException(`Hora inválida: ${hora}`);
+      }
+
+      const hours = Number(match[1]);
+      const minutes = Number(match[2]);
+
+      if (hours > 23 || minutes > 59) {
+        throw new BadRequestException(`Hora inválida: ${hora}`);
+      }
+
+      return hours * 60 + minutes;
+    }
+
+    throw new BadRequestException(`Hora inválida: ${String(hora)}`);
   }
 }

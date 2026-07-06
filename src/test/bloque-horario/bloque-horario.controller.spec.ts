@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BloqueHorarioController } from './bloque-horario.controller';
+import { BloqueHorarioController } from '../../modules/bloque-horario/bloque-horario.controller';
 
 describe('BloqueHorarioController', () => {
   let controller: BloqueHorarioController;

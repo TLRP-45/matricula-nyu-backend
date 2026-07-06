@@ -68,6 +68,9 @@ export class UsuarioEntity {
     @Column()
     password!: string;
 
-    @Column()
+    @Column({
+        type: 'enum',
+        enum: RolUsuario
+    })
     rol!: RolUsuario;
 }

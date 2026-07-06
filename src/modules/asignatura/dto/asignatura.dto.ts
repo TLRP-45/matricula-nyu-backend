@@ -1,6 +1,7 @@
-import { IsInt, IsOptional, IsPositive, IsString, Min, IsArray } from 'class-validator';
+import { IsInt, IsOptional, IsPositive, IsString, Min, IsArray, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CaracterAsignatura } from '../asignatura-caracter.enum';
 
 export class AsignaturaCreateDto {
 
@@ -22,11 +23,11 @@ export class AsignaturaCreateDto {
   creditos!: number;
 
   @ApiProperty({
-    description: 'Carácter de la asignatura (ej: Obligatoria, Electiva)',
-    example: 'Obligatoria'
+    enum: CaracterAsignatura,
+    example: CaracterAsignatura.ELECTIVA
   })
-  @IsString()
-  caracter!: string;
+  @IsEnum(CaracterAsignatura)
+  caracter!: CaracterAsignatura;
 
   @ApiProperty({
     description: 'Horas presenciales de la asignatura',
