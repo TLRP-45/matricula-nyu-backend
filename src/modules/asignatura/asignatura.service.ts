@@ -249,7 +249,6 @@ export class AsignaturaService {
         if (!asignatura) {
             throw new NotFoundException('Asignatura no encontrada');
         }
-        console.log('asdads', asignatura.es_de[0].semestre);
 
         const prerrequisitos = await this.AsignaturaRepo.find({
             where: {
@@ -257,7 +256,6 @@ export class AsignaturaService {
             },
             relations: ['es_de'],
         });
-        console.log('asdads', prerrequisitos[0].es_de[0].semestre);
 
         if (prerrequisitos.length === 0) {
             throw new NotFoundException('Prerrequisitos no encontrados');

@@ -119,16 +119,20 @@ describe('Prerrequisitos', ()=>{
     });
     algebraID = algebra.ID_asignatura;
     calculoID = calculo.ID_asignatura;
-    const dto: AsignaturaPrerrequisitosDto = {ID_prerrequisitos : [algebraID]};
-    await controller.putPushPrerrequisitos(calculoID, dto);
   });
 
   it('debería agregar relación entre asignatura y carrera',async ()=>{
-    const dto: AsignaturaCarreraDto = {posicion : 1, semestre : 1};
+    let dto: AsignaturaCarreraDto = {posicion : 1, semestre : 1};
     const relacion = await controller.putPushAsignaturaCarrera(algebraID,carreraID, dto);
+    dto = {posicion : 1, semestre : 2};
     await controller.putPushAsignaturaCarrera(calculoID,carreraID, dto);
     expect(relacion).toBeDefined();
     expect(relacion.posicion).toBe(1);
+  });
+
+  it('debería relacionar prerrequisito',async ()=>{
+    const dto: AsignaturaPrerrequisitosDto = {ID_prerrequisitos : [algebraID]};
+    await controller.putPushPrerrequisitos(calculoID, dto);
   });
 
   it('debería consultar prerrequisitos',async ()=>{
@@ -209,9 +213,4 @@ describe('Prerrequisitos', ()=>{
  *
  *(carrera) - es independiente de todo asi q bue
  * Lo q si, no probar lo de los prerres
- */
-
-/**
- * Oferta debería tener patch estado
- * Oferta debería tener softdelete
  */
