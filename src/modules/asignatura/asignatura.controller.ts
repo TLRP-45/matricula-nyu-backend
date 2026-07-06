@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, ParseArrayPipe, ParseIntPipe, Delete, Put, BadRequestException, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, ParseIntPipe, Delete, Put, BadRequestException, Query, UseGuards } from '@nestjs/common';
 import { AsignaturaService } from './asignatura.service';
 import { AsignaturaCreateDto } from './dto/asignatura.dto';
 import { AsignaturaEntity } from './asignatura.entity';

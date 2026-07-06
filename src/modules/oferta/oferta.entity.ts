@@ -28,9 +28,9 @@ export class OfertaEntity {
   @Column()
   hrs_semanales!: number;
 
-  //@Column({ unsigned: true, nullable: true })
-  //ID_profesor!: number;
-
+  @Column()
+  semestre!: number;
+  
   @ManyToOne(() => ProfesorEntity, (prof) => prof.clases, {
     nullable: true,
     //onDelete: 'SET NULL'
@@ -51,9 +51,10 @@ export class OfertaEntity {
   periodo_inscripcion!: PeriodoInscripcionEntity;
 
   @OneToMany(() => BloqueHorarioEntity, (bh) => bh.oferta, {
-    cascade: true
+    cascade: true,
+    orphanedRowAction: 'delete',
   })
-  horarios!: BloqueHorarioEntity[];
+  horarios?: BloqueHorarioEntity[];
 
   @OneToMany(() => EstudianteTomaOfertaEntity, (t) => t.oferta)
   tomada!: EstudianteTomaOfertaEntity[];

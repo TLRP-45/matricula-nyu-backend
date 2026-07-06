@@ -14,7 +14,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ProfesorService } from './profesor.service';

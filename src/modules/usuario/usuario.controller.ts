@@ -1,11 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { EstudianteService } from '../../modules/usuario/usuario.service';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { Public } from '../auth/public.decorator';
 import { RegistroUsuarioDTO } from './dto/registro.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { RolUsuario } from './rol-usuario.enum';
+import { EstudianteService } from './usuario.service';
 
 @ApiBearerAuth()
 @UseGuards(RolesGuard)
@@ -23,5 +23,13 @@ export class UsuarioController {
   @ApiBody({ type: RegistroUsuarioDTO })
   async registrar(@Body() usuario: RegistroUsuarioDTO) {
     return this.estudianteService.registrar(usuario);
+  }
+
+
+  @Get(':id/comprobante')
+  async obtenerComprobante(
+    @Param('id') id: string,
+  ) {
+    return this.estudianteService.generarComprobante(+id);
   }
 }

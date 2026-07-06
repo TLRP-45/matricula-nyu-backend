@@ -112,6 +112,7 @@ export class EstudianteService {
    */
   async registrar(usuario: RegistroUsuarioDTO) {
 
+
     const existenteEmail = await this.EstudianteRepo.findOne({
       where: { email: usuario.email }
     });
@@ -229,12 +230,15 @@ export class EstudianteService {
 
       if (!oferta) continue;
 
+
       const toma = this.TomaRepo.create({
         estudiante: { ID_estudiante: estudianteGuardado.ID_estudiante } as any,
         oferta: { ID_oferta: oferta.ID_oferta } as any,
         estado: EstadoToma.INSCRITO,
         inscrita: new Date()
       });
+
+
 
       await this.TomaRepo.save(toma);
     }
@@ -246,4 +250,59 @@ export class EstudianteService {
     };
   }
 
+
+  async generarComprobante(idEstudiante: number) {
+
+    const estudiante = await this.EstudianteRepo.findOne({
+      where: {
+        ID_estudiante: idEstudiante
+      }
+    });
+
+    if (!estudiante) {
+      throw new NotFoundException(
+        'Estudiante no encontrado'
+      );
+    }
+
+    const matricula = await this.MatriculaRepo.findOne({
+      where: {
+        estudiante: {
+          ID_estudiante: idEstudiante
+        }
+      },
+      relations: [
+        'carrera'
+      ]
+    });
+
+    const asignaturas = await this.TomaRepo.find({
+      where: {
+        estudiante: {
+          ID_estudiante: idEstudiante
+        }
+      },
+      relations: [
+        'oferta',
+        'oferta.asignatura'
+      ]
+    });
+
+    return {
+      fecha: new Date(),
+      estudiante: {
+        id: estudiante.ID_estudiante,
+        nombre: estudiante.nombre,
+        apellido: estudiante.apellido,
+        rut: estudiante.rut
+      },
+      carrera: matricula?.carrera?.nombre,
+      semestre: matricula?.semestre,
+      asignaturas: asignaturas.map(t => ({
+        codigo: t.oferta.asignatura.ID_asignatura,
+        nombre: t.oferta.asignatura.nombre,
+        grupo: t.oferta.grupo
+      }))
+    };
+  }
 }
