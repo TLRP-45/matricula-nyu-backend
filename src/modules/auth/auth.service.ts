@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
 import { UsuarioExternoRespuesta } from './dto/respuesta-login.interface';
 import { RolUsuario } from '../usuario/rol-usuario.enum';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -35,13 +36,29 @@ export class AuthService {
    */
   async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
 
+    // Trae contraseña guardada
+    let user: UsuarioEntity;
+    try {
+      user = await this.estudianteRepository.findOneByOrFail({
+        email: correo
+      })
+    } catch (error: any) {
+      throw new NotFoundException('Usuario no encontrado')
+    }
+
+    const hashPass = user.password;
+    const checkPass = await bcrypt.compare(pass, hashPass);
+    if (!checkPass) {
+      throw new ForbiddenException('Contraseña inválida');
+    }
+
     // Login externo
     const respuesta = await fetch(this.loginUrl + '/v1/users/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: correo,
-        password: pass,
+        password: hashPass,
       })
     })
 
@@ -51,13 +68,9 @@ export class AuthService {
       throw new UnauthorizedException(usuarioExterno.message);
     }
 
-    let user: UsuarioEntity;
-    try {
-      user = await this.estudianteRepository.findOneByOrFail({
-        ID_externo: usuarioExterno.uuid
-      })
-    } catch (error: any) {
-      throw new NotFoundException('Usuario no encontrado')
+    // Revisa si tienen el mismo UUID
+    if (!(usuarioExterno.uuid === user.ID_externo)) {
+      throw new ConflictException('Sistema externo y local no sincronizados')
     }
 
     const payload = {

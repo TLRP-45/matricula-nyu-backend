@@ -14,6 +14,7 @@ import { RolUsuario } from './rol-usuario.enum';
 import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { RegistroUsuarioDTO } from './dto/registro.dto';
 import { UsuarioExternoRespuesta } from '../auth/dto/respuesta-login.interface';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EstudianteService {
@@ -111,7 +112,6 @@ export class EstudianteService {
    */
   async registrar(usuario: RegistroUsuarioDTO) {
 
-
     const existenteEmail = await this.EstudianteRepo.findOne({
       where: { email: usuario.email }
     });
@@ -131,7 +131,6 @@ export class EstudianteService {
         'El RUT ya está registrado'
       );
     }
-
 
     let carrera: CarreraEntity | null = null;
     if (usuario.rol === RolUsuario.Estudiante) {
@@ -155,6 +154,10 @@ export class EstudianteService {
       }
     }
 
+    // Hashing
+    const salt = await bcrypt.genSalt();
+    const hashPass = await bcrypt.hash(usuario.password, salt);
+
     // Registro en sistema externo
     let usuarioExterno: UsuarioExternoRespuesta;
 
@@ -164,7 +167,7 @@ export class EstudianteService {
         usuario.nombre,
         usuario.apellido,
         usuario.email,
-        usuario.password,
+        hashPass,
       )
     } catch (error: any) {
       if (error instanceof ConflictException) {
@@ -188,7 +191,7 @@ export class EstudianteService {
       nacimiento: usuario.nacimiento,
       direccion: usuario.direccion,
       telefono: usuario.telefono,
-      password: usuario.password,
+      password: hashPass,
       rol: usuario.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin,
     });
 
