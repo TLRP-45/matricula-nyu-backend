@@ -24,16 +24,4 @@ export class UsuarioController {
   async registrar(@Body() usuario: RegistroUsuarioDTO) {
     return this.estudianteService.registrar(usuario);
   }
-
-  // @Public()
-  // @Post('registro-test')
-  // async registroTest(@Body() usuario: {
-  //   nombre: string,
-  //   apellido: string,
-  //   correo: string,
-  //   pass: string,
-  // }) {
-  //   return this.estudianteService.testRegistro(usuario.nombre, usuario.apellido,
-  //     usuario.correo, usuario.pass);
-  // }
 }
