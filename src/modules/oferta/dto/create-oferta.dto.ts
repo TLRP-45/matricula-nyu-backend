@@ -76,6 +76,7 @@ export class CreateOfertaDTO {
   @IsOptional()
   @IsArray()
   horarios?: {
+    dia: string;
     hora: string;
     duracion: number;
     lugar: string;

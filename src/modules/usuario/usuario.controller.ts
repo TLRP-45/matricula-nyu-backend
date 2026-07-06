@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Delete,
   Param,
   ParseIntPipe,
@@ -31,8 +32,8 @@ export class CambiarEstadoTomaDTO {
   estado!: EstadoToma;
 }
 
-@ApiTags('Estudiante')
-@Controller('estudiante')
+@ApiTags('Usuario')
+@Controller('usuario')
 export class UsuarioController {
   constructor(
     private readonly estudianteService: EstudianteService,
@@ -67,5 +68,12 @@ export class UsuarioController {
       id,
       dto.estado,
     );
+  }
+
+  @Get(':id/comprobante')
+  async obtenerComprobante(
+    @Param('id') id: string,
+  ) {
+    return this.estudianteService.generarComprobante(+id);
   }
 }

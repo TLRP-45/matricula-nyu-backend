@@ -10,7 +10,7 @@ async function seed() {
   const carreraRepo = AppDataSource.getRepository(CarreraEntity);
   const asignaturaRepo = AppDataSource.getRepository(AsignaturaEntity);
 
-  const carrera = await carreraRepo.findOneBy({ id_carrera: 1 });
+  const carrera = await carreraRepo.findOneBy({ id_carrera: 2 });
 
   const asignaturas = await asignaturaRepo.findBy([
     { ID_asignatura: 1 },

@@ -1,11 +1,9 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AsignaturaEntity } from '../asignatura/asignatura.entity';
+import { EstudianteTomaOfertaEntity } from '../usuario/estudiante-toma-oferta.entity';
 
 import { OfertaEntity } from './oferta.entity';
 import { CreateOfertaDTO } from './dto/create-oferta.dto';
@@ -18,7 +16,66 @@ export class OfertaService {
   constructor(
     @InjectRepository(OfertaEntity)
     private readonly ofertaRepo: Repository<OfertaEntity>,
-  ) {}
+
+    @InjectRepository(BloqueHorarioEntity)
+    private readonly horarioRepo: Repository<BloqueHorarioEntity>,
+  ) { }
+
+
+  private async validarChoques(
+    carreraId: number,
+    semestre: number,
+    horarios: any[],
+    ofertaId?: number,
+  ) {
+
+    const ofertas = await this.ofertaRepo.find({
+      where: {
+        carrera: {
+          id_carrera: carreraId,
+        } as any,
+        semestre,
+      },
+      relations: ['horarios'],
+    });
+
+    for (const oferta of ofertas) {
+
+      if (ofertaId && oferta.ID_oferta === ofertaId) {
+        continue;
+      }
+      if (!oferta.horarios) {
+        continue;
+      }
+
+      for (const horarioExistente of oferta.horarios) {
+
+        for (const horarioNuevo of horarios) {
+
+          const mismoHorario =
+            horarioExistente.dia === horarioNuevo.dia &&
+            horarioExistente.hora === horarioNuevo.hora;
+
+          if (mismoHorario) {
+            throw new BadRequestException(
+              'Ya existe una oferta del mismo semestre en ese horario'
+            );
+          }
+
+          const mismaSala =
+            horarioExistente.dia === horarioNuevo.dia &&
+            horarioExistente.hora === horarioNuevo.hora &&
+            horarioExistente.lugar === horarioNuevo.lugar;
+
+          if (mismaSala) {
+            throw new BadRequestException(
+              'La sala ya está ocupada'
+            );
+          }
+        }
+      }
+    }
+  }
 
   // CREAR (permite incompleto)
   async crearOferta(data: CreateOfertaDTO) {
@@ -28,7 +85,8 @@ export class OfertaService {
     if (data.horarios?.length) {
       horarios = data.horarios.map(h => {
         const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
+        bh.dia = h.dia;
+        bh.hora = h.hora;
         bh.duracion = h.duracion;
         bh.lugar = h.lugar;
         return bh;
@@ -36,32 +94,44 @@ export class OfertaService {
     }
 
     const oferta = this.ofertaRepo.create({
+
       tipo: data.tipo,
       grupo: data.grupo,
       cupos: data.cupos,
       hrs_semanales: data.hrs_semanales,
+      // semestre: data.semestre,
 
-      asignatura: { ID_asignatura: data.asignaturaId } as any,
-      carrera: { id_carrera: data.carreraId } as any,
-      periodo_inscripcion: { ID_periodo: data.periodoId } as any,
+      asignatura: {
+        ID_asignatura: data.asignaturaId,
+      } as any,
 
-      // 
+      carrera: {
+        id_carrera: data.carreraId,
+      } as any,
+
+      periodo_inscripcion: {
+        ID_periodo: data.periodoId,
+      } as any,
+
       ...(data.profesorId && {
-        profesor: { ID_profesor: data.profesorId } as any,
+        profesor: {
+          ID_profesor: data.profesorId,
+        } as any,
       }),
 
-      ...(horarios.length && { horarios }),
+      ...(horarios.length && {
+        horarios,
+      }),
     });
 
     return this.ofertaRepo.save(oferta);
   }
-
   //  EDITAR
   async editarOferta(id: number, data: UpdateOfertaDTO) {
 
     const oferta = await this.ofertaRepo.findOne({
       where: { ID_oferta: id },
-      relations: ['horarios']
+      relations: ['horarios', 'carrera']
     });
 
     if (!oferta) {
@@ -85,7 +155,8 @@ export class OfertaService {
     if (data.horarios) {
       oferta.horarios = data.horarios.map(h => {
         const bh = new BloqueHorarioEntity();
-        bh.hora = new Date(h.hora);
+        bh.dia = h.dia;
+        bh.hora = h.hora;
         bh.duracion = h.duracion;
         bh.lugar = h.lugar;
         return bh;
@@ -95,8 +166,9 @@ export class OfertaService {
     return this.ofertaRepo.save(oferta);
   }
 
+
   // PUBLICAR
-  async publicarOferta(id: number) {
+  public async publicarOferta(id: number) {
 
     const oferta = await this.ofertaRepo.findOne({
       where: { ID_oferta: id },

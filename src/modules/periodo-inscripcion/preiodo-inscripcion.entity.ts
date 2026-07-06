@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, Check, DeleteDateColumn } from "typeorm";
 import { OfertaEntity } from "../oferta/oferta.entity";
 
-@Entity('PeriodoInscripcion')
+@Entity('periodo_inscripcion')
 @Check(`inicio <= final`)
 export class PeriodoInscripcionEntity {
 
