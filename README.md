@@ -23,14 +23,14 @@ actualizando a medida que se avance en el proyecto:
 - [x] Inscripción de asignaturas
 - [x] Inscripción de matrícula
 - [x] Desinscripción de asignaturas
-- [ ] Registro de usuarios
-- [ ] Administración de carreras y planes de estudio
-- [ ] Administración de oferta académica
-- [ ] Acceso a malla curricular
-- [ ] Acceso a horario semanal
-- [ ] Prevención de choques horarios
-- [ ] Autenticación de solicitudes
-- [ ] Caching y optimizaciones de rendimiento
+- [x] Registro de usuarios
+- [x] Administración de carreras y planes de estudio
+- [x] Administración de oferta académica
+- [x] Acceso a malla curricular
+- [x] Acceso a horario semanal
+- [x] Prevención de choques horarios
+- [x] Autenticación de solicitudes
+- [x] Caching y optimizaciones de rendimiento
 
 ## Setup del proyecto
 
@@ -51,17 +51,8 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Tests (WIP)
-
-> ¡Todavía no hay tests!
+## Tests
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+$ npm test
 ```
