@@ -153,26 +153,27 @@ export class EstudianteService {
     // Registro en sistema externo
     let usuarioExterno: UsuarioExternoRespuesta;
 
-    try {
-      usuarioExterno = await this.registroExterno(
-        usuario.rut,
-        usuario.nombre,
-        usuario.apellido,
-        usuario.email,
-        usuario.password,
-      )
-    } catch (error: any) {
-      if (error instanceof ConflictException) {
-        throw new ForbiddenException('Email ya existe. Esto no debería pasar nunca... :(')
-      } else {
-        throw error;
-      }
-    }
+    // try {
+    //   usuarioExterno = await this.registroExterno(
+    //     usuario.rut,
+    //     usuario.nombre,
+    //     usuario.apellido,
+    //     usuario.email,
+    //     usuario.password,
+    //   )
+    // } catch (error: any) {
+    //   if (error instanceof ConflictException) {
+    //     throw new ForbiddenException('Email ya existe. Esto no debería pasar nunca... :(')
+    //   } else {
+    //     throw error;
+    //   }
+    // }
 
     // console.log(usuarioExterno);
 
     const estudiante = this.EstudianteRepo.create({
-      ID_externo: usuarioExterno.uuid,
+      // ID_externo: usuarioExterno.uuid,
+      ID_externo: '123123123',
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
