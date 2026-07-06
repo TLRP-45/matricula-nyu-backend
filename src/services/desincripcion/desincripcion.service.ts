@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
-import { EstadoToma } from '../../modules/usuario/estado-toma.enum';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PeriodoInscripcionService } from '../../modules/periodo-inscripcion/periodo-inscripcion.service';
+import { EstadoToma } from '../../modules/usuario/estado-toma.enum';
 
 @Injectable()
 export class DesincripcionService {
@@ -44,7 +44,8 @@ export class DesincripcionService {
      * Desinscribe a un estudiante de una oferta académica.
      *
      * Este método verifica que el estudiante y la oferta existan, confirma que el estudiante
-     * esté inscrito y determina si la desinscripción ocurre dentro o fuera del periodo permitido.
+     * esté inscrito y determina si la desinscripción ocurre dentro o fuera del periodo permitido,
+     * además de impedir la desinscripción en caso de ya estár cursada la oferta académica.
      *
      * - Si ocurre **fuera del periodo**, la Toma no se elimina: solo se marca con estado "casual".
      * - Si ocurre **dentro del periodo**, se libera un cupo en la oferta, se eliminan referencias
@@ -84,6 +85,8 @@ export class DesincripcionService {
             oferta: { ID_oferta: oferta.ID_oferta }
             }});
         if(!toma) throw new InternalServerErrorException('Cambios actuales en la base de datos');
+
+        if(toma.estado === EstadoToma.APROBADO || toma.estado === EstadoToma.REPROBADO) throw new BadRequestException('Oferta académica ya cursada');
 
         if (!this.PeriodoService.dentroDelPeriodo(fecha, periodo.ID_periodo)){
             toma.estado = EstadoToma.CASUAL;

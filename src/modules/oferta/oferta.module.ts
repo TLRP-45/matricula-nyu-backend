@@ -15,6 +15,7 @@ import { PlazoMatriculaModule } from '../plazo-matricula/plazo-matricula.module'
 import { ProfesorModule } from '../profesor/profesor.module';
 import { CarreraModule } from '../carrera/carrera.module';
 
+
 @Module({
   imports: [
       TypeOrmModule.forFeature([

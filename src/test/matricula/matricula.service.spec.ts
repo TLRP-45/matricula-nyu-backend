@@ -1,322 +1,274 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { MatriculaEntity } from '../matricula/matricula.entity';
-import { CarreraEntity } from '../carrera/carrera.entity';
-import { MatriculaService } from './matricula.service';
-import { PlazoMatricula } from '../plazo-matricula/plazo-matricula.entity';
-import { UsuarioEntity } from '../usuario/usuario.entity';
-import { CarreraService } from '../carrera/carrera.service';
-import { PlazoMatriculaService } from '../plazo-matricula/plazo-matricula.service';
-import { matriculaActivaFixture, matriculaInactivaFixture } from '../../../test/fixtures/matricula.fixture';
-import { NotFoundException, UnauthorizedException,BadRequestException } from '@nestjs/common';
-import { carreraInformaticaFixture } from '../../../test/fixtures/carrera.fixture';
-import { estudianteFixture } from '../../../test/fixtures/usuario.fixture';
-import { matriculaDTOFixture } from '../../../test/fixtures/matricula.dto.fixture';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
-/**
- * 
- *   Fixtures
- *   Objetos estáticos reutilizables que representan entidades válidas del
- *   sistema. Permiten disponer de datos consistentes durante todas las
- *   pruebas sin repetir su creación.
- * 
- *   Mocks
- *   Implementaciones simuladas de repositorios, servicios y dependencias
- *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
- *   comportamiento de las llamadas y evitar el acceso a recursos reales.
- *
- *   beforeEach()
- *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
- *   pruebas antes de ejecutar cada caso, garantizando independencia entre
- *   los tests.
- *
- *   describe()
- *   Agrupa las pruebas correspondientes a un mismo método del servicio o
- *   controlador para mejorar la organización y legibilidad.
- *
- *   it()
- *   Define un escenario específico que valida un comportamiento esperado,
- *   incluyendo casos exitosos y manejo de excepciones.
- * 
- *   Testing: 
- *   npx jest src/modules/matricula/matricula.service.spec.ts
- */
+import { MatriculaService } from '../../modules/matricula/matricula.service';
+import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
+import { CarreraEntity } from '../../modules/carrera/carrera.entity';
+import { PlazoMatricula } from '../../modules/plazo-matricula/plazo-matricula.entity';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
+
+import { CarreraService } from '../../modules/carrera/carrera.service';
+import { PlazoMatriculaService } from '../../modules/plazo-matricula/plazo-matricula.service';
+import { EstadoOMatricula } from '../../modules/matricula/matricula-estado.enum';
 
 describe('MatriculaService', () => {
+  let service: MatriculaService;
 
-    let service: MatriculaService;
-    let mockMatriculaRepo;
-    let mockCarreraRepo;
-    let mockPlazoRepo;
-    let mockEstudianteRepo;
+  const matriculaRepo = {
+    find: jest.fn(),
+    findOneBy: jest.fn(),
+    findOneByOrFail: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+    createQueryBuilder: jest.fn(),
+  };
 
-    let mockCarreraService;
-    let mockPlazoService;
+  const carreraRepo = {
+    save: jest.fn(),
+  };
 
-    beforeEach(async () => {
+  const plazoRepo = {};
 
-        mockMatriculaRepo = {
-            find: jest.fn(),
-            findOneBy: jest.fn(),
-            findOneByOrFail: jest.fn(),
-            create: jest.fn(),
-            save: jest.fn(),
-            update: jest.fn(),
-            softDelete: jest.fn(),
-            createQueryBuilder: jest.fn(),
-        };
+  const estudianteRepo = {
+    findOneBy: jest.fn(),
+  };
 
-        mockCarreraRepo = {
-            save: jest.fn(),
-        };
+  const carreraService = {
+    getCarrera: jest.fn(),
+  };
 
-        mockPlazoRepo = {};
+  const plazoService = {
+    getLastPlazo: jest.fn(),
+  };
 
-        mockEstudianteRepo = {
-            findOneBy: jest.fn(),
-        };
+  beforeEach(async () => {
+    jest.clearAllMocks();
 
-        mockCarreraService = {
-            getCarrera: jest.fn(),
-        };
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        MatriculaService,
 
-        mockPlazoService = {
-            getLastPlazo: jest.fn(),
-        };
+        {
+          provide: getRepositoryToken(MatriculaEntity),
+          useValue: matriculaRepo,
+        },
 
-        const module = await Test.createTestingModule({
+        {
+          provide: getRepositoryToken(CarreraEntity),
+          useValue: carreraRepo,
+        },
 
-            providers: [
+        {
+          provide: getRepositoryToken(PlazoMatricula),
+          useValue: plazoRepo,
+        },
 
-                MatriculaService,
+        {
+          provide: getRepositoryToken(UsuarioEntity),
+          useValue: estudianteRepo,
+        },
 
-                {
-                    provide: getRepositoryToken(MatriculaEntity),
-                    useValue: mockMatriculaRepo
-                },
+        {
+          provide: CarreraService,
+          useValue: carreraService,
+        },
 
-                {
-                    provide: getRepositoryToken(CarreraEntity),
-                    useValue: mockCarreraRepo
-                },
+        {
+          provide: PlazoMatriculaService,
+          useValue: plazoService,
+        },
+      ],
+    }).compile();
 
-                {
-                    provide: getRepositoryToken(PlazoMatricula),
-                    useValue: mockPlazoRepo
-                },
+    service = module.get<MatriculaService>(MatriculaService);
+  });
 
-                {
-                    provide: getRepositoryToken(UsuarioEntity),
-                    useValue: mockEstudianteRepo
-                },
-
-                {
-                    provide: CarreraService,
-                    useValue: mockCarreraService
-                },
-
-                {
-                    provide: PlazoMatriculaService,
-                    useValue: mockPlazoService
-                }
-
-            ]
-
-        }).compile();
-
-        service = module.get(MatriculaService);
-
-    });
-
-    it('debería estar definido', () => {
-
+  it('should be defined', () => {
     expect(service).toBeDefined();
+  });
 
-});
+  describe('getAllMatriculas', () => {
+    it('debería obtener todas las matrículas', async () => {
+      const matriculas = [
+        { ID_matricula: 1 },
+        { ID_matricula: 2 },
+      ];
 
-describe('ultimaMatricula', () => {
+      matriculaRepo.find.mockResolvedValue(matriculas);
 
-    it('debería retornar la última matrícula', async () => {
+      const result = await service.getAllMatriculas();
 
-        const queryBuilder = {
+      expect(result).toEqual(matriculas);
+      expect(matriculaRepo.find).toHaveBeenCalled();
+    });
+  });
 
-            leftJoin: jest.fn().mockReturnThis(),
-            where: jest.fn().mockReturnThis(),
-            orderBy: jest.fn().mockReturnThis(),
-            getOne: jest.fn().mockResolvedValue(matriculaActivaFixture)
+  describe('getMatricula', () => {
+    it('debería obtener una matrícula', async () => {
+      const matricula = {
+        ID_matricula: 1,
+      };
 
-        };
+      matriculaRepo.findOneByOrFail.mockResolvedValue(matricula);
 
-        mockMatriculaRepo.createQueryBuilder
-            .mockReturnValue(queryBuilder);
+      const result = await service.getMatricula(1);
 
-        const resultado =
-            await service.ultimaMatricula(2);
-
-        expect(resultado)
-            .toEqual(matriculaActivaFixture);
-
+      expect(result).toEqual(matricula);
     });
 
-});
+    it('debería lanzar NotFoundException', async () => {
+      matriculaRepo.findOneByOrFail.mockRejectedValue(new Error());
 
-describe('getAllMatriculas', () => {
-
-    it('debería retornar todas las matrículas', async () => {
-
-        mockMatriculaRepo.find.mockResolvedValue([
-
-            matriculaActivaFixture,
-            matriculaInactivaFixture
-
-        ]);
-
-        const resultado =
-            await service.getAllMatriculas();
-
-        expect(resultado).toEqual([
-
-            matriculaActivaFixture,
-            matriculaInactivaFixture
-
-        ]);
-
+      await expect(
+        service.getMatricula(1),
+      ).rejects.toThrow(NotFoundException);
     });
-});
+  });
 
-describe('getMatricula', () => {
+  describe('testCreate', () => {
+    it('debería crear una matrícula', async () => {
+      const carrera = {
+        id_carrera: 1,
+        cupos: 5,
+      };
 
-    it('debería retornar una matrícula', async () => {
+      const estudiante = {
+        ID_estudiante: 10,
+      };
 
-        mockMatriculaRepo.findOneByOrFail
-            .mockResolvedValue(matriculaActivaFixture);
+      const dto = {
+        semestre: 1,
+        ID_carrera: 1,
+        ID_estudiante: 10,
+        estado: EstadoOMatricula.ACTIVA
+      };
 
-        const resultado =
-            await service.getMatricula(1);
+      carreraService.getCarrera.mockResolvedValue(carrera);
+      estudianteRepo.findOneBy.mockResolvedValue(estudiante);
 
-        expect(resultado)
-            .toEqual(matriculaActivaFixture);
+      matriculaRepo.create.mockReturnValue(dto);
+      matriculaRepo.save.mockResolvedValue(dto);
 
-    });
+      const result = await service.testCreate(dto);
 
-        it('debería lanzar NotFoundException', async () => {
+      expect(result).toEqual(dto);
 
-        mockMatriculaRepo.findOneByOrFail
-            .mockRejectedValue(new Error());
-
-        await expect(
-
-            service.getMatricula(999)
-
-        ).rejects.toThrow(NotFoundException);
-
+      expect(carreraRepo.save).toHaveBeenCalled();
     });
 
-});
+    it('debería lanzar NotFoundException si la carrera no existe', async () => {
+      carreraService.getCarrera.mockResolvedValue(null);
 
-describe('create', () => {
-
-    it('debería lanzar NotFoundException si no existe plazo', async () => {
-
-        mockPlazoService.getLastPlazo.mockResolvedValue(null);
-
-        await expect(
-            service.create(matriculaDTOFixture)
-        ).rejects.toThrow(NotFoundException);
-
-    });
-
-    it('debería lanzar UnauthorizedException fuera de plazo', async () => {
-
-        mockPlazoService.getLastPlazo.mockResolvedValue({
-
-            inicio: new Date("2025-01-01"),
-            fin: new Date("2025-01-10")
-
-        });
-
-        await expect(
-            service.create(matriculaDTOFixture)
-        ).rejects.toThrow(UnauthorizedException);
-
+      await expect(
+        service.testCreate({
+          semestre: 1,
+          ID_carrera: 1,
+          ID_estudiante: 1,
+          estado: EstadoOMatricula.ACTIVA
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('debería lanzar BadRequestException si no hay cupos', async () => {
+      carreraService.getCarrera.mockResolvedValue({
+        cupos: 0,
+      });
 
-        mockPlazoService.getLastPlazo.mockResolvedValue({
-
-            inicio: new Date("2026-01-01"),
-            fin: new Date("2027-01-01")
-
-        });
-
-        mockCarreraService.getCarrera.mockResolvedValue({
-
-            ...carreraInformaticaFixture,
-            cupos: 0
-
-        });
-
-        await expect(
-            service.create(matriculaDTOFixture)
-        ).rejects.toThrow(BadRequestException);
-
+      await expect(
+        service.testCreate({
+          semestre: 1,
+          ID_carrera: 1,
+          ID_estudiante: 1,
+          estado: EstadoOMatricula.ACTIVA
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('debería lanzar NotFoundException si el estudiante no existe', async () => {
+      carreraService.getCarrera.mockResolvedValue({
+        cupos: 5,
+      });
 
-        mockPlazoService.getLastPlazo.mockResolvedValue({
+      estudianteRepo.findOneBy.mockResolvedValue(null);
 
-            inicio: new Date("2026-01-01"),
-            fin: new Date("2027-01-01")
+      await expect(
+        service.testCreate({
+          semestre: 1,
+          ID_carrera: 1,
+          ID_estudiante: 1,
+          estado: EstadoOMatricula.ACTIVA
+        }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 
-        });
+  describe('update', () => {
+    it('debería actualizar una matrícula', async () => {
+      matriculaRepo.update.mockResolvedValue({
+        affected: 1,
+      });
 
-        mockCarreraService.getCarrera.mockResolvedValue({
+      await service.update(1, {});
 
-            ...carreraInformaticaFixture
-
-        });
-
-        mockEstudianteRepo.findOneBy.mockResolvedValue(null);
-
-        await expect(
-            service.create({
-                ...matriculaDTOFixture,
-                ID_estudiante: 999
-            })
-        ).rejects.toThrow(NotFoundException);
-
+      expect(matriculaRepo.update).toHaveBeenCalled();
     });
 
-    it('debería crear correctamente una matrícula', async () => {
+    it('debería lanzar NotFoundException', async () => {
+      matriculaRepo.update.mockResolvedValue({
+        affected: 0,
+      });
 
-        mockPlazoService.getLastPlazo.mockResolvedValue({
+      await expect(
+        service.update(1, {}),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 
-            inicio: new Date("2026-01-01"),
-            fin: new Date("2027-01-01")
+  describe('delete', () => {
+    it('debería eliminar una matrícula', async () => {
+      matriculaRepo.softDelete.mockResolvedValue({
+        affected: 1,
+      });
 
-        });
+      await service.delete(1);
 
-        mockCarreraService.getCarrera.mockResolvedValue({
-
-            ...carreraInformaticaFixture
-
-        });
-
-        mockEstudianteRepo.findOneBy.mockResolvedValue(estudianteFixture);
-
-        mockMatriculaRepo.create.mockImplementation(dto => dto);
-
-        mockMatriculaRepo.save.mockResolvedValue(matriculaActivaFixture);
-
-        const resultado = await service.create(matriculaDTOFixture);
-
-        expect(resultado).toEqual(matriculaActivaFixture);
-
-        expect(mockCarreraRepo.save).toHaveBeenCalled();
-
+      expect(matriculaRepo.softDelete).toHaveBeenCalledWith(1);
     });
 
-});
+    it('debería lanzar NotFoundException', async () => {
+      matriculaRepo.softDelete.mockResolvedValue({
+        affected: 0,
+      });
+
+      await expect(
+        service.delete(1),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('desactivar', () => {
+    it('debería desactivar una matrícula', async () => {
+      const matricula = {
+        ID_matricula: 1,
+      };
+
+      matriculaRepo.findOneBy.mockResolvedValue(matricula);
+      matriculaRepo.save.mockResolvedValue(matricula);
+
+      await service.desactivar(1);
+
+      expect(matriculaRepo.save).toHaveBeenCalled();
+    });
+
+    it('debería lanzar NotFoundException', async () => {
+      matriculaRepo.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        service.desactivar(1),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 });

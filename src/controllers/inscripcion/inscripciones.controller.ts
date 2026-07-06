@@ -59,7 +59,7 @@ export class InscripcionesController {
         ),
       ),
     );
-
+    console.log(resultados);
     return resultados;
   }
 

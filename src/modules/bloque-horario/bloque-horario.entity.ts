@@ -13,11 +13,14 @@ export class BloqueHorarioEntity{
     @Column({ unsigned: true, nullable: false })
     ID_oferta!: number;
 
+    @Column({ length: 20, nullable: false })
+    dia!: string;
+
     @Column({ length: 100, nullable: false })
     lugar!: string;
 
-    @Column({ type: 'datetime', nullable: false })
-    hora!: Date;
+    @Column({ length: 5, nullable: false })
+    hora!: string;
 
     @Column()
     duracion!: number;

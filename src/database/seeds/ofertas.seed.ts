@@ -17,7 +17,7 @@ async function seed() {
   const profesor = await profesorRepo.findOneBy({ ID_profesor: 1 });
   const asignatura = await asignaturaRepo.findOneBy({ ID_asignatura: 2 });
   const periodo = await periodoRepo.findOneBy({ ID_periodo: 1 });
-  const carrera = await carreraRepo.findOneBy({id_carrera: 1});
+  const carrera = await carreraRepo.findOneBy({ id_carrera : 2})
 
   if (!profesor || !asignatura || !periodo || !carrera) {
     throw new Error('❌ Faltan datos: profesor, asignatura o periodo');
