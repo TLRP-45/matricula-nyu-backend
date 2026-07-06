@@ -16,7 +16,7 @@ describe('BloqueHorarioService', () => {
 
   function bloque(hora: string, duracion: number): BloqueHorarioEntity {
     const b = new BloqueHorarioEntity();
-    b.hora = new Date(`2000-01-01T${hora}:00`);
+    b.hora = (new Date(`2000-01-01T${hora}:00`)).toDateString();
     b.duracion = duracion;
     return b;
   }
