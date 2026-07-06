@@ -1,46 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EstudianteService } from './usuario.service';
-import { UsuarioEntity } from './usuario.entity';
-import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
-import { MatriculaEntity } from '../matricula/matricula.entity';
-import { CarreraEntity } from '../carrera/carrera.entity';
-import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatura.entity';
-import { OfertaEntity } from '../oferta/oferta.entity';
+import { EstudianteService } from '../../modules/usuario/usuario.service';
+import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
+import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
+import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
+import { CarreraEntity } from '../../modules/carrera/carrera.entity';
+import { CarreraTieneAsignaturaEntity } from '../../modules/carrera/carrera-tiene-asignatura.entity';
+import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
 import { administradorFixture } from '../../../test/fixtures/usuario.fixture';
 import { asignaturaFixture } from '../../../test/fixtures/asignatura.fixture';
 import { ofertaFixture } from '../../../test/fixtures/oferta.fixture';
-/**
- * 
- *   Fixtures
- *   Objetos estáticos reutilizables que representan entidades válidas del
- *   sistema. Permiten disponer de datos consistentes durante todas las
- *   pruebas sin repetir su creación.
- * 
- *   Mocks
- *   Implementaciones simuladas de repositorios, servicios y dependencias
- *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
- *   comportamiento de las llamadas y evitar el acceso a recursos reales.
- *
- *   beforeEach()
- *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
- *   pruebas antes de ejecutar cada caso, garantizando independencia entre
- *   los tests.
- *
- *   describe()
- *   Agrupa las pruebas correspondientes a un mismo método del servicio o
- *   controlador para mejorar la organización y legibilidad.
- *
- *   it()
- *   Define un escenario específico que valida un comportamiento esperado,
- *   incluyendo casos exitosos y manejo de excepciones.
- * 
- *   Testing: 
- *   npx jest src/modules/usuario/usuario.service.spec.ts
- */
+
 
 
 describe('UsuarioService', () => {
@@ -434,3 +407,30 @@ it('debería inscribir asignaturas del primer semestre', async () => {
 });
 });
 });
+
+/**
+ * 
+ *   Fixtures
+ *   Objetos estáticos reutilizables que representan entidades válidas del
+ *   sistema. Permiten disponer de datos consistentes durante todas las
+ *   pruebas sin repetir su creación.
+ * 
+ *   Mocks
+ *   Implementaciones simuladas de repositorios, servicios y dependencias
+ *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
+ *   comportamiento de las llamadas y evitar el acceso a recursos reales.
+ *
+ *   beforeEach()
+ *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
+ *   pruebas antes de ejecutar cada caso, garantizando independencia entre
+ *   los tests.
+ *
+ *   describe()
+ *   Agrupa las pruebas correspondientes a un mismo método del servicio o
+ *   controlador para mejorar la organización y legibilidad.
+ *
+ *   it()
+ *   Define un escenario específico que valida un comportamiento esperado,
+ *   incluyendo casos exitosos y manejo de excepciones.
+ * 
+ */
