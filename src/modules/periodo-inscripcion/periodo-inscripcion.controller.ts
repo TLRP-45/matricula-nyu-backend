@@ -8,9 +8,11 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -22,13 +24,18 @@ import { PeriodoInscripcionService } from './periodo-inscripcion.service';
 import { PeriodoInscripcionEntity } from './preiodo-inscripcion.entity';
 import { CreatePeriodoInscripcionDto } from './dto/create-periodo-inscripcion.dto';
 import { UpdatePeriodoInscripcionDto } from './dto/update-periodo-inscripcion.dto';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
 
 @ApiTags('Períodos de Inscripción')
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
 @Controller('periodos-inscripcion')
 export class PeriodoInscripcionController {
   constructor(
     private readonly periodoService: PeriodoInscripcionService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({
@@ -69,6 +76,7 @@ export class PeriodoInscripcionController {
   }
 
   @Post()
+  @Roles(RolUsuario.Admin)
   @ApiOperation({
     summary:
       'Crear un nuevo período de inscripción',
@@ -88,6 +96,7 @@ export class PeriodoInscripcionController {
   }
 
   @Put(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({
     summary:
       'Actualizar un período de inscripción',
@@ -117,6 +126,7 @@ export class PeriodoInscripcionController {
   }
 
   @Delete(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({
     summary:
       'Eliminar lógicamente un período de inscripción',
@@ -141,6 +151,7 @@ export class PeriodoInscripcionController {
   }
 
   @Patch(':id/restore')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({
     summary:
       'Restaurar un período eliminado',

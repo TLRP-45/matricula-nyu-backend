@@ -8,18 +8,25 @@ import {
   Param,
   Get,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { OfertaService } from './oferta.service';
 import { CreateOfertaDTO } from './dto/create-oferta.dto';
 import { UpdateOfertaDTO } from './dto/update-oferta.dto';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
 
 @ApiTags('Oferta')
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
 @Controller('oferta')
 export class OfertaController {
-  constructor(private readonly ofertaService: OfertaService) {}
+  constructor(private readonly ofertaService: OfertaService) { }
 
   @Post()
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Crear una nueva oferta' })
   crear(@Body() body: CreateOfertaDTO) {
     return this.ofertaService.crearOferta(body);
@@ -27,10 +34,10 @@ export class OfertaController {
 
   //@Patch(':id')
   //editar(
-    //@Param('id') id: number,
-    //@Body() body: UpdateOfertaDTO
+  //@Param('id') id: number,
+  //@Body() body: UpdateOfertaDTO
   //) {
-    //return this.ofertaService.editarOferta(Number(id), body);
+  //return this.ofertaService.editarOferta(Number(id), body);
   //}
 
   @Patch(':id/publicar')
@@ -55,6 +62,7 @@ export class OfertaController {
   }
 
   @Put(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Editar una oferta' })
   @ApiParam({ name: 'id', type: Number })
   editar(

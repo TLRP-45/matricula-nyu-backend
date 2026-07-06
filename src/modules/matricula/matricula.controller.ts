@@ -8,7 +8,8 @@ import {
   Put,
   ParseIntPipe,
   NotFoundException,
-  ForbiddenException
+  ForbiddenException,
+  UseGuards
 } from '@nestjs/common';
 import { MatriculaDTO } from './dto/matricula.dto';
 import { MatriculaUpdateDTO } from './dto/matricula-update.dto';
@@ -19,14 +20,21 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { MatriculaEntity } from './matricula.entity';
 import { EstadoOMatricula } from './matricula-estado.enum';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
+import { EstadoMatriculaDTO } from './dto/estado.dto';
 
 @ApiTags('Matrícula')
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
 @Controller('matricula')
 export class MatriculaController {
-  constructor(private matriculaService: MatriculaService) {}
+  constructor(private matriculaService: MatriculaService) { }
 
   @Get()
   @ApiOperation({ summary: 'Obtener todas las matrículas' })
@@ -51,6 +59,7 @@ export class MatriculaController {
   }
 
   @Post()
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Crear una nueva matrícula' })
   @ApiBody({ type: MatriculaDTO })
   @ApiResponse({
@@ -62,6 +71,7 @@ export class MatriculaController {
   }
 
   @Post('test')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'TEST Crear una nueva matrícula' })
   @ApiBody({ type: MatriculaDTO })
   @ApiResponse({
@@ -73,6 +83,7 @@ export class MatriculaController {
   }
 
   @Put(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Actualizar una matrícula existente' })
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: MatriculaUpdateDTO })
@@ -89,6 +100,7 @@ export class MatriculaController {
   }
 
   @Delete(':id')
+  @Roles(RolUsuario.Admin)
   @ApiOperation({ summary: 'Eliminar una matrícula por ID' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({
@@ -102,7 +114,7 @@ export class MatriculaController {
 
   @Post('estado')
   @ApiOperation({ summary: 'Obtener el estado de un estudiante con el RUT' })
-  @ApiBody({ type: String })
+  @ApiBody({ type: EstadoMatriculaDTO })
   @ApiResponse({
     status: 200,
     description: 'Matrícula y estudiante encontrados'
@@ -111,18 +123,22 @@ export class MatriculaController {
     status: 404,
     description: 'Estudiante no encontrado'
   })
-  async matriculaRut(@Body() rut: string): Promise<boolean> {
+  async matriculaRut(@Body() rut: EstadoMatriculaDTO): Promise<{ activa: boolean }> {
+    let estado: boolean;
     try {
-      const matricula: MatriculaEntity = await this.matriculaService.getMatriculaRut(rut);
-      return matricula.estado == EstadoOMatricula.ACTIVA;
+      const matricula: MatriculaEntity = await this.matriculaService.getMatriculaRut(rut.rut);
+      estado = matricula.estado == EstadoOMatricula.ACTIVA;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       } else if (error instanceof ForbiddenException) {
-        return false;
+        estado = false;
       } else {
         throw error;
       }
+    }
+    return {
+      activa: estado,
     }
   }
 }

@@ -1,12 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CarreraEntity } from './carrera.entity';
-import { Repository, Like, UpdateResult, In } from 'typeorm';
+import { Repository, Like, UpdateResult } from 'typeorm';
 import { CarreraCreateDTO } from './dto/carrera.dto';
 import { CarreraUpdateDTO } from './dto/carrera-update.dto';
-import { AsignaturaService } from '../asignatura/asignatura.service';
 import { MatriculaEntity } from '../matricula/matricula.entity';
-import { AsignaturaEntity } from '../asignatura/asignatura.entity';
 import { CarreraTieneAsignaturaEntity } from './carrera-tiene-asignatura.entity';
 
 @Injectable()
@@ -14,7 +12,6 @@ export class CarreraService {
     constructor(
     @InjectRepository(CarreraEntity)
     private readonly carreraRepository: Repository<CarreraEntity>,
-    private asignaturaService: AsignaturaService,
     @InjectRepository(MatriculaEntity)
     private readonly matriculaRepository: Repository<MatriculaEntity>,
     @InjectRepository(CarreraTieneAsignaturaEntity)

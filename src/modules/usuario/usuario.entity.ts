@@ -10,67 +10,70 @@ import { RolUsuario } from './rol-usuario.enum';
 @Check(`sexo IN ('M','F','O')`)
 
 export class UsuarioEntity {
-    @PrimaryGeneratedColumn({ unsigned: true })
-    ID_estudiante!: number;
+  @PrimaryGeneratedColumn({ unsigned: true })
+  ID_estudiante!: number;
 
-    @Column({ length: 100, nullable: false })
-    nombre!: string;
+  @Column({ nullable: false })
+  ID_externo!: string;
 
-    @Column({ length: 100, nullable: false })
-    apellido!: string;
+  @Column({ length: 100, nullable: false })
+  nombre!: string;
 
-    @Index({ unique: true })
-    @Column({ length: 150, nullable: false })
-    email!: string;
+  @Column({ length: 100, nullable: false })
+  apellido!: string;
 
-    @Column({ default: true })
-    activo!: boolean;
+  @Index({ unique: true })
+  @Column({ length: 150, nullable: false })
+  email!: string;
 
-    @CreateDateColumn({ type: 'timestamp' })
-    createdAt!: Date;
+  @Column({ default: true })
+  activo!: boolean;
 
-    @UpdateDateColumn({ type: 'timestamp' })
-    updatedAt!: Date;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt!: Date;
 
-    @OneToMany(
-        () => EstudianteTomaOfertaEntity,
-        (toma) => toma.estudiante,
-        { nullable: false }
-    )
-    toma!: EstudianteTomaOfertaEntity[];
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt!: Date;
 
-    @OneToMany(
-        () => MatriculaEntity,
-        (toma) => toma.estudiante,
-        { nullable: true }
-    )
-    matriculas!: MatriculaEntity[];
+  @OneToMany(
+    () => EstudianteTomaOfertaEntity,
+    (toma) => toma.estudiante,
+    { nullable: false }
+  )
+  toma!: EstudianteTomaOfertaEntity[];
 
-    @Index({ unique: true })
-    @Column({ length: 12, nullable: false })
-    rut!: string;
+  @OneToMany(
+    () => MatriculaEntity,
+    (toma) => toma.estudiante,
+    { nullable: true }
+  )
+  matriculas!: MatriculaEntity[];
 
-    @Column({ length: 100, nullable: false })
-    nacionalidad!: string;
+  @Index({ unique: true })
+  @Column({ length: 12, nullable: false })
+  rut!: string;
 
-    @Column({ type: 'enum', enum: ['M', 'F', 'O'], nullable: false })
-    sexo!: string;
+  @Column({ length: 100, nullable: false })
+  nacionalidad!: string;
 
-    @Column({ type: 'date', nullable: false })
-    nacimiento!: Date;
+  @Column({ type: 'enum', enum: ['M', 'F', 'O'], nullable: false })
+  sexo!: string;
 
-    @Column({ length: 150, nullable: false })
-    direccion!: string;
+  @Column({ type: 'date', nullable: false })
+  nacimiento!: Date;
 
-    @Column({ length: 20, nullable: false })
-    telefono!: string;
+  @Column({ length: 150, nullable: false })
+  direccion!: string;
 
-    @Column()
-    password!: string;
+  @Column({ length: 20, nullable: false })
+  telefono!: string;
 
-    @Column({
-        type: 'enum',
-        enum: RolUsuario
-    })
-    rol!: RolUsuario;
+  @Column()
+  password!: string;
+
+  @Column({
+    type: "enum",
+    enum: RolUsuario,
+  })
+  rol!: RolUsuario;
 }

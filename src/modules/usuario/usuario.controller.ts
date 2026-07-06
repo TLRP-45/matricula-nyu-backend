@@ -32,12 +32,24 @@ export class CambiarEstadoTomaDTO {
   estado!: EstadoToma;
 }
 
+@ApiBearerAuth()
+@UseGuards(RolesGuard)
+@Roles(RolUsuario.Admin)
 @ApiTags('Usuario')
 @Controller('usuario')
 export class UsuarioController {
   constructor(
-    private readonly estudianteService: EstudianteService,
-  ) {}
+    private readonly estudianteService: EstudianteService
+  ) { }
+
+  @Public()
+  @Post('registro')
+  @ApiOperation({ summary: 'Registrar un nuevo usuario' })
+  @ApiBody({ type: RegistroUsuarioDTO })
+  async registrar(@Body() usuario: RegistroUsuarioDTO) {
+    return this.estudianteService.registrar(usuario);
+  }
+
 
   @Patch('toma/:id/estado')
   @ApiOperation({

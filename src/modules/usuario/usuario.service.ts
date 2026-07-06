@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
@@ -12,9 +12,13 @@ import { CarreraTieneAsignaturaEntity } from '../carrera/carrera-tiene-asignatur
 import { OfertaEntity } from '../oferta/oferta.entity';
 import { RolUsuario } from './rol-usuario.enum';
 import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
+import { RegistroUsuarioDTO } from './dto/registro.dto';
+import { UsuarioExternoRespuesta } from '../auth/dto/respuesta-login.interface';
 
 @Injectable()
 export class EstudianteService {
+  usuarioUrl: string = 'https://natural-generosity-production-1a76.up.railway.app'
+
   constructor(
     @InjectRepository(EstudianteTomaOfertaEntity)
     private readonly TomaRepo: Repository<EstudianteTomaOfertaEntity>,
@@ -28,7 +32,6 @@ export class EstudianteService {
     private readonly CarreraAsignaturaRepo: Repository<CarreraTieneAsignaturaEntity>,
     @InjectRepository(OfertaEntity)
     private readonly OfertaRepo: Repository<OfertaEntity>,
-
   ) { }
 
   async buscarTomaPorAsignatura(ID_asignatura: number) {
@@ -58,11 +61,60 @@ export class EstudianteService {
     const horarios = ramos.flatMap(r => r.oferta?.horarios ?? []);
     return horarios;
   }
-  //REGISTRAR USUARIO CON LA MATRICULA DE INGRESO DE SU CARERRA
-  async registrar(dto: any) {
+
+  /**
+   * Realiza el registro en el sistema externo de usuarios.
+   *
+   * @param rut El RUT del usuario
+   * @param nombre El nombre del usuario
+   * @param apellido El apellido del usuario
+   * @param correo El correo electrónico del usuario
+   * @param contraseña La contraseña del usuario
+   * @returns El objeto usuario con UUID, nombre, apellido e email
+   */
+  private async registroExterno(rut: string, nombre: string, apellido: string, correo: string, contraseña: string):
+    Promise<UsuarioExternoRespuesta> {
+    let response: Response;
+    try {
+      response = await fetch(this.usuarioUrl + '/v1/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rut: rut,
+          firstName: nombre,
+          lastName: apellido,
+          email: correo,
+          password: contraseña
+        })
+      })
+    } catch (error) {
+      throw error;
+    }
+
+    // console.log(response)
+    const data = await response.json();
+    // console.log(data)
+    return {
+      uuid: data.id,
+      nombre: data.firstName,
+      apellido: data.lastName,
+      email: data.email,
+    };
+  }
+
+  /**
+   * Crea un usuario en el sistema local y externo.
+   *
+   * @param usuario El DTO de usuario con toda su información
+   * @returns Código 200, usuario creado exitosamente.
+   *
+   * @throws BadRequestException Si el correo o el rut ya están registrados
+   */
+  async registrar(usuario: RegistroUsuarioDTO) {
+
 
     const existenteEmail = await this.EstudianteRepo.findOne({
-      where: { email: dto.email }
+      where: { email: usuario.email }
     });
 
     if (existenteEmail) {
@@ -72,7 +124,7 @@ export class EstudianteService {
     }
 
     const existenteRut = await this.EstudianteRepo.findOne({
-      where: { rut: dto.rut }
+      where: { rut: usuario.rut }
     });
 
     if (existenteRut) {
@@ -83,17 +135,11 @@ export class EstudianteService {
 
 
     let carrera: CarreraEntity | null = null;
-    if (dto.rol === 1) {
-
-      if (!dto.ID_carrera) {
-        throw new BadRequestException(
-          'Debe seleccionar una carrera'
-        );
-      }
+    if (usuario.rol === 1) {
 
       carrera = await this.CarreraRepo.findOne({
         where: {
-          id_carrera: dto.ID_carrera
+          id_carrera: usuario.ID_carrera
         }
       });
 
@@ -104,26 +150,47 @@ export class EstudianteService {
       }
     }
 
+    // Registro en sistema externo
+    let usuarioExterno: UsuarioExternoRespuesta;
+
+    try {
+      usuarioExterno = await this.registroExterno(
+        usuario.rut,
+        usuario.nombre,
+        usuario.apellido,
+        usuario.email,
+        usuario.password,
+      )
+    } catch (error: any) {
+      if (error instanceof ConflictException) {
+        throw new ForbiddenException('Email ya existe. Esto no debería pasar nunca... :(')
+      } else {
+        throw error;
+      }
+    }
+
+    // console.log(usuarioExterno);
+
     const estudiante = this.EstudianteRepo.create({
-      nombre: dto.nombre,
-      apellido: dto.apellido,
-      email: dto.email,
-      rut: dto.rut,
-      nacionalidad: dto.nacionalidad,
-      sexo: dto.sexo,
-      nacimiento: dto.nacimiento,
-      direccion: dto.direccion,
-      telefono: dto.telefono,
-      password: dto.password,
+      ID_externo: usuarioExterno.uuid,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      email: usuario.email,
+      rut: usuario.rut,
+      nacionalidad: usuario.nacionalidad,
+      sexo: usuario.sexo,
+      nacimiento: usuario.nacimiento,
+      direccion: usuario.direccion,
+      telefono: usuario.telefono,
+      password: usuario.password,
     });
 
-    estudiante.rol = dto.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin;
-
+    estudiante.rol = usuario.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin;
 
     const estudianteGuardado =
       await this.EstudianteRepo.save(estudiante);
 
-    if (dto.rol === 0) {
+    if (usuario.rol === 0) {
       return {
         mensaje: 'Administrador registrado correctamente',
         estudiante: estudianteGuardado

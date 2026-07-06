@@ -1,9 +1,8 @@
-import { ForbiddenException, HttpException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { MatriculaEntity } from './matricula.entity';
 import { CarreraEntity } from '../carrera/carrera.entity';
-import { PlazoMatricula } from '../plazo-matricula/plazo-matricula.entity';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
 import { MatriculaDTO } from './dto/matricula.dto';
@@ -20,8 +19,6 @@ export class MatriculaService {
         private readonly MatriculaRepo: Repository<MatriculaEntity>,
         @InjectRepository(CarreraEntity)
         private readonly carreraRepository: Repository<CarreraEntity>,
-        @InjectRepository(PlazoMatricula)
-        private readonly plazoRepository: Repository<PlazoMatricula>,
         private carreraService: CarreraService,
         private plazoService: PlazoMatriculaService,
         @InjectRepository(UsuarioEntity)

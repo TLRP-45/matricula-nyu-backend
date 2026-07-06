@@ -19,7 +19,7 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Iniciar sesión y obtener token' })
   login(@Body() loginDTO: LoginDTO) {
-    return this.authService.login(loginDTO.rut, loginDTO.password);
+    return this.authService.login(loginDTO.correo, loginDTO.password);
   }
 
   @Public()

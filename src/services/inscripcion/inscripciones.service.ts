@@ -5,10 +5,8 @@ import { MoreThan } from 'typeorm';
 
 import { UsuarioEntity } from '../../modules/usuario/usuario.entity';
 import { OfertaEntity } from '../../modules/oferta/oferta.entity';
-import { PeriodoInscripcionEntity } from '../../modules/periodo-inscripcion/preiodo-inscripcion.entity';
 import { EstudianteTomaOfertaEntity } from '../../modules/usuario/estudiante-toma-oferta.entity';
 import { NotFoundException } from '@nestjs/common';
-import { AsignaturaEntity } from '../../modules/asignatura/asignatura.entity';
 import { MatriculaEntity } from '../../modules/matricula/matricula.entity';
 import { OfertaService } from '../../modules/oferta/oferta.service';
 import { AsignaturaService } from '../../modules/asignatura/asignatura.service';
@@ -26,14 +24,8 @@ export class InscripcionesService {
     @InjectRepository(OfertaEntity)
     private readonly ofertaRepo: Repository<OfertaEntity>,
 
-    @InjectRepository(PeriodoInscripcionEntity)
-    private readonly PeriodoRepo: Repository<PeriodoInscripcionEntity>,
-
     @InjectRepository(EstudianteTomaOfertaEntity)
     private readonly TomaRepo: Repository<EstudianteTomaOfertaEntity>,
-
-    @InjectRepository(AsignaturaEntity)
-    private AsignaturaRepo: Repository<AsignaturaEntity>,
 
     @InjectRepository(MatriculaEntity)
     private MatriculaRepo: Repository<MatriculaEntity>,
@@ -124,10 +116,10 @@ export class InscripcionesService {
 
 
     // Validación de Prerrequisitos
-    if ( await !this.AsignaturaService.cumpleTodosLosPrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
+    if ( !this.AsignaturaService.cumpleTodosLosPrerrequisitos(estudianteId, oferta.asignatura.ID_asignatura))throw new BadRequestException('No cumple con los prerrequisitos suficientes');
 
     //  Validación de cupos
-    if ( await !this.OfertaService.cuposDisponibles(ofertaId))throw new BadRequestException('No hay cupos disponibles');
+    if ( !this.OfertaService.cuposDisponibles(ofertaId))throw new BadRequestException('No hay cupos disponibles');
 
     //  Validar choque de horario
     const horarios = await this.EstudianteService.horarioPorEstudiante(estudianteId);
