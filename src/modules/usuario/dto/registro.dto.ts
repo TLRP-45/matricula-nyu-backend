@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsIn, IsNotEmpty, IsNumber, IsString, Length } from "class-validator";
+import { IsEmail, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
 
 export class RegistroUsuarioDTO {
 
@@ -9,8 +9,8 @@ export class RegistroUsuarioDTO {
     example: 1,
   })
   @Type(() => Number)
+  @IsOptional()
   @IsNumber()
-  @IsNotEmpty()
   ID_carrera!: number;
 
   @ApiProperty({

@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstudianteTomaOfertaEntity } from './estudiante-toma-oferta.entity';
@@ -14,6 +14,7 @@ import { RolUsuario } from './rol-usuario.enum';
 import { EstadoOMatricula } from '../matricula/matricula-estado.enum';
 import { RegistroUsuarioDTO } from './dto/registro.dto';
 import { UsuarioExternoRespuesta } from '../auth/dto/respuesta-login.interface';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class EstudianteService {
@@ -74,26 +75,25 @@ export class EstudianteService {
    */
   private async registroExterno(rut: string, nombre: string, apellido: string, correo: string, contraseña: string):
     Promise<UsuarioExternoRespuesta> {
-    let response: Response;
-    try {
-      response = await fetch(this.usuarioUrl + '/v1/users/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rut: rut,
-          firstName: nombre,
-          lastName: apellido,
-          email: correo,
-          password: contraseña
-        })
+    const response = await fetch(this.usuarioUrl + '/v1/users/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rut: rut,
+        firstName: nombre,
+        lastName: apellido,
+        email: correo,
+        password: contraseña
       })
-    } catch (error) {
-      throw error;
+    })
+
+    const data = await response.json();
+    console.log(data)
+
+    if (data.error) {
+      throw new UnauthorizedException(data.message);
     }
 
-    // console.log(response)
-    const data = await response.json();
-    // console.log(data)
     return {
       uuid: data.id,
       nombre: data.firstName,
@@ -111,7 +111,6 @@ export class EstudianteService {
    * @throws BadRequestException Si el correo o el rut ya están registrados
    */
   async registrar(usuario: RegistroUsuarioDTO) {
-
 
     const existenteEmail = await this.EstudianteRepo.findOne({
       where: { email: usuario.email }
@@ -133,9 +132,14 @@ export class EstudianteService {
       );
     }
 
-
     let carrera: CarreraEntity | null = null;
-    if (usuario.rol === 1) {
+    if (usuario.rol === RolUsuario.Estudiante) {
+
+      if (!usuario.ID_carrera) {
+        throw new BadRequestException(
+          'Debe seleccionar una carrera'
+        );
+      }
 
       carrera = await this.CarreraRepo.findOne({
         where: {
@@ -150,6 +154,10 @@ export class EstudianteService {
       }
     }
 
+    // Hashing
+    const salt = await bcrypt.genSalt();
+    const hashPass = await bcrypt.hash(usuario.password, salt);
+
     // Registro en sistema externo
     let usuarioExterno: UsuarioExternoRespuesta;
 
@@ -159,7 +167,7 @@ export class EstudianteService {
         usuario.nombre,
         usuario.apellido,
         usuario.email,
-        usuario.password,
+        hashPass,
       )
     } catch (error: any) {
       if (error instanceof ConflictException) {
@@ -173,7 +181,7 @@ export class EstudianteService {
 
     const estudiante = this.EstudianteRepo.create({
       ID_externo: usuarioExterno.uuid,
-      // ID_externo: '123123123',
+      // ID_externo: '9742812e-b127-43ba-85b2-6eca1ff9e810',
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
@@ -183,15 +191,16 @@ export class EstudianteService {
       nacimiento: usuario.nacimiento,
       direccion: usuario.direccion,
       telefono: usuario.telefono,
-      password: usuario.password,
+      password: hashPass,
+      rol: usuario.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin,
     });
 
-    estudiante.rol = usuario.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin;
+    // estudiante.rol = usuario.rol === 1 ? RolUsuario.Estudiante : RolUsuario.Admin;
 
     const estudianteGuardado =
       await this.EstudianteRepo.save(estudiante);
 
-    if (usuario.rol === 0) {
+    if (usuario.rol === RolUsuario.Admin) {
       return {
         mensaje: 'Administrador registrado correctamente',
         estudiante: estudianteGuardado

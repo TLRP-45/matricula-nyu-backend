@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioEntity } from '../usuario/usuario.entity';
 import { Repository } from 'typeorm';
 import { UsuarioExternoRespuesta } from './dto/respuesta-login.interface';
+import { RolUsuario } from '../usuario/rol-usuario.enum';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -34,41 +36,53 @@ export class AuthService {
    */
   async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
 
-    // Login externo
-    let respuesta: Response;
-    try {
-      respuesta = await fetch(this.loginUrl + '/v1/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: correo,
-          password: pass,
-        })
-      })
-    } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw new UnauthorizedException('Credenciales inválidas');
-      } else {
-        throw error;
-      }
-    }
-
-    const usuarioExterno: UsuarioExternoRespuesta = await respuesta.json();
-
+    // Trae contraseña guardada
     let user: UsuarioEntity;
     try {
       user = await this.estudianteRepository.findOneByOrFail({
-        ID_externo: usuarioExterno.uuid
+        email: correo
       })
     } catch (error: any) {
       throw new NotFoundException('Usuario no encontrado')
     }
 
+    const hashPass = user.password;
+    const checkPass = await bcrypt.compare(pass, hashPass);
+    if (!checkPass) {
+      throw new ForbiddenException('Contraseña inválida');
+    }
+
+    // Login externo
+    const respuesta = await fetch(this.loginUrl + '/v1/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: correo,
+        password: hashPass,
+      })
+    })
+
+    const usuarioExterno = await respuesta.json();
+
+    if (usuarioExterno.error) {
+      throw new UnauthorizedException(usuarioExterno.message);
+    }
+
+    // Revisa si tienen el mismo UUID
+    if (!(usuarioExterno.uuid === user.ID_externo)) {
+      throw new ConflictException('Sistema externo y local no sincronizados')
+    }
+
     const payload = {
       sub: user.ID_estudiante,
-      rut: user.rut,
+      correo: user.email,
       rol: user.rol,
     }
+
+    // console.log(payload);
+    // console.log(user);
+    // console.log(user.rol === RolUsuario.Admin)
+    // console.log(user.rol === RolUsuario.Estudiante)
 
     return {
       token: await this.jwtService.signAsync(
@@ -133,17 +147,4 @@ export class AuthService {
   //   const data = await respuesta.json();
   //   return data.access_token;
   // }
-
-  /**
-   * Registra la información del usuario y crea su cuenta.
-   *
-   * @remarks
-   * La existencia de la cuenta se revisa primero localmente y luego con el
-   * sistema de usuarios, manejado por Ravenclaw.
-   *
-   * @param
-   * @param
-   * @returns
-   */
-  async registro() { }
 }

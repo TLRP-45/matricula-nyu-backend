@@ -25,6 +25,12 @@ export class MatriculaService {
         private readonly estudianteRepository: Repository<UsuarioEntity>,
     ){}
 
+    /**
+     * Entrega la matrícula más reciente del estudiante.
+     *
+     * @param estudianteId El ID del estudiante
+     * @returns La matrícula más reciente
+     */
     async ultimaMatricula(estudianteId: number) {
         return this.MatriculaRepo
             .createQueryBuilder('matricula')
@@ -34,11 +40,24 @@ export class MatriculaService {
             .getOne();
     }
 
+    /**
+     * Entrega un arreglo con todas las matrículas registradas.
+     *
+     * @returns Arreglo de matrículas
+     */
     public async getAllMatriculas(): Promise<MatriculaEntity[]> {
         const result = await this.MatriculaRepo.find();
         return result;
       }
 
+    /**
+     * Entrega una matrícula dada su ID.
+     *
+     * @param id El ID de la matrícula
+     * @returs La matrícula
+     *
+     * @throws NotFoundException Si la matrícula no existe
+     */
     public async getMatricula(id: number): Promise<MatriculaEntity> {
         try {
             const result = await this.MatriculaRepo.findOneByOrFail({ ID_matricula: id });
@@ -50,10 +69,15 @@ export class MatriculaService {
     }
 
     /**
+     * Crea y guarda una matrícula en la base de datos.
      *
-     * @param matricula
-     * @returns
-     * @description
+     * @param matricula El DTO de matrícula con todos sus datos
+     * @returns El objeto matrícula creado
+     *
+     * @throws NotFoundException Si no existe plazo de inscripción de matrícula
+     * @throws UnauthorizedException Si se está fuera de plazo para la inscripción
+     * @throws BadRequestException Si no hay cupos suficientes
+     * @throws NotFoundException Si el estudiante no existe
      */
     public async create(matricula: MatriculaDTO): Promise<MatriculaEntity> {
         // mover la lógica de matricular para acá nomas
@@ -104,6 +128,15 @@ export class MatriculaService {
         return savedMatricula;
     }
 
+    /**
+     * Actualiza los datos de una matrícula.
+     *
+     * @param id El ID de la matrícula a modificar
+     * @param matricula El objeto matrícula con la información nueva
+     * @returns La matrícula actualizada
+     *
+     * @throws NotFoundException Si la matrícula no existe
+     */
     public async update(id: number, matricula: MatriculaUpdateDTO): Promise<UpdateResult> {
         const result: UpdateResult = await this.MatriculaRepo.update(id, matricula);
 
