@@ -13,9 +13,34 @@ import { BadRequestException } from '@nestjs/common';
 import { administradorFixture } from '../../../test/fixtures/usuario.fixture';
 import { asignaturaFixture } from '../../../test/fixtures/asignatura.fixture';
 import { ofertaFixture } from '../../../test/fixtures/oferta.fixture';
-import { estudianteFixture } from '../../../test/fixtures/usuario.fixture';
-import { carreraInformaticaFixture } from '../../../test/fixtures/carrera.fixture';
-import { matriculaActivaFixture } from '../../../test/fixtures/matricula.fixture';
+/**
+ * 
+ *   Fixtures
+ *   Objetos estáticos reutilizables que representan entidades válidas del
+ *   sistema. Permiten disponer de datos consistentes durante todas las
+ *   pruebas sin repetir su creación.
+ * 
+ *   Mocks
+ *   Implementaciones simuladas de repositorios, servicios y dependencias
+ *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
+ *   comportamiento de las llamadas y evitar el acceso a recursos reales.
+ *
+ *   beforeEach()
+ *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
+ *   pruebas antes de ejecutar cada caso, garantizando independencia entre
+ *   los tests.
+ *
+ *   describe()
+ *   Agrupa las pruebas correspondientes a un mismo método del servicio o
+ *   controlador para mejorar la organización y legibilidad.
+ *
+ *   it()
+ *   Define un escenario específico que valida un comportamiento esperado,
+ *   incluyendo casos exitosos y manejo de excepciones.
+ * 
+ *   Testing: 
+ *   npx jest src/modules/usuario/usuario.service.spec.ts
+ */
 
 
 describe('UsuarioService', () => {
