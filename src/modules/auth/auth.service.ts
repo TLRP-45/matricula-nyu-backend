@@ -34,7 +34,13 @@ export class AuthService {
    * @throws UnauthorizedException
    * Excepción si la contraseña es incorrecta
    */
-  async login(correo: string, pass: string): Promise<{ token: string, user: any }> {
+  async login(rut: string, pass: string): Promise<{ token: string, user: any }> {
+
+    const usuariobd = await this.estudianteRepository.findOneBy({
+      rut: rut
+    })
+
+    const correo = usuariobd?.email;
 
     // Trae contraseña guardada
     let user: UsuarioEntity;
