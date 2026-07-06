@@ -10,10 +10,9 @@ import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { NotFoundException } from '@nestjs/common';
 import { InternalServerErrorException } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
-import { administradorFixture } from '../../../test/fixtures/usuario.fixture';
-import { asignaturaFixture } from '../../../test/fixtures/asignatura.fixture';
-import { ofertaFixture } from '../../../test/fixtures/oferta.fixture';
-
+import { administradorFixture } from '../fixtures/usuario.fixture';
+import { asignaturaFixture } from '../fixtures/asignatura.fixture';
+import { ofertaFixture } from '../fixtures/oferta.fixture';
 
 
 describe('UsuarioService', () => {

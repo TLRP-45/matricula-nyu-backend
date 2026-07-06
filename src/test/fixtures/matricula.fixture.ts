@@ -1,16 +1,7 @@
-import { EstadoOMatricula } from "../../src/modules/matricula/matricula-estado.enum";
+import { EstadoOMatricula } from "../../modules/matricula/matricula-estado.enum";
 import { estudianteFixture } from "./usuario.fixture";
 import { carreraInformaticaFixture } from "./carrera.fixture"
 
-/**
- * Fixtures del módulo
- * 
- * Simular registros existentes en la base de datos.
- * 
- * Cuando un caso de prueba requiera un escenario diferente, se recomienda
- * crear una copia mediante el operador spread (...) y sobrescribir únicamente
- * las propiedades necesarias.
- */
 
 export const matriculaActivaFixture = {
 

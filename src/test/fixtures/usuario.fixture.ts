@@ -1,14 +1,4 @@
-
-/**
- * Fixtures del módulo
- * 
- * Simular registros existentes en la base de datos.
- * 
- * Cuando un caso de prueba requiera un escenario diferente, se recomienda
- * crear una copia mediante el operador spread (...) y sobrescribir únicamente
- * las propiedades necesarias.
- */
-import { RolUsuario } from "../../src/modules/usuario/rol-usuario.enum";
+import { RolUsuario } from "../../modules/usuario/rol-usuario.enum";
 
 export const administradorFixture = {
     ID_estudiante: 1,

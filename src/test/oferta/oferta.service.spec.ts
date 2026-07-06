@@ -1,38 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OfertaService } from './oferta.service';
+import { OfertaService } from '../../modules/oferta/oferta.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { OfertaEntity } from './oferta.entity';
+import { OfertaEntity } from '../../modules/oferta/oferta.entity';
 import { BadRequestException,NotFoundException,} from '@nestjs/common';
-import { ofertaFixture } from '../../../test/fixtures/oferta.fixture';
-
-/**
- * 
- *   Fixtures
- *   Objetos estáticos reutilizables que representan entidades válidas del
- *   sistema. Permiten disponer de datos consistentes durante todas las
- *   pruebas sin repetir su creación.
- * 
- *   Mocks
- *   Implementaciones simuladas de repositorios, servicios y dependencias
- *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
- *   comportamiento de las llamadas y evitar el acceso a recursos reales.
- *
- *   beforeEach()
- *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
- *   pruebas antes de ejecutar cada caso, garantizando independencia entre
- *   los tests.
- *
- *   describe()
- *   Agrupa las pruebas correspondientes a un mismo método del servicio o
- *   controlador para mejorar la organización y legibilidad.
- *
- *   it()
- *   Define un escenario específico que valida un comportamiento esperado,
- *   incluyendo casos exitosos y manejo de excepciones.
- * 
- * Testing: 
- *   npx jest src/modules/oferta/oferta.service.spec.ts
- */
+import { ofertaFixture } from '../fixtures/oferta.fixture';
+import { BloqueHorarioEntity } from '../../modules/bloque-horario/bloque-horario.entity';
 
 describe('OfertaService', () => {
 
@@ -41,34 +13,36 @@ describe('OfertaService', () => {
 
     beforeEach(async () => {
 
-        mockOfertaRepo = {
+    mockOfertaRepo = {
+        create: jest.fn(),
+        save: jest.fn(),
+        findOne: jest.fn(),
+        find: jest.fn(),
+    };
 
-            create: jest.fn(),
-            save: jest.fn(),
-            findOne: jest.fn(),
-            find: jest.fn(),
+    const mockBloqueHorarioRepo = {
+        create: jest.fn(),
+        save: jest.fn(),
+        find: jest.fn(),
+        remove: jest.fn(),
+    };
 
-        };
+    const module: TestingModule = await Test.createTestingModule({
+        providers: [
+            OfertaService,
+            {
+                provide: getRepositoryToken(OfertaEntity),
+                useValue: mockOfertaRepo,
+            },
+            {
+                provide: getRepositoryToken(BloqueHorarioEntity),
+                useValue: mockBloqueHorarioRepo,
+            },
+        ],
+    }).compile();
 
-        const module: TestingModule =
-            await Test.createTestingModule({
-
-                providers: [
-
-                    OfertaService,
-
-                    {
-                        provide: getRepositoryToken(OfertaEntity),
-                        useValue: mockOfertaRepo,
-                    },
-
-                ],
-
-            }).compile();
-
-        service = module.get<OfertaService>(OfertaService);
-
-    });
+    service = module.get<OfertaService>(OfertaService);
+});
 
     it('debería estar definido', () => {
 
@@ -97,6 +71,7 @@ describe('OfertaService', () => {
                 horarios: [
 
                     {
+                        dia: 'Lunes',
                         hora: '2026-07-01T08:00:00',
                         duracion: 90,
                         lugar: 'Sala 101',
@@ -120,7 +95,6 @@ describe('OfertaService', () => {
             expect(resultado).toEqual(
 
                 expect.objectContaining({
-
                     grupo: 'A',
                     cupos: 30,
                     hrs_semanales: 4,

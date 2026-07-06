@@ -1,36 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OfertaController } from './oferta.controller';
-import { OfertaService } from './oferta.service';
-import { CreateOfertaDTO } from './dto/create-oferta.dto';
+import { OfertaController } from '../../modules/oferta/oferta.controller';
+import { OfertaService } from '../../modules/oferta/oferta.service';
+import { CreateOfertaDTO } from '../../modules/oferta/dto/create-oferta.dto';
 
-/**
- * 
- *   Fixtures
- *   Objetos estáticos reutilizables que representan entidades válidas del
- *   sistema. Permiten disponer de datos consistentes durante todas las
- *   pruebas sin repetir su creación.
- * 
- *   Mocks
- *   Implementaciones simuladas de repositorios, servicios y dependencias
- *   externas mediante Jest (`jest.fn()`), utilizadas para controlar el
- *   comportamiento de las llamadas y evitar el acceso a recursos reales.
- *
- *   beforeEach()
- *   Reinicializa todos los mocks y crea una nueva instancia del módulo de
- *   pruebas antes de ejecutar cada caso, garantizando independencia entre
- *   los tests.
- *
- *   describe()
- *   Agrupa las pruebas correspondientes a un mismo método del servicio o
- *   controlador para mejorar la organización y legibilidad.
- *
- *   it()
- *   Define un escenario específico que valida un comportamiento esperado,
- *   incluyendo casos exitosos y manejo de excepciones.
- * 
- * Testing: 
- *   npx jest src/modules/oferta/oferta.controller.spec.ts
- */
 
 describe('OfertaController', () => {
 
